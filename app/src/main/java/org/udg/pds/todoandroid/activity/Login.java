@@ -29,7 +29,7 @@ public class Login extends Activity implements View.OnClickListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Cargamos layout del formulario de inicio de sesión
+        // Cargamos layout del formulario de inicio de sesión.
         setContentView(R.layout.login);
         // Inicializamos el servicio de APIRest de retrofit
         InitRetrofit retrofit = new InitRetrofit();
