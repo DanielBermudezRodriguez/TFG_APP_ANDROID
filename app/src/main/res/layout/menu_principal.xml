@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="15dp">
+
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <Button
+        android:id="@+id/boton_inicio_sesion"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="15dp"
+        android:layout_weight="1"
+        android:drawableLeft="@mipmap/ic_launcher"
+        android:text="@string/boton_iniciar_sesion" />
+    <Button
+        android:id="@+id/boton_crear_cuenta"
+        android:layout_width="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="1"
+        android:layout_height="0dp"
+        android:layout_margin="15dp"
+        android:text="@string/boton_crear_cuenta"
+        android:drawableLeft="@mipmap/ic_launcher"/>
+    <Button
+        android:id="@+id/boton_salir"
+        android:layout_width="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="1"
+        android:layout_height="0dp"
+        android:layout_margin="15dp"
+        android:text="@string/boton_salir"
+        android:drawableLeft="@mipmap/ic_launcher"/>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>

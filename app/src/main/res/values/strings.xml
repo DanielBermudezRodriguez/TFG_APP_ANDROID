@@ -1,0 +1,19 @@
+<resources>
+
+  // Nombre Aplicación
+  <string name="app_name">YourSport</string>
+
+  // String menú principal
+  <string name="boton_iniciar_sesion">Iniciar sesión</string>
+  <string name="boton_crear_cuenta">Crear cuenta</string>
+  <string name="boton_salir">Salir</string>
+
+  // String menú de inicio de sesión
+  <string name="texto_login_cabecera">Cuenta de YourSport</string>
+  <string name="texto_oculto_mail">Email</string>
+  <string name="texto_oculto_password">Contraseña</string>
+  <string name="boton_enviar_inicio_sesion">Iniciar</string>
+  <string name="mail_vacio_validacion">El email está vacio</string>
+  <string name="password_vacio_validacion">La contraseña está vacia</string>
+
+</resources>
