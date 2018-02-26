@@ -22,8 +22,10 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
         // Miramos si el usuario está logeado
         if (UsuarioActual.getInstance().getId() != -1L){
-            Intent intentMain = new Intent(this, Login.class);
-            startActivity(intentMain);
+            //Intent intentMain = new Intent(this, MainActivity.class);
+            // Eliminamos de la pila la actividad Main
+            //finish();
+            //startActivity(intentMain);
         }
 
         // Cargamos layout del menú principal
@@ -49,24 +51,13 @@ public class MainActivity extends Activity implements View.OnClickListener{
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.boton_inicio_sesion:
-
-                Intent intLogin = new Intent(this, org.udg.pds.todoandroid.activity.Login.class);
+                Intent intLogin = new Intent(this, Login.class);
                 startActivity(intLogin);
                 break;
-
             case R.id.boton_crear_cuenta:
-
-                /*email = String.valueOf(entradaMail.getText());
-                password = String.valueOf(entradaContrasenya.getText());
-
-                if (!email.equals("") && !password.equals("")) {
-                    peticioIniciSessio();
-                }
-                else {
-                    Toast.makeText(this, "Omple els camps Nickname i Password", Toast.LENGTH_SHORT).show();
-                    entradaMail.setText("");
-                    entradaContrasenya.setText("");
-                }*/
+                Intent intRegistro = new Intent(this, Registro.class);
+                startActivity(intRegistro);
+                break;
             case R.id.boton_salir:
                 finish();
                 break;

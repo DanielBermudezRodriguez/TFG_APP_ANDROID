@@ -16,4 +16,23 @@
   <string name="mail_vacio_validacion">El email está vacio</string>
   <string name="password_vacio_validacion">La contraseña está vacia</string>
 
+
+  // String formulario registro
+  <string name="boton_crear_cuenta_nueva">Crear cuenta</string>
+  <string name="texto_registro_usuario_nuevo">Crear cuenta en YourSport</string>
+  <string name="texto_registro_nombre_nuevo">Nombre</string>
+  <string name="texto_registro_apellidos_nuevo">Apellidos</string>
+  <string name="texto_registro_telefono_nuevo">Teléfono</string>
+  <string name="texto_registro_nick_nuevo">Nombre de usuario</string>
+  <string name="texto_registro_password">Contraseña</string>
+  <string name="texto_registro_password_repetir">Repetir contraseña</string>
+  <string name="texto_registro_email_nuevo">Email</string>
+  <string name="nombre_registro_validacion">El nombre está vacio</string>
+  <string name="apellidos_registro_validacion">El campo apellidos está vacio</string>
+  <string name="telefono_registro_validacion">El campo teléfono está vacio</string>
+  <string name="nick_registro_validacion">El nombre de usuario está vacio</string>
+  <string name="email_registro_validacion">El campo email está vacio</string>
+  <string name="password_registro_validacion">El campo contraseña está vacio</string>
+  <string name="password_diferentes_registro_validacion">Las contraseñas són incorrectas</string>
+
 </resources>

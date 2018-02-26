@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="15dp">
+
+    <TextView
+        android:id="@+id/texto_registro_usuario"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text="@string/texto_registro_usuario_nuevo"
+        android:gravity="center_horizontal"
+        android:textStyle="bold"
+        android:layout_gravity="center_horizontal"/>
+
+
+    <EditText
+        android:id="@+id/texto_registro_nombre"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:ems="10"
+        android:hint="@string/texto_registro_nombre_nuevo"
+        android:textStyle="italic"
+        android:layout_gravity="center_horizontal"
+        android:inputType="textEmailAddress" />
+    <EditText
+        android:id="@+id/texto_registro_apellidos"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:ems="10"
+        android:hint="@string/texto_registro_apellidos_nuevo"
+        android:textStyle="italic"
+        android:layout_gravity="center_horizontal"
+        android:inputType="textEmailAddress" />
+    <EditText
+        android:id="@+id/texto_registro_telefono"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:ems="10"
+        android:hint="@string/texto_registro_telefono_nuevo"
+        android:textStyle="italic"
+        android:layout_gravity="center_horizontal"
+        android:inputType="textEmailAddress" />
+    <EditText
+        android:id="@+id/texto_registro_nick"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:ems="10"
+        android:hint="@string/texto_registro_nick_nuevo"
+        android:textStyle="italic"
+        android:layout_gravity="center_horizontal"
+        android:inputType="textEmailAddress" />
+    <EditText
+        android:id="@+id/texto_registro_email"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:ems="10"
+        android:hint="@string/texto_registro_email_nuevo"
+        android:textStyle="italic"
+        android:layout_gravity="center_horizontal"
+        android:inputType="textEmailAddress" />
+    <EditText
+        android:id="@+id/texto_registro_password_1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:ems="10"
+        android:textStyle="italic"
+        android:hint="@string/texto_registro_password"
+        android:layout_gravity="center_horizontal"
+        android:inputType="textPassword" />
+
+    <EditText
+        android:id="@+id/texto_registro_password_2"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:ems="10"
+        android:textStyle="italic"
+        android:hint="@string/texto_registro_password_repetir"
+        android:layout_gravity="center_horizontal"
+        android:inputType="textPassword" />
+
+
+    <Button
+        android:id="@+id/boton_crear_cuenta"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center_horizontal"
+        android:text="@string/boton_crear_cuenta_nueva"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="40dp"/>
+
+</LinearLayout>
