@@ -61,10 +61,10 @@ public class Login extends Activity implements View.OnClickListener {
                                 UsuarioActual.getInstance().setMail(dadesResposta.getEmail());
                                 UsuarioActual.getInstance().setUsername(dadesResposta.getUsername());
 
-                                Intent intMain = new Intent(getApplicationContext(), MainActivity.class);
+                                Intent principal = new Intent(getApplicationContext(), Principal.class);
                                 // Eliminamos de la pila la actividad de Login
                                 finish();
-                                startActivity(intMain);
+                                startActivity(principal);
 
                             } else {
                                 try {

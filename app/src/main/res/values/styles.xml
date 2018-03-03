@@ -1,8 +1,5 @@
 <resources>
-
-  <!-- Base application theme. -->
-  <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
-    <!-- Customize your theme here. -->
+  <style name="AppTheme" parent="android:Theme.DeviceDefault.Light.DarkActionBar">
+    <item name="android:windowBackground">@color/color_fondo</item>
   </style>
-
 </resources>

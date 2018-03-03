@@ -1,38 +1,47 @@
 <resources>
 
-  // Nombre Aplicación
-  <string name="app_name">YourSport</string>
+    // Nombre Aplicación
+    <string name="app_name">YourSport</string>
 
-  // String menú principal
-  <string name="boton_iniciar_sesion">Iniciar sesión</string>
-  <string name="boton_crear_cuenta">Crear cuenta</string>
-  <string name="boton_salir">Salir</string>
+    // String menú principal
+    <string name="boton_iniciar_sesion">Iniciar sesión</string>
+    <string name="boton_crear_cuenta">Crear cuenta</string>
+    <string name="boton_salir">Salir</string>
 
-  // String menú de inicio de sesión
-  <string name="texto_login_cabecera">Cuenta de YourSport</string>
-  <string name="texto_oculto_mail">Email</string>
-  <string name="texto_oculto_password">Contraseña</string>
-  <string name="boton_enviar_inicio_sesion">Iniciar</string>
-  <string name="mail_vacio_validacion">El email está vacio</string>
-  <string name="password_vacio_validacion">La contraseña está vacia</string>
+    // String menú de inicio de sesión
+    <string name="texto_login_cabecera">Cuenta de YourSport</string>
+    <string name="texto_oculto_mail">Email</string>
+    <string name="texto_oculto_password">Contraseña</string>
+    <string name="boton_enviar_inicio_sesion">Iniciar</string>
+    <string name="mail_vacio_validacion">El email está vacio</string>
+    <string name="password_vacio_validacion">La contraseña está vacia</string>
 
 
-  // String formulario registro
-  <string name="boton_crear_cuenta_nueva">Crear cuenta</string>
-  <string name="texto_registro_usuario_nuevo">Crear cuenta en YourSport</string>
-  <string name="texto_registro_nombre_nuevo">Nombre</string>
-  <string name="texto_registro_apellidos_nuevo">Apellidos</string>
-  <string name="texto_registro_telefono_nuevo">Teléfono</string>
-  <string name="texto_registro_nick_nuevo">Nombre de usuario</string>
-  <string name="texto_registro_password">Contraseña</string>
-  <string name="texto_registro_password_repetir">Repetir contraseña</string>
-  <string name="texto_registro_email_nuevo">Email</string>
-  <string name="nombre_registro_validacion">El nombre está vacio</string>
-  <string name="apellidos_registro_validacion">El campo apellidos está vacio</string>
-  <string name="telefono_registro_validacion">El campo teléfono está vacio</string>
-  <string name="nick_registro_validacion">El nombre de usuario está vacio</string>
-  <string name="email_registro_validacion">El campo email está vacio</string>
-  <string name="password_registro_validacion">El campo contraseña está vacio</string>
-  <string name="password_diferentes_registro_validacion">Las contraseñas són incorrectas</string>
+    // String formulario registro
+    <string name="boton_crear_cuenta_nueva">Crear cuenta</string>
+    <string name="texto_registro_usuario_nuevo">Crear cuenta en YourSport</string>
+    <string name="texto_registro_nombre_nuevo">Nombre</string>
+    <string name="texto_registro_apellidos_nuevo">Apellidos</string>
+    <string name="texto_registro_telefono_nuevo">Teléfono</string>
+    <string name="texto_registro_nick_nuevo">Nombre de usuario</string>
+    <string name="texto_registro_password">Contraseña</string>
+    <string name="texto_registro_password_repetir">Repetir contraseña</string>
+    <string name="texto_registro_email_nuevo">Email</string>
+    <string name="nombre_registro_validacion">El nombre está vacio</string>
+    <string name="apellidos_registro_validacion">El campo apellidos está vacio</string>
+    <string name="telefono_registro_validacion">El campo teléfono está vacio</string>
+    <string name="nick_registro_validacion">El nombre de usuario está vacio</string>
+    <string name="email_registro_validacion">El campo email está vacio</string>
+    <string name="password_registro_validacion">El campo contraseña está vacio</string>
+    <string name="password_diferentes_registro_validacion">Las contraseñas són incorrectas</string>
+
+   // Menú lateral
+    <string name="title_section1">Perfil</string>
+    <string name="title_section2">Modificar perfil</string>
+    <string name="title_section3">Cerrar sesión</string>
+    <string name="navigation_drawer_open">Abrir menú lateral</string>
+    <string name="navigation_drawer_close">Cerrar menú lateral</string>
+    <string name="action_example">Example action</string>
+    <string name="action_settings">Settings</string>
 
 </resources>

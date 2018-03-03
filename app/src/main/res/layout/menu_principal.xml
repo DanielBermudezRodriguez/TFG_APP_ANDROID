@@ -13,31 +13,40 @@
 
     <Button
         android:id="@+id/boton_inicio_sesion"
+        style="@android:style/Widget.DeviceDefault.Button.Toggle"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_gravity="center_horizontal"
         android:layout_margin="15dp"
         android:layout_weight="1"
-        android:drawableLeft="@mipmap/ic_launcher"
-        android:text="@string/boton_iniciar_sesion" />
+        android:elevation="0dp"
+        android:fontFamily="monospace"
+        android:text="@string/boton_iniciar_sesion"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.DialogWindowTitle" />
+
     <Button
         android:id="@+id/boton_crear_cuenta"
+        style="@android:style/Widget.DeviceDefault.Button.Toggle"
         android:layout_width="match_parent"
-        android:layout_gravity="center_horizontal"
-        android:layout_weight="1"
         android:layout_height="0dp"
+        android:layout_gravity="center_horizontal"
         android:layout_margin="15dp"
+        android:layout_weight="1"
+        android:fontFamily="monospace"
         android:text="@string/boton_crear_cuenta"
-        android:drawableLeft="@mipmap/ic_launcher"/>
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.DialogWindowTitle" />
+
     <Button
         android:id="@+id/boton_salir"
+        style="@android:style/Widget.DeviceDefault.Button.Toggle"
         android:layout_width="match_parent"
-        android:layout_gravity="center_horizontal"
-        android:layout_weight="1"
         android:layout_height="0dp"
+        android:layout_gravity="center_horizontal"
         android:layout_margin="15dp"
+        android:layout_weight="1"
+        android:fontFamily="monospace"
         android:text="@string/boton_salir"
-        android:drawableLeft="@mipmap/ic_launcher"/>
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.DialogWindowTitle" />
 
     <Space
         android:layout_width="match_parent"

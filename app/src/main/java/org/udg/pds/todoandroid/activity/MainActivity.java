@@ -22,10 +22,10 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
         // Miramos si el usuario está logeado
         if (UsuarioActual.getInstance().getId() != -1L){
-            //Intent intentMain = new Intent(this, MainActivity.class);
+            Intent principal = new Intent(this, Principal.class);
             // Eliminamos de la pila la actividad Main
-            //finish();
-            //startActivity(intentMain);
+            finish();
+            startActivity(principal);
         }
 
         // Cargamos layout del menú principal
