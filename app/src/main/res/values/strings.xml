@@ -43,5 +43,8 @@
     <string name="navigation_drawer_close">Cerrar menú lateral</string>
     <string name="action_example">Example action</string>
     <string name="action_settings">Settings</string>
+    // Menú lateral header
+    <string name="nick_header_menu">Username</string>
+    <string name="email_header_menu">Email@email.com</string>
 
 </resources>

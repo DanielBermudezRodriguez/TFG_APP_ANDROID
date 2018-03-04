@@ -15,24 +15,24 @@ import java.util.List;
 
 public class NavigationDrawerAdapter extends BaseAdapter {
 
-    private List<String> sectionsList;
+    private List<String> seccionesMenuLateral;
     private boolean locked = false;
     private Context mContext = null;
 
     public NavigationDrawerAdapter(Context context) {
         this.mContext = context;
-        String[] sections = {"Perfil", "Modificar perfil", "Cerrar sesión"};
-        sectionsList = Arrays.asList(sections);
+        String[] secciones = {"Perfil", "Modificar perfil", "Cerrar sesión"};
+        seccionesMenuLateral = Arrays.asList(secciones);
     }
 
     @Override
     public int getCount() {
-        return sectionsList.size();
+        return seccionesMenuLateral.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return sectionsList.get(position);
+        return seccionesMenuLateral.get(position);
     }
 
     @Override
@@ -44,11 +44,11 @@ public class NavigationDrawerAdapter extends BaseAdapter {
         switch (position) {
             default:
             case 0:
-                return R.drawable.ic_drawer;
-            case 2:
-                return R.mipmap.ic_launcher;
+                return android.R.drawable.ic_menu_myplaces;
             case 1:
-                return R.drawable.drawer_shadow;
+                return android.R.drawable.ic_menu_edit;
+            case 2:
+                return android.R.drawable.ic_notification_clear_all;
         }
     }
 
@@ -61,10 +61,10 @@ public class NavigationDrawerAdapter extends BaseAdapter {
             drawerHolder.titleTextView = (TextView) convertView.findViewById(R.id.title_text_view);
             drawerHolder.drawer_image = (ImageView) convertView.findViewById(R.id.drawer_image);
             drawerHolder.layout = (RelativeLayout) convertView.findViewById(R.id.drawer_relative);
-            ((DrawerView) convertView).setTag(drawerHolder, sectionsList.get(position), getSectionIcon(position));
+            ((DrawerView) convertView).setTag(drawerHolder, seccionesMenuLateral.get(position), getSectionIcon(position));
         } else {
             drawerHolder = (DrawerHolder) convertView.getTag();
-            ((DrawerView) convertView).setTag(drawerHolder, sectionsList.get(position), getSectionIcon(position));
+            ((DrawerView) convertView).setTag(drawerHolder, seccionesMenuLateral.get(position), getSectionIcon(position));
         }
         if (position == 0) {
             ((DrawerView) convertView).setChecked(true);

@@ -60,23 +60,16 @@ public class Principal extends Activity implements MenuLateralFragment.Navigatio
         actionBar.setTitle(mTitle);
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
+
+    // Fragmento de marcador de posición
     public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
+        // Número de la posición de la sección del menú lateral
         private static final String ARG_SECTION_NUMBER = "section_number";
 
         public PlaceholderFragment() {
         }
 
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
+        // Devuelve una nueva instancia del Fragment para el número de sección del menú
         public static PlaceholderFragment newInstance(int sectionNumber) {
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
@@ -86,8 +79,7 @@ public class Principal extends Activity implements MenuLateralFragment.Navigatio
         }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_principal, container, false);
             return rootView;
         }

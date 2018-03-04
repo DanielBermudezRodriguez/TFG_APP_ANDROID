@@ -7,3 +7,4 @@
     android:divider="@android:color/transparent"
     android:dividerHeight="0dp"
     tools:context="org.udg.pds.todoandroid.fragment.MenuLateralFragment" />
+

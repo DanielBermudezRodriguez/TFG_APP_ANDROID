@@ -1,9 +1,9 @@
 package org.udg.pds.todoandroid.fragment;
 
-
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -18,11 +18,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 import org.udg.pds.todoandroid.R;
+import org.udg.pds.todoandroid.activity.Principal;
 import org.udg.pds.todoandroid.adapter.NavigationDrawerAdapter;
+import org.udg.pds.todoandroid.entity.UsuarioActual;
 
 
 // Fragment que controla los comportamientos, interacciones y vista del menú lateral
@@ -153,7 +157,7 @@ public class MenuLateralFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        // Indicar sieste fragmento influye en el conjunto de acciones en la barra de acciones.
+        // Indicar si este fragmento influye en el conjunto de acciones en la barra de acciones.
         setHasOptionsMenu(true);
     }
 
@@ -168,16 +172,20 @@ public class MenuLateralFragment extends Fragment {
             }
         });
         mNavigationDrawerAdapter = mNavigationDrawerAdapter == null ? new NavigationDrawerAdapter(getActivity()) : mNavigationDrawerAdapter;
+
+        View myHeader = inflater.inflate(R.layout.cabecera_menu_lateral, container, false);
+        // Obtenemos información del usuario actual logeado
+        if (UsuarioActual.getInstance().getId() != -1L){
+            TextView username = (TextView) myHeader.findViewById(R.id.username_menu_lateral);
+            TextView email = (TextView) myHeader.findViewById(R.id.email_menu_lateral);
+            username.setText(UsuarioActual.getInstance().getUsername());
+            email.setText(UsuarioActual.getInstance().getMail());
+        }
+
+        listView.addHeaderView(myHeader);
+
+
         listView.setAdapter(mNavigationDrawerAdapter);
-       /* listView.setAdapter(new ArrayAdapter<String>(
-                getActionBar().getThemedContext(),
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
-                new String[]{
-                        getString(R.string.title_section1),
-                        getString(R.string.title_section2),
-                        getString(R.string.title_section3),
-                }));*/
         listView.setItemChecked(posicionActual, true);
         return listView;
     }
@@ -212,14 +220,13 @@ public class MenuLateralFragment extends Fragment {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        // Forward the new configuration the drawer toggle component.
+        // Adelante la nueva configuración del componente de alternar del cajón.
         iconoMenuLateral.onConfigurationChanged(newConfig);
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // If the drawer is open, show the global app actions in the action bar. See also
-        // showGlobalContextActionBar, which controls the top-left area of the action bar.
+        // If the drawer is open, show the global app actions in the action bar. See also showGlobalContextActionBar, which controls the top-left area of the action bar.
         if (menuLateral != null && isDrawerOpen()) {
             inflater.inflate(R.menu.global, menu);
             showGlobalContextActionBar();
