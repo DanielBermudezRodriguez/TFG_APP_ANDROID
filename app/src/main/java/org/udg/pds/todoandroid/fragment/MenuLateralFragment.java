@@ -3,7 +3,6 @@ package org.udg.pds.todoandroid.fragment;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -18,13 +17,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import org.udg.pds.todoandroid.R;
-import org.udg.pds.todoandroid.activity.Principal;
 import org.udg.pds.todoandroid.adapter.NavigationDrawerAdapter;
 import org.udg.pds.todoandroid.entity.UsuarioActual;
 
@@ -176,15 +172,12 @@ public class MenuLateralFragment extends Fragment {
         View myHeader = inflater.inflate(R.layout.cabecera_menu_lateral, container, false);
         // Obtenemos información del usuario actual logeado
         if (UsuarioActual.getInstance().getId() != -1L){
-            TextView username = (TextView) myHeader.findViewById(R.id.username_menu_lateral);
-            TextView email = (TextView) myHeader.findViewById(R.id.email_menu_lateral);
+            TextView username = myHeader.findViewById(R.id.username_menu_lateral);
+            TextView email = myHeader.findViewById(R.id.email_menu_lateral);
             username.setText(UsuarioActual.getInstance().getUsername());
             email.setText(UsuarioActual.getInstance().getMail());
         }
-
         listView.addHeaderView(myHeader);
-
-
         listView.setAdapter(mNavigationDrawerAdapter);
         listView.setItemChecked(posicionActual, true);
         return listView;

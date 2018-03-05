@@ -4,12 +4,14 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import org.udg.pds.todoandroid.R;
+import org.udg.pds.todoandroid.entity.UsuarioActual;
 import org.udg.pds.todoandroid.fragment.MenuLateralFragment;
 
 public class Principal extends Activity implements MenuLateralFragment.NavigationDrawerCallbacks {
@@ -22,6 +24,15 @@ public class Principal extends Activity implements MenuLateralFragment.Navigatio
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Miramos si el usuario está logeado
+        if (UsuarioActual.getInstance().getId() == -1L){
+            Intent main = new Intent(this, MainActivity.class);
+            // Si no está logeado eliminamos de la pila la actividad Principal
+            main.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(main);
+        }
+
         setContentView(R.layout.activity_principal);
 
         mNavigationDrawerFragment = (MenuLateralFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -33,10 +44,22 @@ public class Principal extends Activity implements MenuLateralFragment.Navigatio
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         // Actualizar el contenido principal mediante la substitución de fragmentos
-        FragmentManager fragmentManager = getFragmentManager();
+        System.out.println("Posición actual: "+ position);
+        if (position == 0){
+            FragmentManager fragmentManager = getFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
+                    .commit();
+        }
+        if (position == 1){
+            Intent perfilUsuario = new Intent(getApplicationContext(), PerfilUsuario.class);
+            startActivity(perfilUsuario);
+        }
+
+       /* FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
-                .commit();
+                .commit();*/
     }
 
     public void onSectionAttached(int number) {

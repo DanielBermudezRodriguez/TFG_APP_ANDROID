@@ -62,8 +62,8 @@ public class Login extends Activity implements View.OnClickListener {
                                 UsuarioActual.getInstance().setUsername(dadesResposta.getUsername());
 
                                 Intent principal = new Intent(getApplicationContext(), Principal.class);
-                                // Eliminamos de la pila la actividad de Login
-                                finish();
+                                // Eliminamos de la pila todas las actividades
+                                principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                 startActivity(principal);
 
                             } else {
