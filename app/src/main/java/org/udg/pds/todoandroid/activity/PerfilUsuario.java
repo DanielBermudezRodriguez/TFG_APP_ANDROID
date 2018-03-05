@@ -30,5 +30,15 @@ public class PerfilUsuario extends Activity {
         email.setText("hola");
         nick.setText("adios");
 
+        // Mostrar botón "atras" en action bar
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+
+    }
+
+    // Función que define comportamiento del botón "Atras"
+    @Override
+    public boolean onNavigateUp(){
+        finish();
+        return true;
     }
 }

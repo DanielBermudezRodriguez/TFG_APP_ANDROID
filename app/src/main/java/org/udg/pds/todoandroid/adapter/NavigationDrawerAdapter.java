@@ -58,9 +58,9 @@ public class NavigationDrawerAdapter extends BaseAdapter {
         if(convertView == null) {
             drawerHolder = new DrawerHolder();
             convertView = new DrawerView(mContext);
-            drawerHolder.titleTextView = (TextView) convertView.findViewById(R.id.title_text_view);
-            drawerHolder.drawer_image = (ImageView) convertView.findViewById(R.id.drawer_image);
-            drawerHolder.layout = (RelativeLayout) convertView.findViewById(R.id.drawer_relative);
+            drawerHolder.titleTextView = convertView.findViewById(R.id.title_text_view);
+            drawerHolder.drawer_image = convertView.findViewById(R.id.drawer_image);
+            drawerHolder.layout = convertView.findViewById(R.id.drawer_relative);
             ((DrawerView) convertView).setTag(drawerHolder, seccionesMenuLateral.get(position), getSectionIcon(position));
         } else {
             drawerHolder = (DrawerHolder) convertView.getTag();

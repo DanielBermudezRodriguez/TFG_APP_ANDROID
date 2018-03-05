@@ -38,6 +38,8 @@ public class Login extends Activity implements View.OnClickListener {
         Button botonLogin = (Button) findViewById(R.id.boton_iniciar_sesion);
         // Listener cuando el usuario pulse el botón de Login
         botonLogin.setOnClickListener(this);
+        // Mostrar botón "atras" en action bar
+        getActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
@@ -98,6 +100,13 @@ public class Login extends Activity implements View.OnClickListener {
             esCorrecto = false;
         }
         return esCorrecto;
+    }
+
+    // Función que define comportamiento del botón "Atras"
+    @Override
+    public boolean onNavigateUp(){
+        finish();
+        return true;
     }
 
 }

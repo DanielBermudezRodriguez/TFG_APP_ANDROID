@@ -39,6 +39,8 @@ public class Registro extends Activity  implements View.OnClickListener {
         InitRetrofit retrofit = new InitRetrofit();
         retrofit.init();
         apiRest = retrofit.getApiRest();
+        // Mostrar botón "atras" en action bar
+        getActionBar().setDisplayHomeAsUpEnabled(true);
         Button botonLogin = (Button) findViewById(R.id.boton_crear_cuenta);
         // Listener cuando el usuario pulse el botón de Login
         botonLogin.setOnClickListener(this);
@@ -146,5 +148,12 @@ public class Registro extends Activity  implements View.OnClickListener {
         }
         return esCorrecto;
 
+    }
+
+    // Función que define comportamiento del botón "Atras"
+    @Override
+    public boolean onNavigateUp(){
+        finish();
+        return true;
     }
 }

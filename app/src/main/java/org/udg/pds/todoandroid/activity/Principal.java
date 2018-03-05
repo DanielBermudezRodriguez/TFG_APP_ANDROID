@@ -43,7 +43,7 @@ public class Principal extends Activity implements MenuLateralFragment.Navigatio
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
-        // Actualizar el contenido principal mediante la substitución de fragmentos
+        // Actualizar el contenido principal mediante la substitución de fragmentos o actividades segun la posición del menú lateral escojida
         System.out.println("Posición actual: "+ position);
         if (position == 0){
             FragmentManager fragmentManager = getFragmentManager();
@@ -55,11 +55,6 @@ public class Principal extends Activity implements MenuLateralFragment.Navigatio
             Intent perfilUsuario = new Intent(getApplicationContext(), PerfilUsuario.class);
             startActivity(perfilUsuario);
         }
-
-       /* FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
-                .commit();*/
     }
 
     public void onSectionAttached(int number) {
