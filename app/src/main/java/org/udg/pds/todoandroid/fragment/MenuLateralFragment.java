@@ -10,6 +10,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -79,10 +80,11 @@ public class MenuLateralFragment extends Fragment {
         // Establecer una sombra personalizada que se superpone al contenido principal cuando se abre el cajón
         menuLateral.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 
-        // Preparar ActionBar
-        ActionBar actionBar = getActionBar();
+        // Ponemos el toolbar
+        android.support.v7.app.ActionBar actionBar = getToolBar();
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_drawer);
         actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeButtonEnabled(true);
+
 
         // ActionBarDrawerToggle vincula las interacciones adecuadas entre el cajón de navegación y el icono de la aplicación de la barra de acciones.
         iconoMenuLateral = new ActionBarDrawerToggle(
@@ -246,14 +248,12 @@ public class MenuLateralFragment extends Fragment {
      * 'context', rather than just what's in the current screen.
      */
     private void showGlobalContextActionBar() {
-        ActionBar actionBar = getActionBar();
+        android.support.v7.app.ActionBar actionBar = getToolBar();
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setTitle(R.string.app_name);
     }
 
-    private ActionBar getActionBar() {
-        return getActivity().getActionBar();
-    }
+    private android.support.v7.app.ActionBar getToolBar(){ return ((AppCompatActivity) getActivity()).getSupportActionBar();}
 
 }

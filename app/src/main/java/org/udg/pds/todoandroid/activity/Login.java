@@ -3,6 +3,8 @@ package org.udg.pds.todoandroid.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -20,7 +22,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class Login extends Activity implements View.OnClickListener {
+public class Login extends AppCompatActivity implements View.OnClickListener {
 
     // Interficie de llamadas a la APIRest gestionada por Retrofit
     private ApiRest apiRest;
@@ -31,6 +33,9 @@ public class Login extends Activity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         // Cargamos layout del formulario de inicio de sesión.
         setContentView(R.layout.login);
+        // Ponemos el toolbar
+        Toolbar toolbar = findViewById(R.id.appbar);
+        setSupportActionBar(toolbar);
         // Inicializamos el servicio de APIRest de retrofit
         InitRetrofit retrofit = new InitRetrofit();
         retrofit.init();
@@ -39,7 +44,9 @@ public class Login extends Activity implements View.OnClickListener {
         // Listener cuando el usuario pulse el botón de Login
         botonLogin.setOnClickListener(this);
         // Mostrar botón "atras" en action bar
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        //getActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
     @Override
@@ -104,9 +111,9 @@ public class Login extends Activity implements View.OnClickListener {
 
     // Función que define comportamiento del botón "Atras"
     @Override
-    public boolean onNavigateUp(){
-        finish();
-        return true;
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return false;
     }
 
 }

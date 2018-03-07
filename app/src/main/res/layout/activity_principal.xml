@@ -6,11 +6,20 @@
     android:layout_height="match_parent"
     tools:context="org.udg.pds.todoandroid.activity.Principal">
 
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <include android:id="@+id/appbar"
+            layout="@layout/toolbar" />
+
     <!-- Como la vista de contenido principal, la vista a continuación consume todo el espacio disponible utilizando match_parent en ambas dimensiones. -->
     <FrameLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+    </LinearLayout>
 
     <!-- El cajón tiene un ancho fijo en dp y se extiende a la altura completa del contenedor. -->
     <fragment

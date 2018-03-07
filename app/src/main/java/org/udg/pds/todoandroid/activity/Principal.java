@@ -7,6 +7,8 @@ import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +16,7 @@ import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.entity.UsuarioActual;
 import org.udg.pds.todoandroid.fragment.MenuLateralFragment;
 
-public class Principal extends Activity implements MenuLateralFragment.NavigationDrawerCallbacks {
+public class Principal extends AppCompatActivity implements MenuLateralFragment.NavigationDrawerCallbacks {
 
     // Fragment que controla los comportamientos, interacciones y vista del menú lateral
     private MenuLateralFragment mNavigationDrawerFragment;
@@ -32,9 +34,12 @@ public class Principal extends Activity implements MenuLateralFragment.Navigatio
             main.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(main);
         }
-
         setContentView(R.layout.activity_principal);
-
+        // Ponemos el toolbar
+        Toolbar toolbar = findViewById(R.id.appbar);
+        setSupportActionBar(toolbar);
+        /*getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);*/
         mNavigationDrawerFragment = (MenuLateralFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
         // Preparar el menú lateral
