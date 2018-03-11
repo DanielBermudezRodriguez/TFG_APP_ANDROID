@@ -12,9 +12,10 @@
     <TextView
         android:id="@+id/texto_login_cabecera"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_weight="1"
+        android:layout_marginTop="50dp"
+        android:layout_marginBottom="20dp"
         android:fontFamily="monospace"
         android:gravity="center_horizontal"
         android:text="@string/texto_login_cabecera"
@@ -22,19 +23,16 @@
         android:textAppearance="@android:style/TextAppearance.DeviceDefault.SearchResult.Title"
         android:textColor="@android:color/black" />
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+
 
     <EditText
         android:id="@+id/texto_login_mail"
         style="@android:style/ButtonBar"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_margin="1dp"
-        android:layout_weight="1"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
         android:background="@android:color/background_light"
         android:ems="10"
         android:hint="@string/texto_oculto_mail"
@@ -47,10 +45,11 @@
         android:id="@+id/texto_login_password"
         style="@android:style/ButtonBar"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_margin="1dp"
-        android:layout_weight="1"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
         android:background="@android:color/background_light"
         android:ems="10"
         android:fontFamily="monospace"
@@ -58,29 +57,8 @@
         android:inputType="textPassword"
         android:textStyle="italic" />
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
 
-    <Button
-        android:id="@+id/boton_iniciar_sesion"
-        style="@android:style/Widget.DeviceDefault.Button.Toggle"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_margin="40dp"
-        android:layout_weight="1"
-        android:fontFamily="monospace"
-        android:gravity="center_horizontal"
-        android:text="@string/boton_enviar_inicio_sesion"
-        android:textAppearance="@android:style/TextAppearance.DeviceDefault.DialogWindowTitle"
-        android:visibility="visible" />
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2" />
 
 
 </LinearLayout>

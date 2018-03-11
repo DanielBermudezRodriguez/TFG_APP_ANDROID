@@ -47,4 +47,14 @@
     <string name="nick_header_menu">Username</string>
     <string name="email_header_menu">Email@email.com</string>
 
+    // Toolbar Perfil usuario
+    <string name="toolbar_editar_perfil">Editar</string>
+
+
+    // Toolbar iniciar sesión
+    <string name="toolbar_iniciar_sesion">Iniciar</string>
+
+    // Toolbar crear cuenta
+    <string name="toolbar_crear_cuenta">Registrar</string>
+
 </resources>
