@@ -1,14 +1,21 @@
 package org.udg.pds.todoandroid.service;
 
 
+import org.udg.pds.todoandroid.entity.Municipio;
+import org.udg.pds.todoandroid.entity.Pais;
+import org.udg.pds.todoandroid.entity.Provincia;
 import org.udg.pds.todoandroid.entity.UsuarioLoginPeticion;
 import org.udg.pds.todoandroid.entity.UsuarioLoginRespuesta;
 import org.udg.pds.todoandroid.entity.UsuarioRegistroPeticion;
 import org.udg.pds.todoandroid.entity.UsuarioRegistroRespuesta;
 
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
 
 public interface ApiRest {
 
@@ -17,4 +24,13 @@ public interface ApiRest {
 
     @POST("usuarios/registro")
     Call<UsuarioRegistroRespuesta> registrar(@Body UsuarioRegistroPeticion datosRegistro);
+
+    @GET("paises")
+    Call<List<Pais>> paises();
+
+    @GET("provincias/{idPais}")
+    Call<List<Provincia>> provincias(@Path("idPais") Long idPais);
+
+    @GET("municipios/{idProvincia}")
+    Call<List<Municipio>> municipios(@Path("idProvincia") Long idProvincia);
 }

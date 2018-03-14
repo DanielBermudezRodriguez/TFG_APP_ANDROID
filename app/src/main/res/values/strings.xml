@@ -19,7 +19,8 @@
 
     // String formulario registro
     <string name="boton_crear_cuenta_nueva">Crear cuenta</string>
-    <string name="texto_registro_usuario_nuevo">Crear cuenta en YourSport</string>
+    <string name="texto_registro_usuario_nuevo">Datos personales</string>
+    <string name="texto_registro_usuario_nuevo_ubicacion">Ubicación</string>
     <string name="texto_registro_nombre_nuevo">Nombre</string>
     <string name="texto_registro_apellidos_nuevo">Apellidos</string>
     <string name="texto_registro_telefono_nuevo">Teléfono</string>
@@ -34,6 +35,9 @@
     <string name="email_registro_validacion">El campo email está vacio</string>
     <string name="password_registro_validacion">El campo contraseña está vacio</string>
     <string name="password_diferentes_registro_validacion">Las contraseñas són incorrectas</string>
+    <string name="registrar_usuario_pais">País: </string>
+    <string name="registrar_usuario_provincia">Provincia: </string>
+    <string name="registrar_usuario_municipio">Municipio: </string>
 
    // Menú lateral
     <string name="title_section1">Perfil</string>
@@ -56,5 +60,6 @@
 
     // Toolbar crear cuenta
     <string name="toolbar_crear_cuenta">Registrar</string>
+
 
 </resources>
