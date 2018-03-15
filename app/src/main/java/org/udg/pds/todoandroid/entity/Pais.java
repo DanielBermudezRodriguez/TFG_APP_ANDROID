@@ -1,8 +1,6 @@
 package org.udg.pds.todoandroid.entity;
 
 
-import org.udg.pds.todoandroid.service.ApiRest;
-
 public class Pais {
 
     private Long id;

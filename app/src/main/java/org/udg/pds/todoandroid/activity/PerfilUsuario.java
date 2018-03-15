@@ -1,13 +1,10 @@
 package org.udg.pds.todoandroid.activity;
 
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.AppCompatDialogFragment;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
-import android.widget.Button;
 import android.widget.TextView;
 
 import org.udg.pds.todoandroid.R;
@@ -28,9 +25,7 @@ public class PerfilUsuario extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.appbar);
         setSupportActionBar(toolbar);
         // Inicializamos el servicio de APIRest de retrofit
-        InitRetrofit retrofit = new InitRetrofit();
-        retrofit.init();
-        apiRest = retrofit.getApiRest();
+        apiRest = InitRetrofit.getInstance().getApiRest();
 
         TextView email = (TextView) findViewById(R.id.perfil_usuario_email);
         TextView nick = (TextView) findViewById(R.id.perfil_usuario_nick);

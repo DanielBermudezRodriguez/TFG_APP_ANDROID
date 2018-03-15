@@ -1,13 +1,10 @@
 package org.udg.pds.todoandroid.util;
 
 
-import android.app.Application;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import org.udg.pds.todoandroid.service.ApiRest;
-
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -15,34 +12,49 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class InitRetrofit {
 
+
     private ApiRest apiRest;
 
-    // Inicialización del objeto Retrofit
-    public void init() {
+    private static InitRetrofit retrofit = null;
 
-        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+    // Inicialización del objeto Retrofit (Patrón Singleton)
+    private InitRetrofit() {
 
-        OkHttpClient httpClient = new OkHttpClient.Builder()
-                .addInterceptor(interceptor)
-                .build();
+        if (retrofit == null){
+            HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+            interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
-        Gson gson = new GsonBuilder()
-                .setLenient()
-                .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
-                .create();
+            OkHttpClient httpClient = new OkHttpClient.Builder()
+                    .addInterceptor(interceptor)
+                    .build();
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .client(httpClient)
-                .baseUrl(Global.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build();
+            Gson gson = new GsonBuilder()
+                    .setLenient()
+                    .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+                    .create();
 
-        apiRest = retrofit.create(ApiRest.class);
+            Retrofit retrofit = new Retrofit.Builder()
+                    .client(httpClient)
+                    .baseUrl(Global.BASE_URL)
+                    .addConverterFactory(GsonConverterFactory.create(gson))
+                    .build();
+            apiRest = retrofit.create(ApiRest.class);
+        }
+    }
+
+    public static InitRetrofit getInstance() {
+        if (retrofit == null) {
+            retrofit = new InitRetrofit();
+        }
+        return retrofit;
     }
 
     public ApiRest getApiRest(){
         return apiRest;
     }
-
 }
+
+
+
+
+

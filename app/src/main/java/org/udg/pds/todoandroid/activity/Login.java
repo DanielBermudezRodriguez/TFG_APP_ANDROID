@@ -1,6 +1,5 @@
 package org.udg.pds.todoandroid.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -9,8 +8,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import org.json.JSONObject;
@@ -20,6 +17,7 @@ import org.udg.pds.todoandroid.entity.UsuarioLoginPeticion;
 import org.udg.pds.todoandroid.entity.UsuarioLoginRespuesta;
 import org.udg.pds.todoandroid.service.ApiRest;
 import org.udg.pds.todoandroid.util.InitRetrofit;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -39,9 +37,7 @@ public class Login extends AppCompatActivity  {
         Toolbar toolbar = findViewById(R.id.appbar);
         setSupportActionBar(toolbar);
         // Inicializamos el servicio de APIRest de retrofit
-        InitRetrofit retrofit = new InitRetrofit();
-        retrofit.init();
-        apiRest = retrofit.getApiRest();
+        apiRest = InitRetrofit.getInstance().getApiRest();
         //Button botonLogin = (Button) findViewById(R.id.boton_iniciar_sesion);
         // Listener cuando el usuario pulse el botón de Login
         //botonLogin.setOnClickListener(this);

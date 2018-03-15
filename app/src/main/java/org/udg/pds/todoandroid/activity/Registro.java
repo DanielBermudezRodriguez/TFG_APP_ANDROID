@@ -1,7 +1,6 @@
 package org.udg.pds.todoandroid.activity;
 
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -10,8 +9,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,17 +19,13 @@ import org.udg.pds.todoandroid.entity.Municipio;
 import org.udg.pds.todoandroid.entity.Pais;
 import org.udg.pds.todoandroid.entity.Provincia;
 import org.udg.pds.todoandroid.entity.UsuarioActual;
-import org.udg.pds.todoandroid.entity.UsuarioLoginPeticion;
-import org.udg.pds.todoandroid.entity.UsuarioLoginRespuesta;
 import org.udg.pds.todoandroid.entity.UsuarioRegistroPeticion;
 import org.udg.pds.todoandroid.entity.UsuarioRegistroRespuesta;
 import org.udg.pds.todoandroid.service.ApiRest;
 import org.udg.pds.todoandroid.util.InitRetrofit;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -63,9 +56,7 @@ public class Registro extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.appbar);
         setSupportActionBar(toolbar);
         // Inicializamos el servicio de APIRest de retrofit
-        InitRetrofit retrofit = new InitRetrofit();
-        retrofit.init();
-        apiRest = retrofit.getApiRest();
+        apiRest = InitRetrofit.getInstance().getApiRest();
         // Mostrar botón "atras" en action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -118,7 +109,7 @@ public class Registro extends AppCompatActivity {
                 if (response.raw().code()!=500 && response.isSuccessful()) {
                     municipios = response.body();
                     // Municipio por defecto Gerona
-                    municipioActual = municipios.get(16);
+                    municipioActual = municipios.get(0);
                     municipio = findViewById(R.id.texto_registro_municipio);
                     municipio.setText("Municipio: "+ municipioActual.getMunicipio());
                 } else {
