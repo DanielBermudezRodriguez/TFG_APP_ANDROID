@@ -8,6 +8,8 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -25,6 +27,8 @@ import org.udg.pds.todoandroid.fragment.MenuLateralFragment;
 import org.udg.pds.todoandroid.util.Global;
 import org.udg.pds.todoandroid.util.Localizacion;
 
+import java.util.List;
+import java.util.Locale;
 
 
 public class Principal extends AppCompatActivity implements MenuLateralFragment.NavigationDrawerCallbacks {
@@ -100,10 +104,27 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
     public void setLocation(Location loc) {
     //Obtener la direccion de la calle a partir de la latitud y la longitud
         if (loc != null && loc.getLatitude() != 0.0 && loc.getLongitude() != 0.0) {
-            System.out.println("latitud: "+loc.getLatitude());
-            System.out.println("Longitud: "+loc.getLongitude());
+            try {
+                Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+                List<Address> list = geocoder.getFromLocation(
+                        loc.getLatitude(), loc.getLongitude(), 1);
+                if (!list.isEmpty()) {
+                    Address DirCalle = list.get(0);
+                    System.out.println("Direccion : "+DirCalle.getAddressLine(0));
+                    System.out.println("Pais : "+DirCalle.getCountryName());
+                    System.out.println("Comunidad autónoma : "+DirCalle.getAdminArea());
+                    System.out.println("Provincia : "+DirCalle.getSubAdminArea());
+                    System.out.println("Municipio : "+DirCalle.getLocality());
+                    System.out.println("Latitud : "+DirCalle.getLatitude());
+                    System.out.println("Longitud : "+DirCalle.getLongitude());
+
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
+
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
