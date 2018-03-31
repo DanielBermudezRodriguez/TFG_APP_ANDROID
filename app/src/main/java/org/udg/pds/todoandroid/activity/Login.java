@@ -10,6 +10,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.google.firebase.iid.FirebaseInstanceId;
+
 import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.entity.UsuarioActual;
@@ -121,7 +124,8 @@ public class Login extends AppCompatActivity  {
             EditText mail = (EditText) findViewById(R.id.texto_login_mail);
             EditText password = (EditText) findViewById(R.id.texto_login_password);
             if (validarFormularioLogin(mail, password)){
-                UsuarioLoginPeticion datosLogin = new UsuarioLoginPeticion(mail.getText().toString(), password.getText().toString());
+                String tokenFireBase = FirebaseInstanceId.getInstance().getToken();
+                UsuarioLoginPeticion datosLogin = new UsuarioLoginPeticion(mail.getText().toString(), password.getText().toString(),tokenFireBase);
                 Call<UsuarioLoginRespuesta> peticionRest = apiRest.iniciarSesion(datosLogin);
                 peticionRest.enqueue(new Callback<UsuarioLoginRespuesta>() {
                     @Override

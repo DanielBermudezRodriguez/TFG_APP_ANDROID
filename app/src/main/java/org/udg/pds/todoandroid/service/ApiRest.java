@@ -19,10 +19,10 @@ import retrofit2.http.Path;
 
 public interface ApiRest {
 
-    @POST("usuarios/login")
+    @POST("usuario/login")
     Call<UsuarioLoginRespuesta> iniciarSesion(@Body UsuarioLoginPeticion datosPeticion);
 
-    @POST("usuarios/registro")
+    @POST("usuario")
     Call<UsuarioRegistroRespuesta> registrar(@Body UsuarioRegistroPeticion datosRegistro);
 
     @GET("paises")

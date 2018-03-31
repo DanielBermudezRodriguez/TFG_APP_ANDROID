@@ -16,17 +16,21 @@ public class UsuarioRegistroPeticion {
 
     private String password;
 
+    public String tokenFireBase;
+
+
     public UsuarioRegistroPeticion(){
 
     }
 
-    public UsuarioRegistroPeticion(String nombre, String apellidos, String telefono, String username, String email, String password) {
+    public UsuarioRegistroPeticion(String nombre, String apellidos, String telefono, String username, String email, String password,String tokenFireBase) {
         this.nombre = nombre;
         this.apellidos = apellidos;
         this.telefono = telefono;
         this.username = username;
         this.email = email;
         this.password = password;
+        this.tokenFireBase = tokenFireBase;
     }
 
     public String getNombre() {
@@ -75,5 +79,13 @@ public class UsuarioRegistroPeticion {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getTokenFireBase() {
+        return tokenFireBase;
+    }
+
+    public void setTokenFireBase(String tokenFireBase) {
+        this.tokenFireBase = tokenFireBase;
     }
 }

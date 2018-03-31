@@ -13,6 +13,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.iid.FirebaseInstanceId;
+
 import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.entity.Municipio;
@@ -171,7 +173,8 @@ public class Registro extends AppCompatActivity {
             EditText password1 = (EditText) findViewById(R.id.texto_registro_password_1);
             EditText password2 = (EditText) findViewById(R.id.texto_registro_password_2);
             if (validarFormularioRegistro(nombre,apellidos,telefono,username,email,password1,password2)){
-                UsuarioRegistroPeticion datosRegistro = new UsuarioRegistroPeticion(nombre.getText().toString(),apellidos.getText().toString(),telefono.getText().toString(),username.getText().toString(),email.getText().toString(),password1.getText().toString());
+                String tokenFireBase = FirebaseInstanceId.getInstance().getToken();
+                UsuarioRegistroPeticion datosRegistro = new UsuarioRegistroPeticion(nombre.getText().toString(),apellidos.getText().toString(),telefono.getText().toString(),username.getText().toString(),email.getText().toString(),password1.getText().toString(),tokenFireBase);
                 Call<UsuarioRegistroRespuesta> peticionRest = apiRest.registrar(datosRegistro);
 
 
