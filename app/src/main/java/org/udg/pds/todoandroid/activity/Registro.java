@@ -66,8 +66,10 @@ public class Registro extends AppCompatActivity {
         // Listener cuando el usuario pulse el botón de Login
         //botonLogin.setOnClickListener(this);
 
+
+
         //Obtenemos paises
-        obtenerPaises();
+        //obtenerPaises();
 
     }
 
