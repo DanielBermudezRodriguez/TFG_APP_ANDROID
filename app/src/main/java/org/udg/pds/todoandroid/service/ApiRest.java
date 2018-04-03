@@ -25,12 +25,12 @@ public interface ApiRest {
     @POST("usuario")
     Call<UsuarioRegistroRespuesta> registrar(@Body UsuarioRegistroPeticion datosRegistro);
 
-    @GET("paises")
+    @GET("pais")
     Call<List<Pais>> paises();
 
-    @GET("provincias/{idPais}")
+    @GET("provincia/{idPais}")
     Call<List<Provincia>> provincias(@Path("idPais") Long idPais);
 
-    @GET("municipios/{idProvincia}")
+    @GET("municipio/{idProvincia}")
     Call<List<Municipio>> municipios(@Path("idProvincia") Long idProvincia);
 }

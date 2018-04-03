@@ -1,6 +1,5 @@
 package org.udg.pds.todoandroid.activity;
 
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -9,6 +8,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,31 +23,33 @@ import org.udg.pds.todoandroid.entity.Provincia;
 import org.udg.pds.todoandroid.entity.UsuarioActual;
 import org.udg.pds.todoandroid.entity.UsuarioRegistroPeticion;
 import org.udg.pds.todoandroid.entity.UsuarioRegistroRespuesta;
+import org.udg.pds.todoandroid.fragment.SeleccionarProvinciasDialog;
 import org.udg.pds.todoandroid.service.ApiRest;
 import org.udg.pds.todoandroid.util.InitRetrofit;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class Registro extends AppCompatActivity {
+public class Registro extends AppCompatActivity implements View.OnClickListener , SeleccionarProvinciasDialog.SeleccionarProvinciasDialogListener {
 
     // Interficie de llamadas a la APIRest gestionada por Retrofit
     private ApiRest apiRest;
     // Paises registro
     private TextView pais;
     private List<Pais> paises = new ArrayList<Pais>();
-    private Pais paisActual;
+    private int paisActual;
     // Provincias registro
     private TextView provincia;
     private List<Provincia> provincias = new ArrayList<Provincia>();
-    private Provincia provinciaActual;
+    private int provinciaActual;
     // Municipios registro
     private TextView municipio;
     private List<Municipio> municipios = new ArrayList<Municipio>();
-    private Municipio municipioActual;
+    private int municipioActual;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,39 +67,101 @@ public class Registro extends AppCompatActivity {
         //Button botonLogin = (Button) findViewById(R.id.boton_crear_cuenta);
         // Listener cuando el usuario pulse el botón de Login
         //botonLogin.setOnClickListener(this);
-
-
-
+        pais = findViewById(R.id.texto_registro_pais);
+        pais.setOnClickListener((View.OnClickListener) this);
+        provincia = findViewById(R.id.texto_registro_provincia);
+        provincia.setOnClickListener((View.OnClickListener) this);
+        municipio = findViewById(R.id.texto_registro_municipio);
+        municipio.setOnClickListener((View.OnClickListener) this);
         //Obtenemos paises
-        //obtenerPaises();
+        obtenerPaises();
 
     }
 
-    private void obtenerProvincias()  {
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.texto_registro_pais:
+                System.out.println("Has pulsado paises");
+                break;
+            case R.id.texto_registro_provincia:
+                seleccionarProvincia();
+                break;
+            case R.id.texto_registro_municipio:
+                System.out.println("Has pulsado municipios");
+                break;
+                }
 
-        Call<List<Provincia>> peticionRestProvincias = apiRest.provincias(paisActual.getId());
+        }
 
-        peticionRestProvincias.enqueue(new Callback<List<Provincia>>() {
+    private void seleccionarProvincia() {
+        SeleccionarProvinciasDialog seleccionarProvincias = SeleccionarProvinciasDialog.newInstance(provincias,provinciaActual);
+        seleccionarProvincias.show(Registro.this.getFragmentManager(),"seleccionarProvincias");
+    }
+
+    @Override
+    public void onDialogPositiveClick(int provinciaSeleccionada) {
+        // Comparar provincia actual con la seleccionada
+    }
+
+    private void obtenerPaises() {
+
+        Call<List<Pais>> peticionRestPaises = apiRest.paises();
+
+        peticionRestPaises.enqueue(new Callback<List<Pais>>() {
             @Override
-            public void onResponse(Call<List<Provincia>> call, Response<List<Provincia>> response) {
-                if (response.raw().code()!=500 && response.isSuccessful()) {
-                    provincias = response.body();
-                    // Provincia por defecte Gerona
-                    provinciaActual = provincias.get(16);
-                    provincia = findViewById(R.id.texto_registro_provincia);
-                    provincia.setText("Provincia: "+ provinciaActual.getProvincia());
-                    obtenerMunicipios();
+            public void onResponse(Call<List<Pais>> call, Response<List<Pais>> response) {
+                if (response.raw().code() != 500 && response.isSuccessful()) {
+                    paises = response.body();
+                    // Pais por defecto españa
+                    paisActual = 0;
+                    pais = findViewById(R.id.texto_registro_pais);
+                    pais.setText("País: " + paises.get(paisActual).getPais());
+                    obtenerProvincias();
+
                 } else {
                     try {
                         JSONObject jObjError = new JSONObject(response.errorBody().string());
-                        Toast.makeText(getApplicationContext(),jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
                     } catch (Exception e) {
                         Log.i("ERROR:", e.getMessage());
                     }
                 }
             }
+
             @Override
-            public void onFailure (Call <List<Provincia>> call, Throwable t){
+            public void onFailure(Call<List<Pais>> call, Throwable t) {
+                Log.i("ERROR:", t.getMessage());
+            }
+        });
+    }
+
+    private void obtenerProvincias() {
+
+        Call<List<Provincia>> peticionRestProvincias = apiRest.provincias(paises.get(paisActual).getId());
+
+        peticionRestProvincias.enqueue(new Callback<List<Provincia>>() {
+            @Override
+            public void onResponse(Call<List<Provincia>> call, Response<List<Provincia>> response) {
+                if (response.raw().code() != 500 && response.isSuccessful()) {
+                    provincias = response.body();
+                    // Provincia por defecte Gerona
+                    provinciaActual = 16;
+                    provincia = findViewById(R.id.texto_registro_provincia);
+                    provincia.setText("Provincia: " + provincias.get(provinciaActual).getProvincia());
+                    obtenerMunicipios();
+                } else {
+                    try {
+                        JSONObject jObjError = new JSONObject(response.errorBody().string());
+                        Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {
+                        Log.i("ERROR:", e.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Provincia>> call, Throwable t) {
                 Log.i("ERROR:", t.getMessage());
             }
         });
@@ -105,59 +169,29 @@ public class Registro extends AppCompatActivity {
 
     private void obtenerMunicipios() {
 
-        Call<List<Municipio>> peticionRestMunicipios = apiRest.municipios(provinciaActual.getId());
+        Call<List<Municipio>> peticionRestMunicipios = apiRest.municipios(provincias.get(provinciaActual).getId());
 
         peticionRestMunicipios.enqueue(new Callback<List<Municipio>>() {
             @Override
             public void onResponse(Call<List<Municipio>> call, Response<List<Municipio>> response) {
-                if (response.raw().code()!=500 && response.isSuccessful()) {
+                if (response.raw().code() != 500 && response.isSuccessful()) {
                     municipios = response.body();
                     // Municipio por defecto Gerona
-                    municipioActual = municipios.get(0);
+                    municipioActual = 74;
                     municipio = findViewById(R.id.texto_registro_municipio);
-                    municipio.setText("Municipio: "+ municipioActual.getMunicipio());
+                    municipio.setText("Municipio: " + municipios.get(municipioActual).getMunicipio());
                 } else {
                     try {
                         JSONObject jObjError = new JSONObject(response.errorBody().string());
-                        Toast.makeText(getApplicationContext(),jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
                     } catch (Exception e) {
                         Log.i("ERROR:", e.getMessage());
                     }
                 }
             }
+
             @Override
-            public void onFailure (Call <List<Municipio>> call, Throwable t){
-                Log.i("ERROR:", t.getMessage());
-            }
-        });
-    }
-
-    private void obtenerPaises()  {
-
-        Call<List<Pais>> peticionRestPaises = apiRest.paises();
-
-        peticionRestPaises.enqueue(new Callback<List<Pais>>() {
-            @Override
-            public void onResponse(Call<List<Pais>> call, Response<List<Pais>> response) {
-                if (response.raw().code()!=500 && response.isSuccessful()) {
-                    paises = response.body();
-                    // Pais por defecto españa
-                    paisActual = paises.get(0);
-                    pais = findViewById(R.id.texto_registro_pais);
-                    pais.setText("País: "+ paisActual.getPais());
-                    obtenerProvincias();
-
-                } else {
-                    try {
-                        JSONObject jObjError = new JSONObject(response.errorBody().string());
-                        Toast.makeText(getApplicationContext(),jObjError.getString("message"), Toast.LENGTH_LONG).show();
-                    } catch (Exception e) {
-                        Log.i("ERROR:", e.getMessage());
-                    }
-                }
-            }
-            @Override
-            public void onFailure (Call <List<Pais>> call, Throwable t){
+            public void onFailure(Call<List<Municipio>> call, Throwable t) {
                 Log.i("ERROR:", t.getMessage());
             }
         });
@@ -174,16 +208,16 @@ public class Registro extends AppCompatActivity {
             EditText email = (EditText) findViewById(R.id.texto_registro_email);
             EditText password1 = (EditText) findViewById(R.id.texto_registro_password_1);
             EditText password2 = (EditText) findViewById(R.id.texto_registro_password_2);
-            if (validarFormularioRegistro(nombre,apellidos,telefono,username,email,password1,password2)){
+            if (validarFormularioRegistro(nombre, apellidos, telefono, username, email, password1, password2)) {
                 String tokenFireBase = FirebaseInstanceId.getInstance().getToken();
-                UsuarioRegistroPeticion datosRegistro = new UsuarioRegistroPeticion(nombre.getText().toString(),apellidos.getText().toString(),telefono.getText().toString(),username.getText().toString(),email.getText().toString(),password1.getText().toString(),tokenFireBase);
+                UsuarioRegistroPeticion datosRegistro = new UsuarioRegistroPeticion(nombre.getText().toString(), apellidos.getText().toString(), telefono.getText().toString(), username.getText().toString(), email.getText().toString(), password1.getText().toString(), tokenFireBase);
                 Call<UsuarioRegistroRespuesta> peticionRest = apiRest.registrar(datosRegistro);
 
 
                 peticionRest.enqueue(new Callback<UsuarioRegistroRespuesta>() {
                     @Override
                     public void onResponse(Call<UsuarioRegistroRespuesta> call, Response<UsuarioRegistroRespuesta> response) {
-                        if (response.raw().code()!=500 && response.isSuccessful()) {
+                        if (response.raw().code() != 500 && response.isSuccessful()) {
 
                             UsuarioRegistroRespuesta dadesResposta = response.body();
 
@@ -200,14 +234,15 @@ public class Registro extends AppCompatActivity {
                         } else {
                             try {
                                 JSONObject jObjError = new JSONObject(response.errorBody().string());
-                                Toast.makeText(getApplicationContext(),jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
                             } catch (Exception e) {
                                 Log.i("ERROR:", e.getMessage());
                             }
                         }
                     }
+
                     @Override
-                    public void onFailure (Call <UsuarioRegistroRespuesta> call, Throwable t){
+                    public void onFailure(Call<UsuarioRegistroRespuesta> call, Throwable t) {
                         Log.i("ERROR:", t.getMessage());
                     }
                 });
@@ -254,8 +289,8 @@ public class Registro extends AppCompatActivity {
             password2.requestFocus();
             esCorrecto = false;
         }
-        if (password1 != null && password2 != null && !TextUtils.isEmpty(password1.getText().toString()) && !TextUtils.isEmpty(password2.getText().toString())){
-            if (!password1.getText().toString().equals(password2.getText().toString())){
+        if (password1 != null && password2 != null && !TextUtils.isEmpty(password1.getText().toString()) && !TextUtils.isEmpty(password2.getText().toString())) {
+            if (!password1.getText().toString().equals(password2.getText().toString())) {
                 password1.setText("");
                 password2.setText("");
                 password1.setError(getString(R.string.password_diferentes_registro_validacion));
@@ -280,4 +315,5 @@ public class Registro extends AppCompatActivity {
         onBackPressed();
         return false;
     }
+
 }
