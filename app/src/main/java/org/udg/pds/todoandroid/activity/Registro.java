@@ -23,6 +23,7 @@ import org.udg.pds.todoandroid.entity.Provincia;
 import org.udg.pds.todoandroid.entity.UsuarioActual;
 import org.udg.pds.todoandroid.entity.UsuarioRegistroPeticion;
 import org.udg.pds.todoandroid.entity.UsuarioRegistroRespuesta;
+import org.udg.pds.todoandroid.fragment.SeleccionarMunicipioDialog;
 import org.udg.pds.todoandroid.fragment.SeleccionarProvinciasDialog;
 import org.udg.pds.todoandroid.service.ApiRest;
 import org.udg.pds.todoandroid.util.InitRetrofit;
@@ -34,22 +35,25 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class Registro extends AppCompatActivity implements View.OnClickListener , SeleccionarProvinciasDialog.SeleccionarProvinciasDialogListener {
+public class Registro extends AppCompatActivity implements View.OnClickListener , SeleccionarProvinciasDialog.SeleccionarProvinciasDialogListener, SeleccionarMunicipioDialog.SeleccionarMunicipioDialogListener {
 
     // Interficie de llamadas a la APIRest gestionada por Retrofit
     private ApiRest apiRest;
     // Paises registro
     private TextView pais;
     private List<Pais> paises = new ArrayList<Pais>();
-    private int paisActual;
+    // Paispor defecto España
+    private int paisActual = 0;
     // Provincias registro
     private TextView provincia;
     private List<Provincia> provincias = new ArrayList<Provincia>();
-    private int provinciaActual;
+    // Provincia por defecto Girona
+    private int provinciaActual = 16;
     // Municipios registro
     private TextView municipio;
     private List<Municipio> municipios = new ArrayList<Municipio>();
-    private int municipioActual;
+    // Municipio por defecto Girona
+    private int municipioActual = 74;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -88,20 +92,41 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
                 seleccionarProvincia();
                 break;
             case R.id.texto_registro_municipio:
-                System.out.println("Has pulsado municipios");
+                seleccionarMunicipio();
                 break;
                 }
 
         }
 
+    private void seleccionarMunicipio() {
+        SeleccionarMunicipioDialog seleccionarMunicipio = new SeleccionarMunicipioDialog(municipios,municipioActual);
+        seleccionarMunicipio.show(Registro.this.getFragmentManager(),"seleccionarMunicio");
+    }
+
     private void seleccionarProvincia() {
-        SeleccionarProvinciasDialog seleccionarProvincias = SeleccionarProvinciasDialog.newInstance(provincias,provinciaActual);
+        SeleccionarProvinciasDialog seleccionarProvincias = new SeleccionarProvinciasDialog(provincias,provinciaActual);
         seleccionarProvincias.show(Registro.this.getFragmentManager(),"seleccionarProvincias");
     }
 
     @Override
-    public void onDialogPositiveClick(int provinciaSeleccionada) {
+    public void provinciaSeleccionada(int provinciaSeleccionada) {
         // Comparar provincia actual con la seleccionada
+        if (provinciaActual != provinciaSeleccionada){
+            provinciaActual = provinciaSeleccionada;
+            provincia.setText("Provincia: " + provincias.get(provinciaActual).getProvincia());
+            municipioActual = 0;
+            obtenerMunicipios();
+        }
+    }
+
+    @Override
+    public void municipioSeleccionado(int municipioSeleccionado) {
+        // Comparar provincia actual con la seleccionada
+        if (municipioActual != municipioSeleccionado){
+            municipioActual = municipioSeleccionado;
+            municipio.setText("Municipio: " + municipios.get(municipioActual).getMunicipio());
+            obtenerMunicipios();
+        }
     }
 
     private void obtenerPaises() {
@@ -113,9 +138,6 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
             public void onResponse(Call<List<Pais>> call, Response<List<Pais>> response) {
                 if (response.raw().code() != 500 && response.isSuccessful()) {
                     paises = response.body();
-                    // Pais por defecto españa
-                    paisActual = 0;
-                    pais = findViewById(R.id.texto_registro_pais);
                     pais.setText("País: " + paises.get(paisActual).getPais());
                     obtenerProvincias();
 
@@ -136,7 +158,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
         });
     }
 
-    private void obtenerProvincias() {
+    public void obtenerProvincias() {
 
         Call<List<Provincia>> peticionRestProvincias = apiRest.provincias(paises.get(paisActual).getId());
 
@@ -145,9 +167,6 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
             public void onResponse(Call<List<Provincia>> call, Response<List<Provincia>> response) {
                 if (response.raw().code() != 500 && response.isSuccessful()) {
                     provincias = response.body();
-                    // Provincia por defecte Gerona
-                    provinciaActual = 16;
-                    provincia = findViewById(R.id.texto_registro_provincia);
                     provincia.setText("Provincia: " + provincias.get(provinciaActual).getProvincia());
                     obtenerMunicipios();
                 } else {
@@ -167,7 +186,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
         });
     }
 
-    private void obtenerMunicipios() {
+    public void obtenerMunicipios() {
 
         Call<List<Municipio>> peticionRestMunicipios = apiRest.municipios(provincias.get(provinciaActual).getId());
 
@@ -176,9 +195,6 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
             public void onResponse(Call<List<Municipio>> call, Response<List<Municipio>> response) {
                 if (response.raw().code() != 500 && response.isSuccessful()) {
                     municipios = response.body();
-                    // Municipio por defecto Gerona
-                    municipioActual = 74;
-                    municipio = findViewById(R.id.texto_registro_municipio);
                     municipio.setText("Municipio: " + municipios.get(municipioActual).getMunicipio());
                 } else {
                     try {
