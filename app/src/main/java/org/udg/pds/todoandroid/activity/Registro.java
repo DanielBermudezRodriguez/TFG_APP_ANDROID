@@ -1,5 +1,6 @@
 package org.udg.pds.todoandroid.activity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -17,12 +18,14 @@ import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
+import org.udg.pds.todoandroid.entity.Deporte;
 import org.udg.pds.todoandroid.entity.Municipio;
 import org.udg.pds.todoandroid.entity.Pais;
 import org.udg.pds.todoandroid.entity.Provincia;
 import org.udg.pds.todoandroid.entity.UsuarioActual;
 import org.udg.pds.todoandroid.entity.UsuarioRegistroPeticion;
 import org.udg.pds.todoandroid.entity.UsuarioRegistroRespuesta;
+import org.udg.pds.todoandroid.fragment.SeleccionarDeporteDialog;
 import org.udg.pds.todoandroid.fragment.SeleccionarMunicipioDialog;
 import org.udg.pds.todoandroid.fragment.SeleccionarProvinciasDialog;
 import org.udg.pds.todoandroid.service.ApiRest;
@@ -35,7 +38,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class Registro extends AppCompatActivity implements View.OnClickListener , SeleccionarProvinciasDialog.SeleccionarProvinciasDialogListener, SeleccionarMunicipioDialog.SeleccionarMunicipioDialogListener {
+public class Registro extends AppCompatActivity implements View.OnClickListener , SeleccionarProvinciasDialog.SeleccionarProvinciasDialogListener, SeleccionarMunicipioDialog.SeleccionarMunicipioDialogListener, SeleccionarDeporteDialog.SeleccionarDeporteDialogListener {
 
     // Interficie de llamadas a la APIRest gestionada por Retrofit
     private ApiRest apiRest;
@@ -55,6 +58,10 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
     // Municipio por defecto Girona
     private int municipioActual = 74;
 
+    private List<Deporte> deportes = new ArrayList<Deporte>();
+    private TextView deporte;
+    private List<Long> deportesSeleccionado = new ArrayList<Long>();
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,13 +79,17 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
         // Listener cuando el usuario pulse el botón de Login
         //botonLogin.setOnClickListener(this);
         pais = findViewById(R.id.texto_registro_pais);
-        pais.setOnClickListener((View.OnClickListener) this);
+        pais.setOnClickListener(this);
         provincia = findViewById(R.id.texto_registro_provincia);
-        provincia.setOnClickListener((View.OnClickListener) this);
+        provincia.setOnClickListener(this);
         municipio = findViewById(R.id.texto_registro_municipio);
-        municipio.setOnClickListener((View.OnClickListener) this);
+        municipio.setOnClickListener(this);
+        deporte = findViewById(R.id.texto_registro_deportes);
+        deporte.setOnClickListener(this);
         //Obtenemos paises
         obtenerPaises();
+        obtenerDeportes();
+
 
     }
 
@@ -86,7 +97,6 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.texto_registro_pais:
-                System.out.println("Has pulsado paises");
                 break;
             case R.id.texto_registro_provincia:
                 seleccionarProvincia();
@@ -94,9 +104,16 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
             case R.id.texto_registro_municipio:
                 seleccionarMunicipio();
                 break;
+            case R.id.texto_registro_deportes:
+                seleccionarDeportesFavoritos();
                 }
 
         }
+
+    private void seleccionarDeportesFavoritos() {
+        SeleccionarDeporteDialog seleccionarDeportes = new SeleccionarDeporteDialog(deportes,deportesSeleccionado);
+        seleccionarDeportes.show(Registro.this.getFragmentManager(),"seleccionarDeportes");
+    }
 
     private void seleccionarMunicipio() {
         SeleccionarMunicipioDialog seleccionarMunicipio = new SeleccionarMunicipioDialog(municipios,municipioActual);
@@ -109,6 +126,14 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
     }
 
     @Override
+    public void deportesSeleccionados(List<Long> deportesSeleccionados){
+        this.deportesSeleccionado = deportesSeleccionados;
+        deporte.setText("Deportes: " + deportes.size());
+    }
+
+
+    @SuppressLint("SetTextI18n")
+    @Override
     public void provinciaSeleccionada(int provinciaSeleccionada) {
         // Comparar provincia actual con la seleccionada
         if (provinciaActual != provinciaSeleccionada){
@@ -119,6 +144,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
         }
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void municipioSeleccionado(int municipioSeleccionado) {
         // Comparar provincia actual con la seleccionada
@@ -129,11 +155,37 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
         }
     }
 
+    private void obtenerDeportes() {
+        Call<List<Deporte>> peticionRestDeportes = apiRest.getDeportes();
+
+        peticionRestDeportes.enqueue(new Callback<List<Deporte>>() {
+            @Override
+            public void onResponse(Call<List<Deporte>> call, Response<List<Deporte>> response) {
+                if (response.raw().code() != 500 && response.isSuccessful()) {
+                    deportes = response.body();
+                } else {
+                    try {
+                        JSONObject jObjError = new JSONObject(response.errorBody().string());
+                        Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {
+                        Log.i("ERROR:", e.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Deporte>> call, Throwable t) {
+                Log.i("ERROR:", t.getMessage());
+            }
+        });
+    }
+
     private void obtenerPaises() {
 
         Call<List<Pais>> peticionRestPaises = apiRest.paises();
 
         peticionRestPaises.enqueue(new Callback<List<Pais>>() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onResponse(Call<List<Pais>> call, Response<List<Pais>> response) {
                 if (response.raw().code() != 500 && response.isSuccessful()) {
@@ -163,6 +215,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
         Call<List<Provincia>> peticionRestProvincias = apiRest.provincias(paises.get(paisActual).getId());
 
         peticionRestProvincias.enqueue(new Callback<List<Provincia>>() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onResponse(Call<List<Provincia>> call, Response<List<Provincia>> response) {
                 if (response.raw().code() != 500 && response.isSuccessful()) {
@@ -191,6 +244,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
         Call<List<Municipio>> peticionRestMunicipios = apiRest.municipios(provincias.get(provinciaActual).getId());
 
         peticionRestMunicipios.enqueue(new Callback<List<Municipio>>() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onResponse(Call<List<Municipio>> call, Response<List<Municipio>> response) {
                 if (response.raw().code() != 500 && response.isSuccessful()) {

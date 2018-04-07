@@ -38,6 +38,7 @@
     <string name="registrar_usuario_pais">País: </string>
     <string name="registrar_usuario_provincia">Provincia: </string>
     <string name="registrar_usuario_municipio">Municipio: </string>
+    <string name="texto_registro_usuario_nuevo_deportes_favoritos">Deportes Favoritos</string>
 
    // Menú lateral
     <string name="title_section1">Perfil</string>
@@ -60,6 +61,7 @@
 
     // Toolbar crear cuenta
     <string name="toolbar_crear_cuenta">Registrar</string>
+    <string name="registrar_usuario_deportes">Deportes:</string>
 
 
 </resources>

@@ -1,6 +1,7 @@
 package org.udg.pds.todoandroid.service;
 
 
+import org.udg.pds.todoandroid.entity.Deporte;
 import org.udg.pds.todoandroid.entity.Municipio;
 import org.udg.pds.todoandroid.entity.Pais;
 import org.udg.pds.todoandroid.entity.Provincia;
@@ -33,4 +34,7 @@ public interface ApiRest {
 
     @GET("municipio/{idProvincia}")
     Call<List<Municipio>> municipios(@Path("idProvincia") Long idProvincia);
+
+    @GET("deporte")
+    Call<List<Deporte>> getDeportes();
 }
