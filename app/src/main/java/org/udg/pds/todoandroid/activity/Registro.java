@@ -128,7 +128,12 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
     @Override
     public void deportesSeleccionados(List<Long> deportesSeleccionados){
         this.deportesSeleccionado = deportesSeleccionados;
-        deporte.setText("Deportes: " + deportes.size());
+        String deportesFavoritos = "Deportes: ";
+        for(Long deporte : deportesSeleccionados){
+            deportesFavoritos += deportes.get(deporte.intValue()).getDeporte() + ", ";
+        }
+        deportesFavoritos = deportesFavoritos.substring(0,deportesFavoritos.length() - 2) + ".";
+        deporte.setText(deportesFavoritos);
     }
 
 

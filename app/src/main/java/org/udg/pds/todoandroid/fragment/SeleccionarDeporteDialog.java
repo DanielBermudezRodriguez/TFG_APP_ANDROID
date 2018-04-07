@@ -36,7 +36,7 @@ public class SeleccionarDeporteDialog extends DialogFragment {
         this.seleccionados = new boolean[deportes.size()];
         for (Deporte d : deportes){
             this.deportes[i] = d.getDeporte();
-            this.seleccionados[i] = deportesSeleccionados.contains(d.getId());
+            this.seleccionados[i] = deportesSeleccionados.contains(Long.valueOf(i));
             i++;
         }
         this.deportesSeleccionados = deportesSeleccionados;
@@ -52,8 +52,10 @@ public class SeleccionarDeporteDialog extends DialogFragment {
                                 boolean isChecked) {
                 if (isChecked) {
                     deportesSeleccionados.add((long) which);
+                    seleccionados[which] = true;
                 } else if (deportesSeleccionados.contains((long)which)) {
                     deportesSeleccionados.remove(Long.valueOf(which));
+                    seleccionados[which] = false;
                 }
             }
         });
