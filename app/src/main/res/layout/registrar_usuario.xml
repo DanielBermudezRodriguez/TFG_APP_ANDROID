@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
@@ -8,6 +9,38 @@
     <include android:id="@+id/appbar"
         layout="@layout/toolbar" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:ignore="UselessParent">
+        <ImageView
+        android:id="@+id/texto_registro_imagen_perfil"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+            android:layout_margin="10dp"
+        android:orientation="vertical"
+        android:layout_gravity="center_horizontal" tools:ignore="NestedWeights" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/registro_foto_perfil"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|right|end"
+                android:layout_margin="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@android:drawable/ic_menu_camera"
+                tools:ignore="RtlHardcoded" />
+        </FrameLayout>
+
+    </LinearLayout>
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,6 +48,7 @@
         android:layout_weight="2"
         android:orientation="vertical"
         android:layout_margin="10dp">
+
 
         <TextView
             android:id="@+id/texto_registro_usuario"
@@ -137,7 +171,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_weight="0.75"
         android:orientation="vertical"
         android:layout_margin="10dp">
 
@@ -195,7 +229,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_weight="0.5"
         android:orientation="vertical"
         android:layout_margin="10dp">
 

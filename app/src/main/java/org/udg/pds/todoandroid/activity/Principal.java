@@ -92,11 +92,11 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
 
     }
 
+    @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == Global.REQUEST_CODE_GPS_LOCATION) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 determinarUbicacion();
-                return;
             }
         }
     }

@@ -1,8 +1,17 @@
 package org.udg.pds.todoandroid.activity;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -11,10 +20,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
@@ -29,8 +40,10 @@ import org.udg.pds.todoandroid.fragment.SeleccionarDeporteDialog;
 import org.udg.pds.todoandroid.fragment.SeleccionarMunicipioDialog;
 import org.udg.pds.todoandroid.fragment.SeleccionarProvinciasDialog;
 import org.udg.pds.todoandroid.service.ApiRest;
+import org.udg.pds.todoandroid.util.Global;
 import org.udg.pds.todoandroid.util.InitRetrofit;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,10 +70,16 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
     private List<Municipio> municipios = new ArrayList<Municipio>();
     // Municipio por defecto Girona
     private int municipioActual = 74;
-
+    // Deportes favoritos
     private List<Deporte> deportes = new ArrayList<Deporte>();
     private TextView deporte;
     private List<Long> deportesSeleccionado = new ArrayList<Long>();
+
+    // Imagen perfil
+    private ImageView imagenPerfil;
+
+    FloatingActionButton cargarImagenPerfil;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -90,6 +109,10 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
         obtenerPaises();
         obtenerDeportes();
 
+        imagenPerfil = findViewById(R.id.texto_registro_imagen_perfil);
+        Picasso.with(getApplicationContext()).load(Global.BASE_URL + "imagen/usuario/6").into(imagenPerfil);
+        cargarImagenPerfil = findViewById(R.id.registro_foto_perfil);
+        cargarImagenPerfil.setOnClickListener(this);
 
     }
 
@@ -106,9 +129,104 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
                 break;
             case R.id.texto_registro_deportes:
                 seleccionarDeportesFavoritos();
+                break;
+            case R.id.registro_foto_perfil:
+                cargarImagenPerfil();
+                break;
                 }
 
+
         }
+
+    private void cargarImagenPerfil() {
+        AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
+        pictureDialog.setTitle("Seleccionar opción:");
+        String[] pictureDialogItems = {
+                "Foto de la galería",
+                "Foto de la cámara" };
+        pictureDialog.setItems(pictureDialogItems,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                choosePhotoFromGallary();
+                                break;
+                            case 1:
+                                takePhotoFromCamera();
+                                break;
+                        }
+                    }
+                });
+        pictureDialog.show();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == this.RESULT_CANCELED) {
+            return;
+        }
+        if (requestCode == Global.GALLERY) {
+            if (data != null) {
+                Uri contentURI = data.getData();
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), contentURI);
+                    Toast.makeText(Registro.this, "Image Saved!", Toast.LENGTH_SHORT).show();
+                    imagenPerfil.setImageBitmap(bitmap);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(Registro.this, "Failed!", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+        } else if (requestCode == Global.CAMERA) {
+            Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
+            imagenPerfil.setImageBitmap(thumbnail);
+            Toast.makeText(Registro.this, "Image Saved!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void takePhotoFromCamera() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA,}, Global.CAMERA);
+        } else {
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            startActivityForResult(intent, Global.CAMERA);
+        }
+
+    }
+
+    private void choosePhotoFromGallary() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,}, Global.GALLERY);
+        } else {
+            Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+            startActivityForResult(galleryIntent, Global.GALLERY);
+        }
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == Global.CAMERA) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(intent, Global.CAMERA);
+            }
+        }
+        else if (requestCode == Global.GALLERY) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(galleryIntent, Global.GALLERY);
+            }
+        }
+    }
 
     private void seleccionarDeportesFavoritos() {
         SeleccionarDeporteDialog seleccionarDeportes = new SeleccionarDeporteDialog(deportes,deportesSeleccionado);
