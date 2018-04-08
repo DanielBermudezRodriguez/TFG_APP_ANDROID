@@ -2,10 +2,12 @@ package org.udg.pds.todoandroid.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -30,6 +32,7 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.entity.Deporte;
+import org.udg.pds.todoandroid.entity.Imagen;
 import org.udg.pds.todoandroid.entity.Municipio;
 import org.udg.pds.todoandroid.entity.Pais;
 import org.udg.pds.todoandroid.entity.Provincia;
@@ -43,10 +46,17 @@ import org.udg.pds.todoandroid.service.ApiRest;
 import org.udg.pds.todoandroid.util.Global;
 import org.udg.pds.todoandroid.util.InitRetrofit;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -77,6 +87,8 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
 
     // Imagen perfil
     private ImageView imagenPerfil;
+    private String pathImagenPerfil;
+    private boolean esNuevaImagen = false;
 
     FloatingActionButton cargarImagenPerfil;
 
@@ -110,7 +122,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
         obtenerDeportes();
 
         imagenPerfil = findViewById(R.id.texto_registro_imagen_perfil);
-        Picasso.with(getApplicationContext()).load(Global.BASE_URL + "imagen/usuario/6").into(imagenPerfil);
+        Picasso.with(getApplicationContext()).load(Global.BASE_URL + "imagen/usuario/6").fit().into(imagenPerfil);
         cargarImagenPerfil = findViewById(R.id.registro_foto_perfil);
         cargarImagenPerfil.setOnClickListener(this);
 
@@ -168,62 +180,75 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
         if (resultCode == this.RESULT_CANCELED) {
             return;
         }
-        if (requestCode == Global.GALLERY) {
+        if (requestCode == Global.REQUEST_CODE_GALLERY) {
             if (data != null) {
                 Uri contentURI = data.getData();
                 try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), contentURI);
+                    pathImagenPerfil = getRealPathFromURIPath(contentURI, Registro.this);
+                    File file = new File(pathImagenPerfil);
+                    Picasso.with(getApplicationContext()).load(file).fit().into(imagenPerfil);
+                    imagenPerfil.setImageBitmap(MediaStore.Images.Media.getBitmap(this.getContentResolver(), contentURI));
+                    esNuevaImagen = true;
                     Toast.makeText(Registro.this, "Image Saved!", Toast.LENGTH_SHORT).show();
-                    imagenPerfil.setImageBitmap(bitmap);
-
                 } catch (IOException e) {
                     e.printStackTrace();
                     Toast.makeText(Registro.this, "Failed!", Toast.LENGTH_SHORT).show();
                 }
             }
 
-        } else if (requestCode == Global.CAMERA) {
-            Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
-            imagenPerfil.setImageBitmap(thumbnail);
+        } else if (requestCode == Global.REQUEST_CODE_CAMERA) {
+            imagenPerfil.setImageBitmap((Bitmap) data.getExtras().get("data"));
+            esNuevaImagen = true;
             Toast.makeText(Registro.this, "Image Saved!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private String getRealPathFromURIPath(Uri contentURI, Activity activity) {
+        Cursor cursor = activity.getContentResolver().query(contentURI, null, null, null, null);
+        if (cursor == null) {
+            return contentURI.getPath();
+        } else {
+            cursor.moveToFirst();
+            int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+            return cursor.getString(idx);
         }
     }
 
     private void takePhotoFromCamera() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA,}, Global.CAMERA);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA,}, Global.REQUEST_CODE_CAMERA);
         } else {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            startActivityForResult(intent, Global.CAMERA);
+            startActivityForResult(intent, Global.REQUEST_CODE_CAMERA);
         }
 
     }
 
     private void choosePhotoFromGallary() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,}, Global.GALLERY);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,}, Global.REQUEST_CODE_GALLERY);
         } else {
             Intent galleryIntent = new Intent(Intent.ACTION_PICK,
                     android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 
-            startActivityForResult(galleryIntent, Global.GALLERY);
+            startActivityForResult(galleryIntent, Global.REQUEST_CODE_GALLERY);
         }
 
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == Global.CAMERA) {
+        if (requestCode == Global.REQUEST_CODE_CAMERA) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(intent, Global.CAMERA);
+                startActivityForResult(intent, Global.REQUEST_CODE_CAMERA);
             }
         }
-        else if (requestCode == Global.GALLERY) {
+        else if (requestCode == Global.REQUEST_CODE_GALLERY) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Intent galleryIntent = new Intent(Intent.ACTION_PICK,
                         android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(galleryIntent, Global.GALLERY);
+                startActivityForResult(galleryIntent, Global.REQUEST_CODE_GALLERY);
             }
         }
     }
@@ -394,16 +419,20 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
         int id = item.getItemId();
 
         if (id == R.id.toolbar_crear_cuenta) {
-            EditText nombre = (EditText) findViewById(R.id.texto_registro_nombre);
-            EditText apellidos = (EditText) findViewById(R.id.texto_registro_apellidos);
-            EditText telefono = (EditText) findViewById(R.id.texto_registro_telefono);
-            EditText username = (EditText) findViewById(R.id.texto_registro_nick);
-            EditText email = (EditText) findViewById(R.id.texto_registro_email);
-            EditText password1 = (EditText) findViewById(R.id.texto_registro_password_1);
-            EditText password2 = (EditText) findViewById(R.id.texto_registro_password_2);
+            EditText nombre =  findViewById(R.id.texto_registro_nombre);
+            EditText apellidos = findViewById(R.id.texto_registro_apellidos);
+            EditText telefono = findViewById(R.id.texto_registro_telefono);
+            EditText username = findViewById(R.id.texto_registro_nick);
+            EditText email = findViewById(R.id.texto_registro_email);
+            EditText password1 = findViewById(R.id.texto_registro_password_1);
+            EditText password2 = findViewById(R.id.texto_registro_password_2);
             if (validarFormularioRegistro(nombre, apellidos, telefono, username, email, password1, password2)) {
                 String tokenFireBase = FirebaseInstanceId.getInstance().getToken();
-                UsuarioRegistroPeticion datosRegistro = new UsuarioRegistroPeticion(nombre.getText().toString(), apellidos.getText().toString(), telefono.getText().toString(), username.getText().toString(), email.getText().toString(), password1.getText().toString(), tokenFireBase);
+                List<Long> idDeportesFavoritos = new ArrayList<Long>();
+                for (Long posDeporte : deportesSeleccionado){
+                    idDeportesFavoritos.add(deportes.get(posDeporte.intValue()).getId());
+                }
+                UsuarioRegistroPeticion datosRegistro = new UsuarioRegistroPeticion(nombre.getText().toString(), apellidos.getText().toString(), telefono.getText().toString(), username.getText().toString(), email.getText().toString(), password1.getText().toString(), tokenFireBase,municipios.get(municipioActual).getId(),idDeportesFavoritos);
                 Call<UsuarioRegistroRespuesta> peticionRest = apiRest.registrar(datosRegistro);
 
 
@@ -419,10 +448,42 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
                             UsuarioActual.getInstance().setMail(dadesResposta.getEmail());
                             UsuarioActual.getInstance().setUsername(dadesResposta.getUsername());
 
-                            Intent principal = new Intent(getApplicationContext(), Principal.class);
-                            // Eliminamos de la pila todas las actividades
-                            principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(principal);
+                            if (esNuevaImagen){
+                                try {
+                                    File file = new File(pathImagenPerfil);
+                                    RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
+                                    MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), reqFile);
+                                    Call<Imagen> peticionRest = apiRest.subirImagenUsuario(body);
+                                    peticionRest.enqueue(new Callback<Imagen>() {
+                                        @Override
+                                        public void onResponse(Call<Imagen> call, Response<Imagen> response) {
+                                            if (response.raw().code() != 500 && response.isSuccessful()) {
+                                                Imagen imagen = response.body();
+                                                Intent principal = new Intent(getApplicationContext(), Principal.class);
+                                                // Eliminamos de la pila todas las actividades
+                                                principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                startActivity(principal);
+                                            } else {
+                                                try {
+                                                    JSONObject jObjError = new JSONObject(response.errorBody().string());
+                                                    Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                                                } catch (Exception e) {
+                                                    Log.i("ERROR:", e.getMessage());
+                                                }
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onFailure(Call<Imagen> call, Throwable t) {
+                                            Log.i("ERROR:", t.getMessage());
+                                        }
+                                    });
+                                } catch (Exception e){
+                                    System.out.println(e);
+                                }
+                            }
+
+
 
                         } else {
                             try {

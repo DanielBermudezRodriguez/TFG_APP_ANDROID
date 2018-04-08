@@ -5,6 +5,11 @@ package org.udg.pds.todoandroid.util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.udg.pds.todoandroid.service.ApiRest;
+
+import java.net.CookieHandler;
+import java.net.CookieManager;
+
+import okhttp3.JavaNetCookieJar;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -24,8 +29,11 @@ public class InitRetrofit {
             HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
             interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
+            CookieHandler cookieHandler = new CookieManager();
+
             OkHttpClient httpClient = new OkHttpClient.Builder()
-                    .addInterceptor(interceptor)
+                    .addNetworkInterceptor(interceptor)
+                    .cookieJar(new JavaNetCookieJar(cookieHandler))
                     .build();
 
             Gson gson = new GsonBuilder()

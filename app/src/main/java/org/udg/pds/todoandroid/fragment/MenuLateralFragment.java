@@ -5,6 +5,7 @@ import android.app.ActionBar;
 import android.app.Fragment;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -18,12 +19,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
+
 import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.adapter.NavigationDrawerAdapter;
 import org.udg.pds.todoandroid.entity.UsuarioActual;
+import org.udg.pds.todoandroid.util.Global;
 
 
 // Fragment que controla los comportamientos, interacciones y vista del menú lateral
@@ -178,6 +184,7 @@ public class MenuLateralFragment extends Fragment {
             TextView email = myHeader.findViewById(R.id.email_menu_lateral);
             username.setText(UsuarioActual.getInstance().getUsername());
             email.setText(UsuarioActual.getInstance().getMail());
+            Picasso.with(getContext()).load(Global.BASE_URL + "imagen/usuario/" + UsuarioActual.getInstance().getId().toString()).into((ImageView) myHeader.findViewById(R.id.circleView));
         }
         listView.addHeaderView(myHeader);
         listView.setAdapter(mNavigationDrawerAdapter);

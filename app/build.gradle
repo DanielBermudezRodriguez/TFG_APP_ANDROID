@@ -24,7 +24,7 @@ android {
 
     defaultConfig {
         applicationId "org.udg.pds.todoandroid"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"

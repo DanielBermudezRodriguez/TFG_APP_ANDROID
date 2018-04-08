@@ -9,7 +9,13 @@ import android.widget.Checkable;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+
 import org.udg.pds.todoandroid.R;
+import org.udg.pds.todoandroid.entity.UsuarioActual;
+import org.udg.pds.todoandroid.util.Global;
+
 import java.util.Arrays;
 import java.util.List;
 

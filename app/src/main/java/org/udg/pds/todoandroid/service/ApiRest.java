@@ -2,6 +2,7 @@ package org.udg.pds.todoandroid.service;
 
 
 import org.udg.pds.todoandroid.entity.Deporte;
+import org.udg.pds.todoandroid.entity.Imagen;
 import org.udg.pds.todoandroid.entity.Municipio;
 import org.udg.pds.todoandroid.entity.Pais;
 import org.udg.pds.todoandroid.entity.Provincia;
@@ -12,10 +13,14 @@ import org.udg.pds.todoandroid.entity.UsuarioRegistroRespuesta;
 
 import java.util.List;
 
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
 import retrofit2.http.Path;
 
 public interface ApiRest {
@@ -37,4 +42,8 @@ public interface ApiRest {
 
     @GET("deporte")
     Call<List<Deporte>> getDeportes();
+
+    @Multipart
+    @POST("imagen/usuario")
+    Call<Imagen> subirImagenUsuario(@Part MultipartBody.Part file);
 }

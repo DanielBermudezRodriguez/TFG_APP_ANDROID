@@ -1,6 +1,7 @@
 package org.udg.pds.todoandroid.entity;
 
 
+import java.util.List;
 
 public class UsuarioRegistroPeticion {
 
@@ -18,12 +19,16 @@ public class UsuarioRegistroPeticion {
 
     public String tokenFireBase;
 
+    private Long municipio;
+
+    private List<Long> deportesFavoritos;
+
 
     public UsuarioRegistroPeticion(){
 
     }
 
-    public UsuarioRegistroPeticion(String nombre, String apellidos, String telefono, String username, String email, String password,String tokenFireBase) {
+    public UsuarioRegistroPeticion(String nombre, String apellidos, String telefono, String username, String email, String password,String tokenFireBase, Long municipio, List<Long> deportesFavoritos) {
         this.nombre = nombre;
         this.apellidos = apellidos;
         this.telefono = telefono;
@@ -31,6 +36,8 @@ public class UsuarioRegistroPeticion {
         this.email = email;
         this.password = password;
         this.tokenFireBase = tokenFireBase;
+        this.municipio = municipio;
+        this.deportesFavoritos = deportesFavoritos;
     }
 
     public String getNombre() {
@@ -87,5 +94,21 @@ public class UsuarioRegistroPeticion {
 
     public void setTokenFireBase(String tokenFireBase) {
         this.tokenFireBase = tokenFireBase;
+    }
+
+    public Long getMunicipio() {
+        return municipio;
+    }
+
+    public void setMunicipio(Long municipio) {
+        this.municipio = municipio;
+    }
+
+    public List<Long> getDeportesFavoritos() {
+        return deportesFavoritos;
+    }
+
+    public void setDeportesFavoritos(List<Long> deportesFavoritos) {
+        this.deportesFavoritos = deportesFavoritos;
     }
 }
