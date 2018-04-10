@@ -7,7 +7,7 @@
     android:visibility="visible">
 
     <include android:id="@+id/appbar"
-        layout="@layout/toolbar" />
+    layout="@layout/toolbar" />
 
     <TextView
         android:id="@+id/texto_login_cabecera"

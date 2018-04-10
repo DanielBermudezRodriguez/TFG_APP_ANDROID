@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -87,8 +88,8 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
 
     // Imagen perfil
     private ImageView imagenPerfil;
-    private String pathImagenPerfil;
     private boolean esNuevaImagen = false;
+    private Uri pathImagenPerfil;
 
     FloatingActionButton cargarImagenPerfil;
 
@@ -182,26 +183,30 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
         }
         if (requestCode == Global.REQUEST_CODE_GALLERY) {
             if (data != null) {
-                Uri contentURI = data.getData();
+                pathImagenPerfil = data.getData();
                 try {
-                    pathImagenPerfil = getRealPathFromURIPath(contentURI, Registro.this);
-                    File file = new File(pathImagenPerfil);
-                    Picasso.with(getApplicationContext()).load(file).fit().into(imagenPerfil);
-                    imagenPerfil.setImageBitmap(MediaStore.Images.Media.getBitmap(this.getContentResolver(), contentURI));
+                    //pathImagenPerfil = getRealPathFromURIPath(contentURI, Registro.this);
+                    //File file = new File(pathImagenPerfil);
+                    Picasso.with(getApplicationContext()).load(pathImagenPerfil).into(imagenPerfil);
+                    //imagenPerfil.setImageBitmap(MediaStore.Images.Media.getBitmap(this.getContentResolver(), contentURI));
                     esNuevaImagen = true;
-                    Toast.makeText(Registro.this, "Image Saved!", Toast.LENGTH_SHORT).show();
-                } catch (IOException e) {
+                    Toast.makeText(Registro.this, "Imagen guardada!", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
                     e.printStackTrace();
-                    Toast.makeText(Registro.this, "Failed!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Registro.this, "Error al guardar imagen!", Toast.LENGTH_SHORT).show();
                 }
             }
 
         } else if (requestCode == Global.REQUEST_CODE_CAMERA) {
-            imagenPerfil.setImageBitmap((Bitmap) data.getExtras().get("data"));
+            pathImagenPerfil = data.getData();
+            Picasso.with(getApplicationContext()).load(pathImagenPerfil).into(imagenPerfil);
+           // imagenPerfil.setImageBitmap((Bitmap) data.getExtras().get("data"));
             esNuevaImagen = true;
-            Toast.makeText(Registro.this, "Image Saved!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(Registro.this, "Imagen guardada!", Toast.LENGTH_SHORT).show();
         }
     }
+
+
 
     private String getRealPathFromURIPath(Uri contentURI, Activity activity) {
         Cursor cursor = activity.getContentResolver().query(contentURI, null, null, null, null);
@@ -450,7 +455,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
 
                             if (esNuevaImagen){
                                 try {
-                                    File file = new File(pathImagenPerfil);
+                                    File file = new File(getRealPathFromURIPath(pathImagenPerfil, Registro.this));
                                     RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
                                     MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), reqFile);
                                     Call<Imagen> peticionRest = apiRest.subirImagenUsuario(body);

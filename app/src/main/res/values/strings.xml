@@ -62,6 +62,7 @@
     // Toolbar crear cuenta
     <string name="toolbar_crear_cuenta">Registrar</string>
     <string name="registrar_usuario_deportes">Deportes:</string>
+    <string name="texto_login_crear_cuenta">Crear cuenta de yourSport</string>
 
 
 </resources>
