@@ -98,7 +98,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //Cargamos layout formulario de registro
-        setContentView(R.layout.registrar_usuario);
+        setContentView(R.layout.registro2);
         // Ponemos el toolbar
         Toolbar toolbar = findViewById(R.id.appbar);
         setSupportActionBar(toolbar);
@@ -107,11 +107,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
         // Mostrar botón "atras" en action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        //Button botonLogin = (Button) findViewById(R.id.boton_crear_cuenta);
-        // Listener cuando el usuario pulse el botón de Login
-        //botonLogin.setOnClickListener(this);
-        pais = findViewById(R.id.texto_registro_pais);
-        pais.setOnClickListener(this);
+
         provincia = findViewById(R.id.texto_registro_provincia);
         provincia.setOnClickListener(this);
         municipio = findViewById(R.id.texto_registro_municipio);
@@ -343,7 +339,6 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
             public void onResponse(Call<List<Pais>> call, Response<List<Pais>> response) {
                 if (response.raw().code() != 500 && response.isSuccessful()) {
                     paises = response.body();
-                    pais.setText("País: " + paises.get(paisActual).getPais());
                     obtenerProvincias();
 
                 } else {
@@ -426,18 +421,17 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
         if (id == R.id.toolbar_crear_cuenta) {
             EditText nombre =  findViewById(R.id.texto_registro_nombre);
             EditText apellidos = findViewById(R.id.texto_registro_apellidos);
-            EditText telefono = findViewById(R.id.texto_registro_telefono);
             EditText username = findViewById(R.id.texto_registro_nick);
             EditText email = findViewById(R.id.texto_registro_email);
             EditText password1 = findViewById(R.id.texto_registro_password_1);
             EditText password2 = findViewById(R.id.texto_registro_password_2);
-            if (validarFormularioRegistro(nombre, apellidos, telefono, username, email, password1, password2)) {
+            if (validarFormularioRegistro(nombre, apellidos, username, email, password1, password2)) {
                 String tokenFireBase = FirebaseInstanceId.getInstance().getToken();
                 List<Long> idDeportesFavoritos = new ArrayList<Long>();
                 for (Long posDeporte : deportesSeleccionado){
                     idDeportesFavoritos.add(deportes.get(posDeporte.intValue()).getId());
                 }
-                UsuarioRegistroPeticion datosRegistro = new UsuarioRegistroPeticion(nombre.getText().toString(), apellidos.getText().toString(), telefono.getText().toString(), username.getText().toString(), email.getText().toString(), password1.getText().toString(), tokenFireBase,municipios.get(municipioActual).getId(),idDeportesFavoritos);
+                UsuarioRegistroPeticion datosRegistro = new UsuarioRegistroPeticion(nombre.getText().toString(), apellidos.getText().toString(), username.getText().toString(), email.getText().toString(), password1.getText().toString(), tokenFireBase,municipios.get(municipioActual).getId(),idDeportesFavoritos);
                 Call<UsuarioRegistroRespuesta> peticionRest = apiRest.registrar(datosRegistro);
 
 
@@ -511,7 +505,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
         return super.onOptionsItemSelected(item);
     }
 
-    private boolean validarFormularioRegistro(EditText nombre, EditText apellidos, EditText telefono, EditText username, EditText email, EditText password1, EditText password2) {
+    private boolean validarFormularioRegistro(EditText nombre, EditText apellidos, EditText username, EditText email, EditText password1, EditText password2) {
         boolean esCorrecto = true;
         if (nombre == null || TextUtils.isEmpty(nombre.getText().toString())) {
             nombre.setError(getString(R.string.nombre_registro_validacion));
@@ -521,11 +515,6 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
         if (apellidos == null || TextUtils.isEmpty(apellidos.getText().toString())) {
             apellidos.setError(getString(R.string.apellidos_registro_validacion));
             apellidos.requestFocus();
-            esCorrecto = false;
-        }
-        if (telefono == null || TextUtils.isEmpty(telefono.getText().toString())) {
-            telefono.setError(getString(R.string.telefono_registro_validacion));
-            telefono.requestFocus();
             esCorrecto = false;
         }
         if (username == null || TextUtils.isEmpty(username.getText().toString())) {

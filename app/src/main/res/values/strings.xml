@@ -24,7 +24,7 @@
     <string name="texto_registro_nombre_nuevo">Nombre</string>
     <string name="texto_registro_apellidos_nuevo">Apellidos</string>
     <string name="texto_registro_telefono_nuevo">Teléfono</string>
-    <string name="texto_registro_nick_nuevo">Nombre de usuario</string>
+    <string name="texto_registro_nick_nuevo">Username</string>
     <string name="texto_registro_password">Contraseña</string>
     <string name="texto_registro_password_repetir">Repetir contraseña</string>
     <string name="texto_registro_email_nuevo">Email</string>

@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <include
+                android:id="@+id/appbar"
+                layout="@layout/toolbar" />
+
+            <ImageView
+                android:id="@+id/texto_registro_imagen_perfil"
+                android:layout_width="0dp"
+                android:layout_height="151dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/appbar"
+                app:srcCompat="@mipmap/no_image_header_menu" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/registro_foto_perfil"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="128dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/texto_registro_imagen_perfil"
+                app:srcCompat="@android:drawable/ic_menu_camera" />
+
+            <TextView
+                android:id="@+id/texto_registro_usuario"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="8dp"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.DialogWindowTitle"
+                android:layout_marginTop="16dp"
+                android:text="@string/texto_registro_usuario_nuevo"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/texto_registro_imagen_perfil" />
+
+            <EditText
+                android:id="@+id/texto_registro_nombre"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:ems="10"
+                android:hint="@string/texto_registro_nombre_nuevo"
+                android:inputType="textPersonName"
+                app:layout_constraintEnd_toStartOf="@+id/guideline"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/texto_registro_usuario" />
+
+            <EditText
+                android:id="@+id/texto_registro_nick"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:ems="10"
+                android:hint="@string/texto_registro_nick_nuevo"
+                android:inputType="textPersonName"
+                app:layout_constraintEnd_toStartOf="@+id/guideline"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/texto_registro_nombre" />
+
+            <EditText
+                android:id="@+id/texto_registro_password_1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:ems="10"
+                android:hint="@string/texto_registro_password"
+                android:inputType="textPassword"
+                app:layout_constraintEnd_toStartOf="@+id/guideline"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/texto_registro_nick" />
+
+            <EditText
+                android:id="@+id/texto_registro_apellidos"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:ems="10"
+                android:hint="@string/texto_registro_apellidos_nuevo"
+                android:inputType="textPersonName"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/guideline"
+                app:layout_constraintTop_toBottomOf="@+id/texto_registro_usuario" />
+
+            <EditText
+                android:id="@+id/texto_registro_email"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:ems="10"
+                android:hint="@string/texto_registro_email_nuevo"
+                android:inputType="textEmailAddress"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/guideline"
+                app:layout_constraintTop_toBottomOf="@+id/texto_registro_apellidos" />
+
+            <EditText
+                android:id="@+id/texto_registro_password_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:ems="10"
+                android:hint="@string/texto_registro_password_repetir"
+                android:inputType="textPassword"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline"
+                app:layout_constraintTop_toBottomOf="@+id/texto_registro_email" />
+
+            <android.support.constraint.Guideline
+                android:id="@+id/guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="180dp" />
+
+            <TextView
+                android:id="@+id/texto_registro_usuario_ubicacion"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="8dp"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.DialogWindowTitle"
+                android:layout_marginTop="16dp"
+                android:text="@string/texto_registro_usuario_nuevo_ubicacion"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/guideline3" />
+
+            <android.support.constraint.Guideline
+                android:id="@+id/guideline3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="379dp" />
+
+            <TextView
+                android:id="@+id/texto_registro_provincia"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:clickable="true"
+                android:drawableEnd="@mipmap/ic_ubicacion_registro"
+                android:ems="10"
+                android:focusable="true"
+                android:hint="@string/registrar_usuario_provincia"
+                app:layout_constraintEnd_toStartOf="@+id/guideline"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/texto_registro_usuario_ubicacion" />
+
+            <TextView
+                android:id="@+id/texto_registro_municipio"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="32dp"
+                android:ems="10"
+                android:clickable="true"
+                android:drawableEnd="@mipmap/ic_ubicacion_registro"
+                android:hint="@string/registrar_usuario_municipio"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.822"
+                app:layout_constraintStart_toStartOf="@+id/guideline"
+                app:layout_constraintTop_toBottomOf="@+id/texto_registro_usuario_ubicacion"
+                android:focusable="true" />
+
+            <TextView
+                android:id="@+id/texto_registro_deportes_favoritos"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/texto_registro_usuario_nuevo_deportes_favoritos"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.DialogWindowTitle"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/guideline4" />
+
+            <android.support.constraint.Guideline
+                android:id="@+id/guideline4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="460dp" />
+
+            <TextView
+                android:id="@+id/texto_registro_deportes"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="64dp"
+                android:layout_marginStart="64dp"
+                android:clickable="true"
+                android:drawableEnd="@mipmap/ic_ubicacion_registro"
+                android:ems="10"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:text="@string/registrar_usuario_deportes"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/texto_registro_deportes_favoritos"
+                android:focusable="true" />
+
+        </android.support.constraint.ConstraintLayout>
+
+</ScrollView>

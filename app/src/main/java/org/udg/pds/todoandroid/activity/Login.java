@@ -8,7 +8,9 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -25,17 +27,18 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class Login extends AppCompatActivity  {
+public class Login extends AppCompatActivity implements View.OnClickListener  {
 
     // Interficie de llamadas a la APIRest gestionada por Retrofit
     private ApiRest apiRest;
 
+    private TextView crearCuenta;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Cargamos layout del formulario de inicio de sesión.
-        setContentView(R.layout.login);
+        setContentView(R.layout.login_constraint_layout);
         // Ponemos el toolbar
         Toolbar toolbar = findViewById(R.id.appbar);
         setSupportActionBar(toolbar);
@@ -48,6 +51,22 @@ public class Login extends AppCompatActivity  {
         //getActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        crearCuenta = findViewById(R.id.texto_login_crear_cuenta);
+        crearCuenta.setOnClickListener(this);
+
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.texto_login_crear_cuenta:
+                Intent intRegistro = new Intent(this, Registro.class);
+                startActivity(intRegistro);
+                break;
+        }
+
+
     }
 
     /*@Override

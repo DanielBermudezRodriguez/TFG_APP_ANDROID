@@ -9,8 +9,6 @@ public class UsuarioRegistroPeticion {
 
     private String apellidos;
 
-    private String telefono;
-
     private String username;
 
     private String email;
@@ -28,10 +26,9 @@ public class UsuarioRegistroPeticion {
 
     }
 
-    public UsuarioRegistroPeticion(String nombre, String apellidos, String telefono, String username, String email, String password,String tokenFireBase, Long municipio, List<Long> deportesFavoritos) {
+    public UsuarioRegistroPeticion(String nombre, String apellidos, String username, String email, String password,String tokenFireBase, Long municipio, List<Long> deportesFavoritos) {
         this.nombre = nombre;
         this.apellidos = apellidos;
-        this.telefono = telefono;
         this.username = username;
         this.email = email;
         this.password = password;
@@ -54,14 +51,6 @@ public class UsuarioRegistroPeticion {
 
     public void setApellidos(String apellidos) {
         this.apellidos = apellidos;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
     }
 
     public String getUsername() {
