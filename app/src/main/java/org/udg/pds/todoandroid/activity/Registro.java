@@ -24,6 +24,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -62,7 +63,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class Registro extends AppCompatActivity implements View.OnClickListener , SeleccionarProvinciasDialog.SeleccionarProvinciasDialogListener, SeleccionarMunicipioDialog.SeleccionarMunicipioDialogListener, SeleccionarDeporteDialog.SeleccionarDeporteDialogListener {
+public class Registro extends AppCompatActivity implements View.OnClickListener, SeleccionarProvinciasDialog.SeleccionarProvinciasDialogListener, SeleccionarMunicipioDialog.SeleccionarMunicipioDialogListener, SeleccionarDeporteDialog.SeleccionarDeporteDialogListener {
 
     // Interficie de llamadas a la APIRest gestionada por Retrofit
     private ApiRest apiRest;
@@ -119,7 +120,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
         obtenerDeportes();
 
         imagenPerfil = findViewById(R.id.texto_registro_imagen_perfil);
-        Picasso.with(getApplicationContext()).load(Global.BASE_URL + "imagen/usuario/6").fit().into(imagenPerfil);
+        Picasso.with(getApplicationContext()).load(Global.BASE_URL + "imagen/usuario/6").into(imagenPerfil);
         cargarImagenPerfil = findViewById(R.id.registro_foto_perfil);
         cargarImagenPerfil.setOnClickListener(this);
 
@@ -142,17 +143,17 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
             case R.id.registro_foto_perfil:
                 cargarImagenPerfil();
                 break;
-                }
-
-
         }
+
+
+    }
 
     private void cargarImagenPerfil() {
         AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
         pictureDialog.setTitle("Seleccionar opción:");
         String[] pictureDialogItems = {
                 "Foto de la galería",
-                "Foto de la cámara" };
+                "Foto de la cámara"};
         pictureDialog.setItems(pictureDialogItems,
                 new DialogInterface.OnClickListener() {
                     @Override
@@ -181,27 +182,32 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
             if (data != null) {
                 pathImagenPerfil = data.getData();
                 try {
-                    //pathImagenPerfil = getRealPathFromURIPath(contentURI, Registro.this);
-                    //File file = new File(pathImagenPerfil);
                     Picasso.with(getApplicationContext()).load(pathImagenPerfil).into(imagenPerfil);
                     //imagenPerfil.setImageBitmap(MediaStore.Images.Media.getBitmap(this.getContentResolver(), contentURI));
                     esNuevaImagen = true;
                     Toast.makeText(Registro.this, "Imagen guardada!", Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
+                    esNuevaImagen = false;
                     e.printStackTrace();
                     Toast.makeText(Registro.this, "Error al guardar imagen!", Toast.LENGTH_SHORT).show();
                 }
             }
 
         } else if (requestCode == Global.REQUEST_CODE_CAMERA) {
-            pathImagenPerfil = data.getData();
-            Picasso.with(getApplicationContext()).load(pathImagenPerfil).into(imagenPerfil);
-           // imagenPerfil.setImageBitmap((Bitmap) data.getExtras().get("data"));
-            esNuevaImagen = true;
-            Toast.makeText(Registro.this, "Imagen guardada!", Toast.LENGTH_SHORT).show();
+            try {
+                pathImagenPerfil = data.getData();
+                Picasso.with(getApplicationContext()).load(pathImagenPerfil).into(imagenPerfil);
+                esNuevaImagen = true;
+                Picasso.with(getApplicationContext()).load(Global.BASE_URL + "imagen/usuario/6").into(imagenPerfil);
+                Toast.makeText(Registro.this, "Imagen guardada!", Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                esNuevaImagen = false;
+                e.printStackTrace();
+                Picasso.with(getApplicationContext()).load(Global.BASE_URL + "imagen/usuario/6").into(imagenPerfil);
+                Toast.makeText(Registro.this, "Error al guardar imagen!", Toast.LENGTH_SHORT).show();
+            }
         }
     }
-
 
 
     private String getRealPathFromURIPath(Uri contentURI, Activity activity) {
@@ -216,7 +222,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
     }
 
     private void takePhotoFromCamera() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA,}, Global.REQUEST_CODE_CAMERA);
         } else {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -226,7 +232,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
     }
 
     private void choosePhotoFromGallary() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,}, Global.REQUEST_CODE_GALLERY);
         } else {
             Intent galleryIntent = new Intent(Intent.ACTION_PICK,
@@ -244,8 +250,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(intent, Global.REQUEST_CODE_CAMERA);
             }
-        }
-        else if (requestCode == Global.REQUEST_CODE_GALLERY) {
+        } else if (requestCode == Global.REQUEST_CODE_GALLERY) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Intent galleryIntent = new Intent(Intent.ACTION_PICK,
                         android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -255,28 +260,28 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
     }
 
     private void seleccionarDeportesFavoritos() {
-        SeleccionarDeporteDialog seleccionarDeportes = new SeleccionarDeporteDialog(deportes,deportesSeleccionado);
-        seleccionarDeportes.show(Registro.this.getFragmentManager(),"seleccionarDeportes");
+        SeleccionarDeporteDialog seleccionarDeportes = new SeleccionarDeporteDialog(deportes, deportesSeleccionado);
+        seleccionarDeportes.show(Registro.this.getFragmentManager(), "seleccionarDeportes");
     }
 
     private void seleccionarMunicipio() {
-        SeleccionarMunicipioDialog seleccionarMunicipio = new SeleccionarMunicipioDialog(municipios,municipioActual);
-        seleccionarMunicipio.show(Registro.this.getFragmentManager(),"seleccionarMunicio");
+        SeleccionarMunicipioDialog seleccionarMunicipio = new SeleccionarMunicipioDialog(municipios, municipioActual);
+        seleccionarMunicipio.show(Registro.this.getFragmentManager(), "seleccionarMunicio");
     }
 
     private void seleccionarProvincia() {
-        SeleccionarProvinciasDialog seleccionarProvincias = new SeleccionarProvinciasDialog(provincias,provinciaActual);
-        seleccionarProvincias.show(Registro.this.getFragmentManager(),"seleccionarProvincias");
+        SeleccionarProvinciasDialog seleccionarProvincias = new SeleccionarProvinciasDialog(provincias, provinciaActual);
+        seleccionarProvincias.show(Registro.this.getFragmentManager(), "seleccionarProvincias");
     }
 
     @Override
-    public void deportesSeleccionados(List<Long> deportesSeleccionados){
+    public void deportesSeleccionados(List<Long> deportesSeleccionados) {
         this.deportesSeleccionado = deportesSeleccionados;
         String deportesFavoritos = "Deportes: ";
-        for(Long deporte : deportesSeleccionados){
+        for (Long deporte : deportesSeleccionados) {
             deportesFavoritos += deportes.get(deporte.intValue()).getDeporte() + ", ";
         }
-        deportesFavoritos = deportesFavoritos.substring(0,deportesFavoritos.length() - 2) + ".";
+        deportesFavoritos = deportesFavoritos.substring(0, deportesFavoritos.length() - 2) + ".";
         deporte.setText(deportesFavoritos);
     }
 
@@ -285,7 +290,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
     @Override
     public void provinciaSeleccionada(int provinciaSeleccionada) {
         // Comparar provincia actual con la seleccionada
-        if (provinciaActual != provinciaSeleccionada){
+        if (provinciaActual != provinciaSeleccionada) {
             provinciaActual = provinciaSeleccionada;
             provincia.setText("Provincia: " + provincias.get(provinciaActual).getProvincia());
             municipioActual = 0;
@@ -297,7 +302,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
     @Override
     public void municipioSeleccionado(int municipioSeleccionado) {
         // Comparar provincia actual con la seleccionada
-        if (municipioActual != municipioSeleccionado){
+        if (municipioActual != municipioSeleccionado) {
             municipioActual = municipioSeleccionado;
             municipio.setText("Municipio: " + municipios.get(municipioActual).getMunicipio());
             obtenerMunicipios();
@@ -419,7 +424,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
         int id = item.getItemId();
 
         if (id == R.id.toolbar_crear_cuenta) {
-            EditText nombre =  findViewById(R.id.texto_registro_nombre);
+            EditText nombre = findViewById(R.id.texto_registro_nombre);
             EditText apellidos = findViewById(R.id.texto_registro_apellidos);
             EditText username = findViewById(R.id.texto_registro_nick);
             EditText email = findViewById(R.id.texto_registro_email);
@@ -428,10 +433,10 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
             if (validarFormularioRegistro(nombre, apellidos, username, email, password1, password2)) {
                 String tokenFireBase = FirebaseInstanceId.getInstance().getToken();
                 List<Long> idDeportesFavoritos = new ArrayList<Long>();
-                for (Long posDeporte : deportesSeleccionado){
+                for (Long posDeporte : deportesSeleccionado) {
                     idDeportesFavoritos.add(deportes.get(posDeporte.intValue()).getId());
                 }
-                UsuarioRegistroPeticion datosRegistro = new UsuarioRegistroPeticion(nombre.getText().toString(), apellidos.getText().toString(), username.getText().toString(), email.getText().toString(), password1.getText().toString(), tokenFireBase,municipios.get(municipioActual).getId(),idDeportesFavoritos);
+                UsuarioRegistroPeticion datosRegistro = new UsuarioRegistroPeticion(nombre.getText().toString(), apellidos.getText().toString(), username.getText().toString(), email.getText().toString(), password1.getText().toString(), tokenFireBase, municipios.get(municipioActual).getId(), idDeportesFavoritos);
                 Call<UsuarioRegistroRespuesta> peticionRest = apiRest.registrar(datosRegistro);
 
 
@@ -447,7 +452,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
                             UsuarioActual.getInstance().setMail(dadesResposta.getEmail());
                             UsuarioActual.getInstance().setUsername(dadesResposta.getUsername());
 
-                            if (esNuevaImagen){
+                            if (esNuevaImagen) {
                                 try {
                                     File file = new File(getRealPathFromURIPath(pathImagenPerfil, Registro.this));
                                     RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
@@ -477,11 +482,10 @@ public class Registro extends AppCompatActivity implements View.OnClickListener 
                                             Log.i("ERROR:", t.getMessage());
                                         }
                                     });
-                                } catch (Exception e){
+                                } catch (Exception e) {
                                     System.out.println(e);
                                 }
                             }
-
 
 
                         } else {
