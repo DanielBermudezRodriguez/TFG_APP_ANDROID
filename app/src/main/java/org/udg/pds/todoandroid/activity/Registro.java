@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -22,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -74,8 +76,8 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
     private TextView municipio;
     private List<Municipio> municipios = new ArrayList<Municipio>();
     // Municipio por defecto Girona
-    private int municipioActual = 74;
     // Deportes favoritos
+    private int municipioActual = 74;
     private List<Deporte> deportes = new ArrayList<Deporte>();
     private TextView deporte;
     private List<Long> deportesSeleccionado = new ArrayList<Long>();
@@ -84,6 +86,8 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
     private ImageView imagenPerfil;
     private boolean esNuevaImagen = false;
     private Uri pathImagenPerfil;
+
+    private ProgressBar progressBar;
 
     FloatingActionButton cargarImagenPerfil;
 
@@ -112,8 +116,12 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
         obtenerPaises();
         obtenerDeportes();
 
+        progressBar = findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.INVISIBLE);
+
+
         imagenPerfil = findViewById(R.id.texto_registro_imagen_perfil);
-        Picasso.with(getApplicationContext()).load(Global.BASE_URL + "imagen/usuario/6").into(imagenPerfil);
+        Picasso.with(getApplicationContext()).load(Global.BASE_URL + "imagen/usuario/0").into(imagenPerfil);
         cargarImagenPerfil = findViewById(R.id.registro_foto_perfil);
         cargarImagenPerfil.setOnClickListener(this);
 
@@ -173,31 +181,38 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
         }
         if (requestCode == Global.REQUEST_CODE_GALLERY) {
             if (data != null) {
+
                 pathImagenPerfil = data.getData();
                 try {
                     Picasso.with(getApplicationContext()).load(pathImagenPerfil).into(imagenPerfil);
                     //imagenPerfil.setImageBitmap(MediaStore.Images.Media.getBitmap(this.getContentResolver(), contentURI));
                     esNuevaImagen = true;
                     Toast.makeText(Registro.this, "Imagen guardada!", Toast.LENGTH_SHORT).show();
+
                 } catch (Exception e) {
-                    Picasso.with(getApplicationContext()).load(Global.BASE_URL + "imagen/usuario/6").into(imagenPerfil);
+                    Picasso.with(getApplicationContext()).load(Global.BASE_URL + "imagen/usuario/0").into(imagenPerfil);
                     esNuevaImagen = false;
                     e.printStackTrace();
                     Toast.makeText(Registro.this, "Error al guardar imagen!", Toast.LENGTH_SHORT).show();
+
                 }
             }
 
         } else if (requestCode == Global.REQUEST_CODE_CAMERA) {
             try {
+
                 pathImagenPerfil = data.getData();
                 Picasso.with(getApplicationContext()).load(pathImagenPerfil).into(imagenPerfil);
                 esNuevaImagen = true;
                 Toast.makeText(Registro.this, "Imagen guardada!", Toast.LENGTH_SHORT).show();
+
             } catch (Exception e) {
                 esNuevaImagen = false;
                 e.printStackTrace();
-                Picasso.with(getApplicationContext()).load(Global.BASE_URL + "imagen/usuario/6").into(imagenPerfil);
+                Picasso.with(getApplicationContext()).load(Global.BASE_URL + "imagen/usuario/0").into(imagenPerfil);
                 Toast.makeText(Registro.this, "Error al guardar imagen!", Toast.LENGTH_SHORT).show();
+
+
             }
         }
     }
@@ -429,6 +444,9 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
                 for (Long posDeporte : deportesSeleccionado) {
                     idDeportesFavoritos.add(deportes.get(posDeporte.intValue()).getId());
                 }
+
+                progressBar.setVisibility(View.VISIBLE);
+
                 UsuarioRegistroPeticion datosRegistro = new UsuarioRegistroPeticion(nombre.getText().toString(), apellidos.getText().toString(), username.getText().toString(), email.getText().toString(), password1.getText().toString(), tokenFireBase, municipios.get(municipioActual).getId(), idDeportesFavoritos);
                 Call<UsuarioRegistroRespuesta> peticionRest = apiRest.registrar(datosRegistro);
 
@@ -459,11 +477,13 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
                                                 Intent principal = new Intent(getApplicationContext(), Principal.class);
                                                 // Eliminamos de la pila todas las actividades
                                                 principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                progressBar.setVisibility(View.INVISIBLE);
                                                 startActivity(principal);
                                             } else {
                                                 try {
                                                     JSONObject jObjError = new JSONObject(response.errorBody().string());
                                                     Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                                                    progressBar.setVisibility(View.INVISIBLE);
                                                 } catch (Exception e) {
                                                     Log.i("ERROR:", e.getMessage());
                                                 }
@@ -473,11 +493,20 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
                                         @Override
                                         public void onFailure(Call<Imagen> call, Throwable t) {
                                             Log.i("ERROR:", t.getMessage());
+                                            progressBar.setVisibility(View.INVISIBLE);
                                         }
                                     });
                                 } catch (Exception e) {
                                     System.out.println(e);
+                                    progressBar.setVisibility(View.INVISIBLE);
                                 }
+                            }
+                            else {
+                                Intent principal = new Intent(getApplicationContext(), Principal.class);
+                                // Eliminamos de la pila todas las actividades
+                                principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                progressBar.setVisibility(View.INVISIBLE);
+                                startActivity(principal);
                             }
 
 
@@ -486,6 +515,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
                                 JSONObject jObjError = new JSONObject(response.errorBody().string());
                                 Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
                             } catch (Exception e) {
+                                progressBar.setVisibility(View.INVISIBLE);
                                 Log.i("ERROR:", e.getMessage());
                             }
                         }
@@ -494,6 +524,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
                     @Override
                     public void onFailure(Call<UsuarioRegistroRespuesta> call, Throwable t) {
                         Log.i("ERROR:", t.getMessage());
+                        progressBar.setVisibility(View.INVISIBLE);
                     }
                 });
 

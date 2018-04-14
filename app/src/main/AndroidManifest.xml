@@ -32,6 +32,7 @@
         <activity
             android:name=".activity.Registro"
             android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustPan"
             android:label="@string/app_name" />
         <activity
             android:name=".activity.Principal"
