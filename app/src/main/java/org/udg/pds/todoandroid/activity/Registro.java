@@ -4,12 +4,10 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -24,7 +22,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,11 +45,7 @@ import org.udg.pds.todoandroid.service.ApiRest;
 import org.udg.pds.todoandroid.util.Global;
 import org.udg.pds.todoandroid.util.InitRetrofit;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -99,7 +92,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //Cargamos layout formulario de registro
-        setContentView(R.layout.registro2);
+        setContentView(R.layout.registro_constraint_layout);
         // Ponemos el toolbar
         Toolbar toolbar = findViewById(R.id.appbar);
         setSupportActionBar(toolbar);
@@ -187,6 +180,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
                     esNuevaImagen = true;
                     Toast.makeText(Registro.this, "Imagen guardada!", Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
+                    Picasso.with(getApplicationContext()).load(Global.BASE_URL + "imagen/usuario/6").into(imagenPerfil);
                     esNuevaImagen = false;
                     e.printStackTrace();
                     Toast.makeText(Registro.this, "Error al guardar imagen!", Toast.LENGTH_SHORT).show();
@@ -198,7 +192,6 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
                 pathImagenPerfil = data.getData();
                 Picasso.with(getApplicationContext()).load(pathImagenPerfil).into(imagenPerfil);
                 esNuevaImagen = true;
-                Picasso.with(getApplicationContext()).load(Global.BASE_URL + "imagen/usuario/6").into(imagenPerfil);
                 Toast.makeText(Registro.this, "Imagen guardada!", Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
                 esNuevaImagen = false;
