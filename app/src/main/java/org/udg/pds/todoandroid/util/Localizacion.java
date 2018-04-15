@@ -5,34 +5,40 @@ import android.location.LocationListener;
 import android.location.LocationProvider;
 import android.os.Bundle;
 import android.util.Log;
+
 import org.udg.pds.todoandroid.activity.Principal;
 
 
 public class Localizacion implements LocationListener {
+
     Principal principal;
+
     public Principal getPrincipal() {
         return principal;
     }
+
     public void setPrincipal(Principal principal) {
         this.principal = principal;
     }
+
     @Override
     public void onLocationChanged(Location loc) {
-    // Este metodo se ejecuta cada vez que el GPS recibe nuevas coordenadas debido a la deteccion de un cambio de ubicacion
-        loc.getLatitude();
-        loc.getLongitude();
+        // Este metodo se ejecuta cada vez que el GPS recibe nuevas coordenadas debido a la detección de un cambio de ubicación
         this.principal.setLocation(loc);
     }
+
     @Override
     public void onProviderDisabled(String provider) {
         // Este metodo se ejecuta cuando el GPS es desactivado
-        //mensaje1.setText("GPS Desactivado");
+        Log.d("debug", "GPS DESACTIVADO");
     }
+
     @Override
     public void onProviderEnabled(String provider) {
-    // Este metodo se ejecuta cuando el GPS es activado
-        //mensaje1.setText("GPS Activado");
+        // Este metodo se ejecuta cuando el GPS es activado
+        Log.d("debug", "GPS ACTIVADO");
     }
+
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
         switch (status) {

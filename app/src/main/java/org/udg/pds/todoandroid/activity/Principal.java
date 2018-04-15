@@ -18,17 +18,29 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
+import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
+import org.udg.pds.todoandroid.entity.Ubicacion;
 import org.udg.pds.todoandroid.entity.UsuarioActual;
+import org.udg.pds.todoandroid.entity.UsuarioLoginRespuesta;
 import org.udg.pds.todoandroid.fragment.MenuLateralFragment;
+import org.udg.pds.todoandroid.service.ApiRest;
 import org.udg.pds.todoandroid.util.Global;
+import org.udg.pds.todoandroid.util.InitRetrofit;
 import org.udg.pds.todoandroid.util.Localizacion;
 
 import java.util.List;
 import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class Principal extends AppCompatActivity implements MenuLateralFragment.NavigationDrawerCallbacks {
@@ -37,6 +49,8 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
     private MenuLateralFragment mNavigationDrawerFragment;
     // guarda el último título de pantalla
     private CharSequence mTitle;
+
+    private ApiRest apiRest;
 
 
     @Override
@@ -52,6 +66,9 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
         }
         setContentView(R.layout.activity_principal);
 
+        // Inicializamos el servicio de APIRest de retrofit
+        apiRest = InitRetrofit.getInstance().getApiRest();
+
         // Ponemos el toolbar
         Toolbar toolbar = findViewById(R.id.appbar);
         setSupportActionBar(toolbar);
@@ -60,6 +77,8 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
         mTitle = getTitle();
         // Preparar el menú lateral
         mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
+
+
         // Pedir permisos para utilizar ubicación del dispositivo
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // Si no hay permisos concedidos se piden:
@@ -77,16 +96,18 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
         // Assignamos actividad actual a la clase localización
         Local.setPrincipal(this);
         final boolean gpsEnabled = mlocManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        // Si el GPS se encuentra deshabilitado, se pide habilitar-lo
         if (!gpsEnabled) {
-            // Si el GPS se encuentra deshabilitado, se pide habilitar-lo
             Intent settingsIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
             startActivity(settingsIntent);
         }
+        // Si no hay permisos de piden
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,}, Global.REQUEST_CODE_GPS_LOCATION);
             return;
         }
-        // Pedir actualizaciones de posición
+
+        // Pedir actualizaciones de posición (cada minuto y notificar si distancia es > 1km respecto a la anterior)
         mlocManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, Global.MINIMUM_TIME_UPDATE_LOCATION, Global.MINIMUM_DISTANCE_UPDATE_LOCATION, Local);
         mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, Global.MINIMUM_TIME_UPDATE_LOCATION, Global.MINIMUM_DISTANCE_UPDATE_LOCATION, Local);
 
@@ -101,26 +122,52 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
         }
     }
 
-    public void setLocation(Location loc) {
-    //Obtener la direccion de la calle a partir de la latitud y la longitud
-        if (loc != null && loc.getLatitude() != 0.0 && loc.getLongitude() != 0.0) {
+    public void setLocation(Location localizacion) {
+        //Se ha recibido una actualizacion de la ubicación del usuario actual
+        if (localizacion != null && localizacion.getLatitude() != 0.0 && localizacion.getLongitude() != 0.0) {
             try {
                 Geocoder geocoder = new Geocoder(this, Locale.getDefault());
                 List<Address> list = geocoder.getFromLocation(
-                        loc.getLatitude(), loc.getLongitude(), 1);
+                        localizacion.getLatitude(), localizacion.getLongitude(), 1);
                 if (!list.isEmpty()) {
-                    Address DirCalle = list.get(0);
-                    System.out.println("Direccion : "+DirCalle.getAddressLine(0));
-                    System.out.println("Pais : "+DirCalle.getCountryName());
-                    System.out.println("Comunidad autónoma : "+DirCalle.getAdminArea());
-                    System.out.println("Provincia : "+DirCalle.getSubAdminArea());
-                    System.out.println("Municipio : "+DirCalle.getLocality());
-                    System.out.println("Latitud : "+DirCalle.getLatitude());
-                    System.out.println("Longitud : "+DirCalle.getLongitude());
+                    Address datosUbicacion = list.get(0);
+                    Ubicacion ubicacionActual = new Ubicacion(datosUbicacion.getLatitude(),datosUbicacion.getLongitude(),datosUbicacion.getAddressLine(0),datosUbicacion.getLocality());
+                    Call<Long> peticionRest = apiRest.guardarUbicacionActualUsuario(ubicacionActual);
+                    peticionRest.enqueue(new Callback<Long>() {
+                        @Override
+                        public void onResponse(Call<Long> call, Response<Long> response) {
+                            if (response.raw().code()!=500 && response.isSuccessful()) {
+
+                                Long idUbicacion = response.body();
+                                Log.d("DEBUG", "Ubicación registrada correctamente con identificador: " + idUbicacion + ".");
+
+                            } else {
+                                try {
+                                    JSONObject jObjError = new JSONObject(response.errorBody().string());
+                                    Toast.makeText(getApplicationContext(),jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                                } catch (Exception e) {
+                                    Log.i("ERROR:", e.getMessage());
+                                }
+                            }
+                        }
+                        @Override
+                        public void onFailure (Call <Long> call, Throwable t){
+                            Log.i("ERROR:", t.getMessage());
+                        }
+                    });
+
+
+                    Log.d("DEBUG", "Direccion : " + datosUbicacion.getAddressLine(0));
+                    Log.d("DEBUG", "Pais : " + datosUbicacion.getCountryName());
+                    Log.d("DEBUG", "Comunidad autónoma : " + datosUbicacion.getAdminArea());
+                    Log.d("DEBUG", "Provincia : " + datosUbicacion.getSubAdminArea());
+                    Log.d("DEBUG", "Municipio : " + datosUbicacion.getLocality());
+                    Log.d("DEBUG", "Latitud : " + datosUbicacion.getLatitude());
+                    Log.d("DEBUG", "Longitud : " + datosUbicacion.getLongitude());
 
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.d("ERROR", "Error al guardar la ubicación actual");
             }
         }
     }
@@ -181,7 +228,7 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
         }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_principal, container, false);
             return rootView;
         }

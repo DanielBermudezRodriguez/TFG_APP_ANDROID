@@ -6,6 +6,7 @@ import org.udg.pds.todoandroid.entity.Imagen;
 import org.udg.pds.todoandroid.entity.Municipio;
 import org.udg.pds.todoandroid.entity.Pais;
 import org.udg.pds.todoandroid.entity.Provincia;
+import org.udg.pds.todoandroid.entity.Ubicacion;
 import org.udg.pds.todoandroid.entity.UsuarioLoginPeticion;
 import org.udg.pds.todoandroid.entity.UsuarioLoginRespuesta;
 import org.udg.pds.todoandroid.entity.UsuarioRegistroPeticion;
@@ -42,6 +43,9 @@ public interface ApiRest {
 
     @GET("deporte")
     Call<List<Deporte>> getDeportes();
+
+    @POST("ubicacion/usuario")
+    Call<Long> guardarUbicacionActualUsuario(@Body Ubicacion ubicacion);
 
     @Multipart
     @POST("imagen/usuario")

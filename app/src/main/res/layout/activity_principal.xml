@@ -1,25 +1,30 @@
 <!-- Un DrawerLayout está destinado a ser utilizado como la vista de contenido de nivel superior utilizando match_parent para ancho y alto para consumir el espacio completo disponible. -->
 <android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="org.udg.pds.todoandroid.activity.Principal">
 
-    <LinearLayout
+    <android.support.constraint.ConstraintLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <include android:id="@+id/appbar"
-            layout="@layout/toolbar" />
+        <include
+            android:id="@+id/appbar"
+            layout="@layout/toolbar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/container" />
 
     <!-- Como la vista de contenido principal, la vista a continuación consume todo el espacio disponible utilizando match_parent en ambas dimensiones. -->
-    <FrameLayout
-        android:id="@+id/container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-    </LinearLayout>
+        <FrameLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </android.support.constraint.ConstraintLayout>
 
     <!-- El cajón tiene un ancho fijo en dp y se extiende a la altura completa del contenedor. -->
     <fragment
