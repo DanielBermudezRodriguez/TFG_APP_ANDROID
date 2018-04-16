@@ -2,11 +2,13 @@ package org.udg.pds.todoandroid.service;
 
 
 import org.udg.pds.todoandroid.entity.Deporte;
+import org.udg.pds.todoandroid.entity.Evento;
 import org.udg.pds.todoandroid.entity.Imagen;
 import org.udg.pds.todoandroid.entity.Municipio;
 import org.udg.pds.todoandroid.entity.Pais;
 import org.udg.pds.todoandroid.entity.Provincia;
 import org.udg.pds.todoandroid.entity.Ubicacion;
+import org.udg.pds.todoandroid.entity.Usuario;
 import org.udg.pds.todoandroid.entity.UsuarioLoginPeticion;
 import org.udg.pds.todoandroid.entity.UsuarioLoginRespuesta;
 import org.udg.pds.todoandroid.entity.UsuarioRegistroPeticion;
@@ -23,6 +25,7 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
+import retrofit2.http.Url;
 
 public interface ApiRest {
 
@@ -50,4 +53,10 @@ public interface ApiRest {
     @Multipart
     @POST("imagen/usuario")
     Call<Imagen> subirImagenUsuario(@Part MultipartBody.Part file);
+
+    @GET
+    Call<List<Evento>> buscadorEventos(@Url String url);
+
+    @GET("usuario/{idUsuario}")
+    Call<Usuario> perfilUsuario(@Path("idUsuario") Long idUsuario);
 }

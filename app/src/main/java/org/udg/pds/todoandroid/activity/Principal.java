@@ -26,9 +26,11 @@ import android.widget.Toast;
 
 import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
+import org.udg.pds.todoandroid.entity.Deporte;
+import org.udg.pds.todoandroid.entity.Evento;
 import org.udg.pds.todoandroid.entity.Ubicacion;
+import org.udg.pds.todoandroid.entity.Usuario;
 import org.udg.pds.todoandroid.entity.UsuarioActual;
-import org.udg.pds.todoandroid.entity.UsuarioLoginRespuesta;
 import org.udg.pds.todoandroid.fragment.MenuLateralFragment;
 import org.udg.pds.todoandroid.service.ApiRest;
 import org.udg.pds.todoandroid.util.Global;
@@ -88,7 +90,12 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
             determinarUbicacion();
         }
 
+        // Busqueda inicial de eventos segun características del usuario logeado
+        busquedaInicialEventos();
+
     }
+
+    // LOCALIZACIÓN GPS -------------------------------------------------------------------------------------------------------------
 
     private void determinarUbicacion() {
         LocationManager mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -131,12 +138,12 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
                         localizacion.getLatitude(), localizacion.getLongitude(), 1);
                 if (!list.isEmpty()) {
                     Address datosUbicacion = list.get(0);
-                    Ubicacion ubicacionActual = new Ubicacion(datosUbicacion.getLatitude(),datosUbicacion.getLongitude(),datosUbicacion.getAddressLine(0),datosUbicacion.getLocality());
+                    Ubicacion ubicacionActual = new Ubicacion(datosUbicacion.getLatitude(), datosUbicacion.getLongitude(), datosUbicacion.getAddressLine(0), datosUbicacion.getLocality());
                     Call<Long> peticionRest = apiRest.guardarUbicacionActualUsuario(ubicacionActual);
                     peticionRest.enqueue(new Callback<Long>() {
                         @Override
                         public void onResponse(Call<Long> call, Response<Long> response) {
-                            if (response.raw().code()!=500 && response.isSuccessful()) {
+                            if (response.raw().code() != 500 && response.isSuccessful()) {
 
                                 Long idUbicacion = response.body();
                                 Log.d("DEBUG", "Ubicación registrada correctamente con identificador: " + idUbicacion + ".");
@@ -144,14 +151,15 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
                             } else {
                                 try {
                                     JSONObject jObjError = new JSONObject(response.errorBody().string());
-                                    Toast.makeText(getApplicationContext(),jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
                                 } catch (Exception e) {
                                     Log.i("ERROR:", e.getMessage());
                                 }
                             }
                         }
+
                         @Override
-                        public void onFailure (Call <Long> call, Throwable t){
+                        public void onFailure(Call<Long> call, Throwable t) {
                             Log.i("ERROR:", t.getMessage());
                         }
                     });
@@ -172,6 +180,53 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
         }
     }
 
+    // BÚSQUEDA INICIAL PRODUCTOS -------------------------------------------------------------------------------------------------------------
+
+    private void busquedaInicialEventos() {
+
+        Call<Usuario> call = apiRest.perfilUsuario(UsuarioActual.getInstance().getId());
+        call.enqueue(new Callback<Usuario>() {
+            @Override
+            public void onResponse(Call<Usuario> call, Response<Usuario> response) {
+                if (response.raw().code() != 500 && response.isSuccessful()) {
+                    Usuario usuario = response.body();
+                    String url = Global.BASE_URL + "evento?distancia=100";
+                    for (Deporte d : usuario.getDeportesFavoritos()) {
+                        url += "&deportes=" + d.getId();
+                    }
+                    Call<List<Evento>> peticionEventos = apiRest.buscadorEventos(url);
+                    peticionEventos.enqueue(new Callback<List<Evento>>() {
+                        @Override
+                        public void onResponse(Call<List<Evento>> call, Response<List<Evento>> response) {
+                            if (response.raw().code() != 500 && response.isSuccessful()) {
+                                List<Evento> eventos = response.body();
+                                System.out.println("Eventos recibidos: " + eventos.size());
+
+                            } else
+                                Toast.makeText(getApplicationContext(), "Error al buscar eventos", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onFailure(Call<List<Evento>> call, Throwable t) {
+                            Log.e("ERROR", t.getMessage(), t);
+                            Toast.makeText(getApplicationContext(), "Error al buscar eventos", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<Usuario> call, Throwable t) {
+                Log.e("ERROR", t.getMessage(), t);
+            }
+        });
+
+    }
+
+
+    // MENÚ LATERAL ----------------------------------------------------------------------------------------------------------------------------
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {

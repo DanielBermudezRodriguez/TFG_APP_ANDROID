@@ -38,7 +38,7 @@ public class InitRetrofit {
 
             Gson gson = new GsonBuilder()
                     .setLenient()
-                    .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+                    .setDateFormat("dd/MM/yyyy HH:mm")
                     .create();
 
             Retrofit retrofit = new Retrofit.Builder()
