@@ -130,8 +130,6 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.texto_registro_pais:
-                break;
             case R.id.texto_registro_provincia:
                 seleccionarProvincia();
                 break;

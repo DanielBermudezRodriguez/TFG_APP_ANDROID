@@ -5,7 +5,6 @@ import android.app.ActionBar;
 import android.app.Fragment;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -22,7 +21,6 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -53,9 +51,11 @@ public class MenuLateralFragment extends Fragment {
     private NavigationDrawerAdapter mNavigationDrawerAdapter;
 
     // Interficie con las llamdas que tiene que utilizar las actividades contenedoras
-    public static interface NavigationDrawerCallbacks {
+    public interface NavigationDrawerCallbacks {
         // Se llama cuando un elemento del menú es seleccionado
         void onNavigationDrawerItemSelected(int position);
+
+        void onSearchItemSelected();
     }
 
     public MenuLateralFragment() {
@@ -76,9 +76,9 @@ public class MenuLateralFragment extends Fragment {
         selectItem(posicionActual);
     }
 
-     // Usuarios de este Fragment tienen que llamar a este método para preparar el menú lateral
-     // @param fragmentId   The android:id de este fragment en el layout de la actividad.
-     // @param drawerLayout The DrawerLayout contenedor del fragment UI.
+    // Usuarios de este Fragment tienen que llamar a este método para preparar el menú lateral
+    // @param fragmentId   The android:id de este fragment en el layout de la actividad.
+    // @param drawerLayout The DrawerLayout contenedor del fragment UI.
     public void setUp(int fragmentId, DrawerLayout drawerLayout) {
         vistaMenuLateral = getActivity().findViewById(fragmentId);
         menuLateral = drawerLayout;
@@ -179,7 +179,7 @@ public class MenuLateralFragment extends Fragment {
 
         View myHeader = inflater.inflate(R.layout.cabecera_menu_lateral, container, false);
         // Obtenemos información del usuario actual logeado
-        if (UsuarioActual.getInstance().getId() != -1L){
+        if (UsuarioActual.getInstance().getId() != -1L) {
             TextView username = myHeader.findViewById(R.id.username_menu_lateral);
             TextView email = myHeader.findViewById(R.id.email_menu_lateral);
             username.setText(UsuarioActual.getInstance().getUsername());
@@ -222,14 +222,14 @@ public class MenuLateralFragment extends Fragment {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        // Adelante la nueva configuración del componente de alternar del cajón.
+        // Configuración al modificar la selección en el menú lateral
         iconoMenuLateral.onConfigurationChanged(newConfig);
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // If the drawer is open, show the global app actions in the action bar. See also showGlobalContextActionBar, which controls the top-left area of the action bar.
-        if (menuLateral != null && isDrawerOpen()) {
+        // Al crear el menú ponemos los iconos en el action bar correspondientes
+        if (menuLateral != null) {
             inflater.inflate(R.menu.global, menu);
             showGlobalContextActionBar();
         }
@@ -238,22 +238,18 @@ public class MenuLateralFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        // Distinción entre seleccionar el menú o los iconos de la action bar
         if (iconoMenuLateral.onOptionsItemSelected(item)) {
             return true;
-        }
-
-        if (item.getItemId() == R.id.action_example) {
-            Toast.makeText(getActivity(), "Example action.", Toast.LENGTH_SHORT).show();
-            return true;
+        } else if (id == R.id.icono_buscador) {
+            mCallbacks.onSearchItemSelected();
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Per the navigation drawer design guidelines, updates the action bar to show the global app
-     * 'context', rather than just what's in the current screen.
-     */
+
     private void showGlobalContextActionBar() {
         android.support.v7.app.ActionBar actionBar = getToolBar();
         actionBar.setDisplayShowTitleEnabled(true);
@@ -261,6 +257,8 @@ public class MenuLateralFragment extends Fragment {
         actionBar.setTitle(R.string.app_name);
     }
 
-    private android.support.v7.app.ActionBar getToolBar(){ return ((AppCompatActivity) getActivity()).getSupportActionBar();}
+    private android.support.v7.app.ActionBar getToolBar() {
+        return ((AppCompatActivity) getActivity()).getSupportActionBar();
+    }
 
 }

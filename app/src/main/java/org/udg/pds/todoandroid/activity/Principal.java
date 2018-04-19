@@ -47,8 +47,6 @@ import retrofit2.Response;
 
 public class Principal extends AppCompatActivity implements MenuLateralFragment.NavigationDrawerCallbacks {
 
-    // Fragment que controla los comportamientos, interacciones y vista del menú lateral
-    private MenuLateralFragment mNavigationDrawerFragment;
     // guarda el último título de pantalla
     private CharSequence mTitle;
 
@@ -75,7 +73,7 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
         Toolbar toolbar = findViewById(R.id.appbar);
         setSupportActionBar(toolbar);
 
-        mNavigationDrawerFragment = (MenuLateralFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
+        MenuLateralFragment mNavigationDrawerFragment = (MenuLateralFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
         // Preparar el menú lateral
         mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
@@ -242,6 +240,12 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
             Intent perfilUsuario = new Intent(getApplicationContext(), PerfilUsuario.class);
             startActivity(perfilUsuario);
         }
+    }
+
+    @Override
+    public void onSearchItemSelected(){
+        Intent buscador = new Intent(getApplicationContext(), Buscador.class);
+        startActivity(buscador);
     }
 
     public void onSectionAttached(int number) {

@@ -40,7 +40,7 @@
     <string name="registrar_usuario_municipio">Municipio: </string>
     <string name="texto_registro_usuario_nuevo_deportes_favoritos">Deportes Favoritos</string>
 
-   // Menú lateral
+    // Menú lateral
     <string name="title_section1">Perfil</string>
     <string name="title_section2">Modificar perfil</string>
     <string name="title_section3">Cerrar sesión</string>
@@ -63,6 +63,10 @@
     <string name="toolbar_crear_cuenta">Registrar</string>
     <string name="registrar_usuario_deportes">Deportes:</string>
     <string name="texto_login_crear_cuenta">Crear cuenta de yourSport</string>
+    <string name="buscador">Buscador</string>
+    <string name="buscador_titulo">¿Qué estás buscando?</string>
+    <string name="buscador_reiniciar_filtros">Reiniciar filtros</string>
+    <string name="buscador_aplicar_filtros">Aplicar filtros</string>
 
 
 </resources>
