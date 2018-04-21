@@ -63,7 +63,6 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
     // Interficie de llamadas a la APIRest gestionada por Retrofit
     private ApiRest apiRest;
     // Paises registro
-    private TextView pais;
     private List<Pais> paises = new ArrayList<Pais>();
     // Paispor defecto España
     private int paisActual = 0;
@@ -282,13 +281,19 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
 
     @Override
     public void deportesSeleccionados(List<Long> deportesSeleccionados) {
-        this.deportesSeleccionado = deportesSeleccionados;
         String deportesFavoritos = "Deportes: ";
-        for (Long deporte : deportesSeleccionados) {
-            deportesFavoritos += deportes.get(deporte.intValue()).getDeporte() + ", ";
+        if (deportesSeleccionados != null && !deportesSeleccionados.isEmpty()) {
+            this.deportesSeleccionado = deportesSeleccionados;
+            for (Long deporte : deportesSeleccionados) {
+                deportesFavoritos += deportes.get(deporte.intValue()).getDeporte() + ", ";
+            }
+            deportesFavoritos = deportesFavoritos.substring(0, deportesFavoritos.length() - 2) + ".";
+            deporte.setText(deportesFavoritos);
         }
-        deportesFavoritos = deportesFavoritos.substring(0, deportesFavoritos.length() - 2) + ".";
-        deporte.setText(deportesFavoritos);
+        else{
+            deporte.setText(deportesFavoritos);
+            this.deportesSeleccionado = new ArrayList<Long>();
+        }
     }
 
 
@@ -498,8 +503,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
                                     System.out.println(e);
                                     progressBar.setVisibility(View.INVISIBLE);
                                 }
-                            }
-                            else {
+                            } else {
                                 Intent principal = new Intent(getApplicationContext(), Principal.class);
                                 // Eliminamos de la pila todas las actividades
                                 principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -533,6 +537,13 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
 
     private boolean validarFormularioRegistro(EditText nombre, EditText apellidos, EditText username, EditText email, EditText password1, EditText password2) {
         boolean esCorrecto = true;
+
+        if (deportesSeleccionado == null || deportesSeleccionado.isEmpty()) {
+            deporte.setError("Debe seleccionar almenos una categoría deportiva");
+            deporte.requestFocus();
+            esCorrecto = false;
+        }
+
         if (nombre == null || TextUtils.isEmpty(nombre.getText().toString())) {
             nombre.setError(getString(R.string.nombre_registro_validacion));
             nombre.requestFocus();

@@ -67,6 +67,9 @@
     <string name="buscador_titulo">¿Qué estás buscando?</string>
     <string name="buscador_reiniciar_filtros">Reiniciar filtros</string>
     <string name="buscador_aplicar_filtros">Aplicar filtros</string>
+    <string name="buscador_todos_los_deportes">Todos los deportes</string>
+    <string name="ingrese_una_fecha">Ingrese una fecha</string>
+    <string name="buscador_cerca_de_mi">Cerca de mi</string>
 
 
 </resources>
