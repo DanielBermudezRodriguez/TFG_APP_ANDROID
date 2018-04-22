@@ -1,8 +1,9 @@
 package org.udg.pds.todoandroid.entity;
 
 
+import java.io.Serializable;
 
-public class Municipio {
+public class Municipio implements Serializable{
 
     private Long id;
 

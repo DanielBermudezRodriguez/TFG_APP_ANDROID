@@ -65,18 +65,17 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
     // Paises registro
     private List<Pais> paises = new ArrayList<Pais>();
     // Paispor defecto España
-    private int paisActual = 0;
+    private int paisActual = Global.DEFAULT_COUNTRY;
     // Provincias registro
     private TextView provincia;
     private List<Provincia> provincias = new ArrayList<Provincia>();
     // Provincia por defecto Girona
-    private int provinciaActual = 16;
+    private int provinciaActual = Global.DEFAULT_PROVINCE;
     // Municipios registro
     private TextView municipio;
     private List<Municipio> municipios = new ArrayList<Municipio>();
     // Municipio por defecto Girona
-    // Deportes favoritos
-    private int municipioActual = 74;
+    private int municipioActual = Global.DEFAULT_LOCALITY;
     private List<Deporte> deportes = new ArrayList<Deporte>();
     private TextView deporte;
     private List<Long> deportesSeleccionado = new ArrayList<Long>();
@@ -289,8 +288,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
             }
             deportesFavoritos = deportesFavoritos.substring(0, deportesFavoritos.length() - 2) + ".";
             deporte.setText(deportesFavoritos);
-        }
-        else{
+        } else {
             deporte.setText(deportesFavoritos);
             this.deportesSeleccionado = new ArrayList<Long>();
         }

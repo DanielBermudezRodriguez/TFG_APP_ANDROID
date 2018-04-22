@@ -1,8 +1,11 @@
 package org.udg.pds.todoandroid.entity;
 
+import android.os.Parcelable;
+
+import java.io.Serializable;
 import java.util.Date;
 
-public class Evento {
+public class Evento implements Serializable {
 
     private Long id;
 

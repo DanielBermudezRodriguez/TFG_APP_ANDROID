@@ -1,11 +1,16 @@
 package org.udg.pds.todoandroid.activity;
 
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.DatePickerDialog;
 
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
+import android.os.Parcelable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 
@@ -17,6 +22,7 @@ import android.widget.SearchView;
 
 import android.view.View;
 import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,24 +30,36 @@ import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.entity.Deporte;
 
+import org.udg.pds.todoandroid.entity.Evento;
 import org.udg.pds.todoandroid.entity.Municipio;
 import org.udg.pds.todoandroid.entity.Pais;
 import org.udg.pds.todoandroid.entity.Provincia;
 import org.udg.pds.todoandroid.fragment.DatePickerFragment;
 
 import org.udg.pds.todoandroid.fragment.SeleccionarDeporteDialog;
+import org.udg.pds.todoandroid.fragment.SeleccionarMunicipioDialog;
+import org.udg.pds.todoandroid.fragment.SeleccionarProvinciasDialog;
 import org.udg.pds.todoandroid.service.ApiRest;
 
+import org.udg.pds.todoandroid.util.Global;
 import org.udg.pds.todoandroid.util.InitRetrofit;
 
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class Buscador extends AppCompatActivity implements View.OnClickListener, SeleccionarDeporteDialog.SeleccionarDeporteDialogListener {
+public class Buscador extends AppCompatActivity implements View.OnClickListener, SeleccionarDeporteDialog.SeleccionarDeporteDialogListener, SeleccionarProvinciasDialog.SeleccionarProvinciasDialogListener, SeleccionarMunicipioDialog.SeleccionarMunicipioDialogListener {
 
     private ApiRest apiRest;
 
@@ -55,16 +73,19 @@ public class Buscador extends AppCompatActivity implements View.OnClickListener,
     EditText fechaEvento;
 
     private List<Pais> paises = new ArrayList<Pais>();
-    private int paisActual = 0;
+    private int paisActual = -1;
     private TextView provincia;
     private List<Provincia> provincias = new ArrayList<Provincia>();
-    // Provincia por defecto Girona
-    private int provinciaActual = 16;
-    // Municipios registro
+    private int provinciaActual = -1;
     private TextView municipio;
     private List<Municipio> municipios = new ArrayList<Municipio>();
-    // Municipio por defecto Girona
-    private int municipioActual = 74;
+    private int municipioActual = -1;
+    private TextView mostrarDistancia;
+    private SeekBar seekBarDistancia;
+    private int distancia = -1;
+    private int year = -1;
+    private int month = -1;
+    private int day = -1;
 
 
     @Override
@@ -101,12 +122,44 @@ public class Buscador extends AppCompatActivity implements View.OnClickListener,
         Button ubicacion = findViewById(R.id.buscador_boton_ubicacion);
         ubicacion.setOnClickListener(this);
 
+        findViewById(R.id.constraintLayout2).setVisibility(View.GONE);
+
         provincia = findViewById(R.id.texto_buscador_provincia);
         provincia.setOnClickListener(this);
         provincia.setVisibility(View.GONE);
         municipio = findViewById(R.id.texto_buscador_municipio);
         municipio.setOnClickListener(this);
         municipio.setVisibility(View.GONE);
+
+        mostrarDistancia = findViewById(R.id.buscador_cerca_de_mi_distancia);
+        mostrarDistancia.setVisibility(View.GONE);
+
+        seekBarDistancia = findViewById(R.id.buscador_seekbar_distancia);
+        seekBarDistancia.setVisibility(View.GONE);
+        seekBarDistancia.setProgress(0);
+        seekBarDistancia.setMax(100);
+        seekBarDistancia.setOnSeekBarChangeListener(
+                new SeekBar.OnSeekBarChangeListener() {
+                    //hace un llamado a la perilla cuando se arrastra
+                    @SuppressLint("SetTextI18n")
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar,
+                                                  int progress, boolean fromUser) {
+                        if (progress == 0) mostrarDistancia.setText("Cualquier distancia");
+                        else
+                            mostrarDistancia.setText("Distancia: " + String.valueOf(progress) + " Km");
+
+                        distancia = progress;
+                    }
+
+                    //hace un llamado  cuando se toca la perilla
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+                    }
+
+                    //hace un llamado  cuando se detiene la perilla
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+                    }
+                });
 
         obtenerDeportes();
 
@@ -118,15 +171,66 @@ public class Buscador extends AppCompatActivity implements View.OnClickListener,
 
         switch (v.getId()) {
             case R.id.boton_buscador_aplicar_filtros:
-                //Toast.makeText(getApplicationContext(), tituloBuscador.getQuery(), Toast.LENGTH_LONG).show();
+                String url = Global.BASE_URL + "evento?";
+                if (tituloBuscador != null && tituloBuscador.getQuery() != null && !tituloBuscador.getQuery().toString().isEmpty()) {
+                    try {
+                        url += "titulo=" + URLEncoder.encode(tituloBuscador.getQuery().toString(), "UTF-8") + "&";
+                    } catch (UnsupportedEncodingException e) {
+                        Log.e("ERROR", "Error al codificar el título en el buscador", e);
+                    }
+                }
+                // Si no se ha seleccionado ninguna categoria deportiva se consideran todas
+                if (deportesSeleccionados == null || deportesSeleccionados.isEmpty()) {
+                    for (Deporte d : deportes) {
+                        url += "deportes=" + d.getId().toString() + "&";
+                    }
+                } else {
+                    // Categorias deportivas seleccionadas
+                    for (Long d : deportesSeleccionados) {
+                        url += "deportes=" + (d + 1) + "&";
+                    }
+                }
+                // Miramos si se ha escojido una fecha
+                if (year != -1 && month != -1 && day != -1) {
+                    Date date = new GregorianCalendar(year, month, day).getTime();
+                    @SuppressLint("SimpleDateFormat") DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+                    url += "fechaEvento=" + df.format(date) + "&";
+                }
+                if (distancia > 0) {
+                    url += "distancia=" + distancia + "&";
+                } else if (municipioActual != -1) {
+                    url += "municipio=" + municipios.get(municipioActual).getId().toString() + "&";
+                }
+                url = url.substring(0, url.length() - 1);
+                aplicarFiltrosBusquedaEventos(url);
+                System.out.println(url);
+
                 break;
             case R.id.boton_buscador_reiniciar_filtros:
+                distancia = -1;
                 tituloBuscador.setQuery("", false);
                 tituloBuscador.setIconified(false);
                 String deportesFavoritos = "Todos los deportes";
                 deporte.setText(deportesFavoritos);
                 this.deportesSeleccionados = new ArrayList<Long>();
                 fechaEvento.setText("");
+                year = -1;
+                month = -1;
+                day = -1;
+                // Si hay escojida alguna ubicacion la reseteamos.
+                desactivarBoton(R.id.buscador_boton_cerca_de_mi);
+                desactivarBoton(R.id.buscador_boton_ubicacion);
+                if (!emptyUbicacion()) {
+                    provincia.setVisibility(View.GONE);
+                    municipio.setVisibility(View.GONE);
+                    resetUbicacion();
+                }
+                seekBarDistancia.setVisibility(View.GONE);
+                seekBarDistancia.setProgress(0);
+                mostrarDistancia.setText("Cualquier distancia");
+                mostrarDistancia.setVisibility(View.GONE);
+                findViewById(R.id.constraintLayout2).setVisibility(View.GONE);
+
                 break;
             case R.id.texto_buscador_deportes:
             case R.id.imagen_buscador_deportes:
@@ -140,27 +244,214 @@ public class Buscador extends AppCompatActivity implements View.OnClickListener,
                 desactivarBoton(R.id.buscador_boton_ubicacion);
                 provincia.setVisibility(View.GONE);
                 municipio.setVisibility(View.GONE);
+                // Si hay escojida alguna ubicacion la reseteamos.
+                if (!emptyUbicacion()) resetUbicacion();
+                findViewById(R.id.constraintLayout2).setVisibility(View.VISIBLE);
+                seekBarDistancia.setVisibility(View.VISIBLE);
+                mostrarDistancia.setVisibility(View.VISIBLE);
                 break;
             case R.id.buscador_boton_ubicacion:
                 activarBoton(v.getId());
                 desactivarBoton(R.id.buscador_boton_cerca_de_mi);
+                distancia = -1;
+                findViewById(R.id.constraintLayout2).setVisibility(View.VISIBLE);
                 provincia.setVisibility(View.VISIBLE);
                 municipio.setVisibility(View.VISIBLE);
+
+                if (emptyUbicacion()) {
+                    paisActual = Global.DEFAULT_COUNTRY;
+                    provinciaActual = Global.DEFAULT_PROVINCE;
+                    municipioActual = Global.DEFAULT_LOCALITY;
+                    obtenerUbicacion();
+
+                }
+
+                seekBarDistancia.setProgress(0);
+                mostrarDistancia.setText("Cualquier distancia");
+                seekBarDistancia.setVisibility(View.GONE);
+                mostrarDistancia.setVisibility(View.GONE);
+                break;
+            case R.id.texto_buscador_provincia:
+                seleccionarProvincia();
+                break;
+            case R.id.texto_buscador_municipio:
+                seleccionarMunicipio();
                 break;
         }
 
 
     }
 
+    private void aplicarFiltrosBusquedaEventos(String url) {
+
+        Call<List<Evento>> peticionEventos = apiRest.buscadorEventos(url);
+        peticionEventos.enqueue(new Callback<List<Evento>>() {
+            @Override
+            public void onResponse(Call<List<Evento>> call, Response<List<Evento>> response) {
+                if (response.raw().code() != 500 && response.isSuccessful()) {
+                    List<Evento> eventos = response.body();
+                    Intent returnIntent = new Intent();
+                    returnIntent.putExtra("resultadoBuscador", (Serializable) eventos);
+                    setResult(Activity.RESULT_OK, returnIntent);
+                    finish();
+
+                } else {
+                    Toast.makeText(getApplicationContext(), "Error al buscar eventos", Toast.LENGTH_SHORT).show();
+                    Intent returnIntent = new Intent();
+                    setResult(Activity.RESULT_CANCELED, returnIntent);
+                    finish();
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<List<Evento>> call, Throwable t) {
+                Log.e("ERROR", t.getMessage(), t);
+                Toast.makeText(getApplicationContext(), "Error al buscar eventos", Toast.LENGTH_SHORT).show();
+                Intent returnIntent = new Intent();
+                setResult(Activity.RESULT_CANCELED, returnIntent);
+                finish();
+            }
+        });
+    }
+
+    private void seleccionarMunicipio() {
+        SeleccionarMunicipioDialog seleccionarMunicipio = new SeleccionarMunicipioDialog(municipios, municipioActual);
+        seleccionarMunicipio.show(Buscador.this.getFragmentManager(), "seleccionarMunicio");
+    }
+
+    private void seleccionarProvincia() {
+        SeleccionarProvinciasDialog seleccionarProvincias = new SeleccionarProvinciasDialog(provincias, provinciaActual);
+        seleccionarProvincias.show(Buscador.this.getFragmentManager(), "seleccionarProvincias");
+    }
+
+    @SuppressLint("SetTextI18n")
+    @Override
+    public void provinciaSeleccionada(int provinciaSeleccionada) {
+        // Comparar provincia actual con la seleccionada
+        if (provinciaActual != provinciaSeleccionada) {
+            provinciaActual = provinciaSeleccionada;
+            provincia.setText("Provincia: " + provincias.get(provinciaActual).getProvincia());
+            municipioActual = 0;
+            obtenerMunicipios();
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    @Override
+    public void municipioSeleccionado(int municipioSeleccionado) {
+        // Comparar provincia actual con la seleccionada
+        if (municipioActual != municipioSeleccionado) {
+            municipioActual = municipioSeleccionado;
+            municipio.setText("Municipio: " + municipios.get(municipioActual).getMunicipio());
+            obtenerMunicipios();
+        }
+    }
+
+    private void obtenerUbicacion() {
+        Call<List<Pais>> peticionRestPaises = apiRest.paises();
+
+        peticionRestPaises.enqueue(new Callback<List<Pais>>() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onResponse(Call<List<Pais>> call, Response<List<Pais>> response) {
+                if (response.raw().code() != 500 && response.isSuccessful()) {
+                    paises = response.body();
+                    paisActual = Global.DEFAULT_COUNTRY;
+                    obtenerProvincias();
+
+                } else {
+                    try {
+                        JSONObject jObjError = new JSONObject(response.errorBody().string());
+                        Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {
+                        Log.i("ERROR:", e.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Pais>> call, Throwable t) {
+                Log.i("ERROR:", t.getMessage());
+            }
+        });
+    }
+
+    public void obtenerProvincias() {
+
+        Call<List<Provincia>> peticionRestProvincias = apiRest.provincias(paises.get(paisActual).getId());
+
+        peticionRestProvincias.enqueue(new Callback<List<Provincia>>() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onResponse(Call<List<Provincia>> call, Response<List<Provincia>> response) {
+                if (response.raw().code() != 500 && response.isSuccessful()) {
+                    provincias = response.body();
+                    provincia.setText("Provincia: " + provincias.get(provinciaActual).getProvincia());
+                    obtenerMunicipios();
+                } else {
+                    try {
+                        JSONObject jObjError = new JSONObject(response.errorBody().string());
+                        Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {
+                        Log.i("ERROR:", e.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Provincia>> call, Throwable t) {
+                Log.i("ERROR:", t.getMessage());
+            }
+        });
+    }
+
+    public void obtenerMunicipios() {
+
+        Call<List<Municipio>> peticionRestMunicipios = apiRest.municipios(provincias.get(provinciaActual).getId());
+
+        peticionRestMunicipios.enqueue(new Callback<List<Municipio>>() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onResponse(Call<List<Municipio>> call, Response<List<Municipio>> response) {
+                if (response.raw().code() != 500 && response.isSuccessful()) {
+                    municipios = response.body();
+                    municipio.setText("Municipio: " + municipios.get(municipioActual).getMunicipio());
+                } else {
+                    try {
+                        JSONObject jObjError = new JSONObject(response.errorBody().string());
+                        Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {
+                        Log.i("ERROR:", e.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Municipio>> call, Throwable t) {
+                Log.i("ERROR:", t.getMessage());
+            }
+        });
+    }
+
+    private Boolean emptyUbicacion() {
+        return paisActual == -1 && provinciaActual == -1 && municipioActual == -1;
+    }
+
+    private void resetUbicacion() {
+        paisActual = -1;
+        provinciaActual = -1;
+        municipioActual = -1;
+    }
+
     private void desactivarBoton(int id) {
         Button boton = findViewById(id);
         boton.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.negro));
         boton.setBackground(ContextCompat.getDrawable(getApplicationContext(), R.drawable.border_button));
-        if (id == R.id.buscador_boton_cerca_de_mi){
-            boton.setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(getApplicationContext(), R.mipmap.ic_cerca_de_mi_no_select) , null, null);
-        }
-        else if (id == R.id.buscador_boton_ubicacion){
-            boton.setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(getApplicationContext(), R.mipmap.ic_ubicacion_no_select) , null, null);
+        if (id == R.id.buscador_boton_cerca_de_mi) {
+            boton.setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(getApplicationContext(), R.mipmap.ic_cerca_de_mi_no_select), null, null);
+        } else if (id == R.id.buscador_boton_ubicacion) {
+            boton.setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(getApplicationContext(), R.mipmap.ic_ubicacion_no_select), null, null);
         }
 
     }
@@ -169,19 +460,21 @@ public class Buscador extends AppCompatActivity implements View.OnClickListener,
         Button boton = findViewById(id);
         boton.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.blanco));
         boton.setBackground(ContextCompat.getDrawable(getApplicationContext(), R.drawable.border_button_select));
-        if (id == R.id.buscador_boton_cerca_de_mi){
-            boton.setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(getApplicationContext(), R.mipmap.ic_cerca_de_mi_select) , null, null);
-        }
-        else if (id == R.id.buscador_boton_ubicacion){
-            boton.setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(getApplicationContext(), R.mipmap.ic_ubicacion_select) , null, null);
+        if (id == R.id.buscador_boton_cerca_de_mi) {
+            boton.setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(getApplicationContext(), R.mipmap.ic_cerca_de_mi_select), null, null);
+        } else if (id == R.id.buscador_boton_ubicacion) {
+            boton.setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(getApplicationContext(), R.mipmap.ic_ubicacion_select), null, null);
         }
     }
 
     private void showDatePickerDialog() {
         DatePickerFragment newFragment = DatePickerFragment.newInstance(new DatePickerDialog.OnDateSetListener() {
             @Override
-            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+            public void onDateSet(DatePicker datePicker, int y, int m, int d) {
                 // +1 porque enero es 0
+                year = y;
+                month = m;
+                day = d;
                 final String selectedDate = dosDigitos(day) + " / " + dosDigitos(month + 1) + " / " + year;
                 fechaEvento.setText(selectedDate);
             }
@@ -190,7 +483,7 @@ public class Buscador extends AppCompatActivity implements View.OnClickListener,
     }
 
     private String dosDigitos(int n) {
-        return (n<=9) ? ("0"+n) : String.valueOf(n);
+        return (n <= 9) ? ("0" + n) : String.valueOf(n);
     }
 
     private void obtenerDeportes() {

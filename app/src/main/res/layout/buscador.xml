@@ -136,7 +136,8 @@
         android:textSize="10sp"
         app:layout_constraintEnd_toStartOf="@+id/buscador_boton_ubicacion"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tilPlannedDate" />
+        app:layout_constraintTop_toBottomOf="@+id/tilPlannedDate"
+        tools:ignore="SmallSp" />
 
     <Button
         android:id="@+id/buscador_boton_ubicacion"
@@ -147,11 +148,12 @@
         android:background="@drawable/border_button"
         android:drawableTop="@mipmap/ic_ubicacion_no_select"
         android:padding="2dp"
-        android:text="Ubicación"
+        android:text="@string/buscador_unicacion"
         android:textSize="10sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/buscador_boton_cerca_de_mi"
-        app:layout_constraintTop_toBottomOf="@+id/tilPlannedDate" />
+        app:layout_constraintTop_toBottomOf="@+id/tilPlannedDate"
+        tools:ignore="SmallSp" />
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/constraintLayout2"
@@ -159,12 +161,13 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
+        android:padding="5dp"
         android:layout_marginTop="8dp"
         android:background="@drawable/border"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline2">
+        app:layout_constraintTop_toBottomOf="@+id/buscador_boton_cerca_de_mi">
 
         <TextView
             android:id="@+id/texto_buscador_provincia"
@@ -203,14 +206,30 @@
             app:layout_constraintTop_toBottomOf="@+id/texto_buscador_provincia" />
 
 
-    </android.support.constraint.ConstraintLayout>
+        <SeekBar
+            android:id="@+id/buscador_seekbar_distancia"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/buscador_cerca_de_mi_distancia" />
 
-    <android.support.constraint.Guideline
-        android:id="@+id/guideline2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="315dp" />
+        <TextView
+            android:id="@+id/buscador_cerca_de_mi_distancia"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/cualquier_distancia_buscador"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+    </android.support.constraint.ConstraintLayout>
 
 
 </android.support.constraint.ConstraintLayout>

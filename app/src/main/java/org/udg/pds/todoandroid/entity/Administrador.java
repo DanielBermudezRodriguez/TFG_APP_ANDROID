@@ -1,7 +1,9 @@
 package org.udg.pds.todoandroid.entity;
 
 
-public class Administrador {
+import java.io.Serializable;
+
+public class Administrador implements Serializable {
 
     private Long id;
 

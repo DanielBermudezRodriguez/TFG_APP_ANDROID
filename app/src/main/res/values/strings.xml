@@ -70,6 +70,8 @@
     <string name="buscador_todos_los_deportes">Todos los deportes</string>
     <string name="ingrese_una_fecha">Ingrese una fecha</string>
     <string name="buscador_cerca_de_mi">Cerca de mi</string>
+    <string name="buscador_unicacion">Ubicación</string>
+    <string name="cualquier_distancia_buscador">Cualquier distancia</string>
 
 
 </resources>

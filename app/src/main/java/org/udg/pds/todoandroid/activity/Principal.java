@@ -93,6 +93,18 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
 
     }
 
+    // RESULTADOS DEVUELTOS BUSCADOR ------------------------------------------------------------------------------------------------
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == Global.REQUEST_CODE_BUSCADOR) {
+            if (resultCode == RESULT_OK) {
+            List<Evento> eventos = (List<Evento>) data.getExtras().getSerializable("resultadoBuscador");
+            System.out.println("Eventos recuperados" + eventos.size());
+            }
+        }
+    }
+
     // LOCALIZACIÓN GPS -------------------------------------------------------------------------------------------------------------
 
     private void determinarUbicacion() {
@@ -198,7 +210,7 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
                         public void onResponse(Call<List<Evento>> call, Response<List<Evento>> response) {
                             if (response.raw().code() != 500 && response.isSuccessful()) {
                                 List<Evento> eventos = response.body();
-                                System.out.println("Eventos recibidos: " + eventos.size());
+                                //System.out.println("Eventos recibidos: " + eventos.size());
 
                             } else
                                 Toast.makeText(getApplicationContext(), "Error al buscar eventos", Toast.LENGTH_SHORT).show();
@@ -245,7 +257,7 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
     @Override
     public void onSearchItemSelected(){
         Intent buscador = new Intent(getApplicationContext(), Buscador.class);
-        startActivity(buscador);
+        startActivityForResult(buscador,Global.REQUEST_CODE_BUSCADOR);
     }
 
     public void onSectionAttached(int number) {

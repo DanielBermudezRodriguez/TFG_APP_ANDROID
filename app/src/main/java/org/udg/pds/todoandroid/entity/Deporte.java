@@ -1,6 +1,8 @@
 package org.udg.pds.todoandroid.entity;
 
-public class Deporte {
+import java.io.Serializable;
+
+public class Deporte implements Serializable {
 
     private Long id;
 

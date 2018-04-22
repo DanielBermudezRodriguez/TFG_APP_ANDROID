@@ -1,6 +1,8 @@
 package org.udg.pds.todoandroid.entity;
 
-public class Estado {
+import java.io.Serializable;
+
+public class Estado implements Serializable {
 
     private Long id;
 
