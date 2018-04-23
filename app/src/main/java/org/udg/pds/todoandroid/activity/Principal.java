@@ -17,6 +17,8 @@ import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,6 +28,7 @@ import android.widget.Toast;
 
 import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
+import org.udg.pds.todoandroid.adapter.EventoAdapter;
 import org.udg.pds.todoandroid.entity.Deporte;
 import org.udg.pds.todoandroid.entity.Evento;
 import org.udg.pds.todoandroid.entity.Ubicacion;
@@ -51,6 +54,10 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
     private CharSequence mTitle;
 
     private ApiRest apiRest;
+
+    private RecyclerView recycler;
+    private RecyclerView.Adapter adapter;
+    private RecyclerView.LayoutManager lManager;
 
 
     @Override
@@ -88,6 +95,18 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
             determinarUbicacion();
         }
 
+        // Obtener el Recycler
+        recycler = findViewById(R.id.reciclador);
+        recycler.setHasFixedSize(true);
+        // Usar un administrador para LinearLayout
+        lManager = new LinearLayoutManager(this);
+        recycler.setLayoutManager(lManager);
+
+        // Crear un nuevo adaptador
+        /*adapter = new AnimeAdapter(items);
+        recycler.setAdapter(adapter);*/
+
+
         // Busqueda inicial de eventos segun características del usuario logeado
         busquedaInicialEventos();
 
@@ -99,8 +118,10 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == Global.REQUEST_CODE_BUSCADOR) {
             if (resultCode == RESULT_OK) {
-            List<Evento> eventos = (List<Evento>) data.getExtras().getSerializable("resultadoBuscador");
-            System.out.println("Eventos recuperados" + eventos.size());
+                List<Evento> eventos = (List<Evento>) data.getExtras().getSerializable("resultadoBuscador");
+                adapter = new EventoAdapter(eventos);
+                recycler.setAdapter(adapter);
+                System.out.println("Eventos recuperados" + eventos.size());
             }
         }
     }
@@ -210,7 +231,9 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
                         public void onResponse(Call<List<Evento>> call, Response<List<Evento>> response) {
                             if (response.raw().code() != 500 && response.isSuccessful()) {
                                 List<Evento> eventos = response.body();
-                                //System.out.println("Eventos recibidos: " + eventos.size());
+                                // Crear un nuevo adaptador
+                                adapter = new EventoAdapter(eventos);
+                                recycler.setAdapter(adapter);
 
                             } else
                                 Toast.makeText(getApplicationContext(), "Error al buscar eventos", Toast.LENGTH_SHORT).show();
@@ -243,10 +266,10 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
         // Actualizar el contenido principal mediante la substitución de fragmentos o actividades segun la posición del menú lateral escojida
         System.out.println("Posición actual: " + position);
         if (position == 0) {
-            FragmentManager fragmentManager = getFragmentManager();
+            /*FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
                     .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
-                    .commit();
+                    .commit();*/
         }
         if (position == 1) {
             Intent perfilUsuario = new Intent(getApplicationContext(), PerfilUsuario.class);
@@ -255,9 +278,9 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
     }
 
     @Override
-    public void onSearchItemSelected(){
+    public void onSearchItemSelected() {
         Intent buscador = new Intent(getApplicationContext(), Buscador.class);
-        startActivityForResult(buscador,Global.REQUEST_CODE_BUSCADOR);
+        startActivityForResult(buscador, Global.REQUEST_CODE_BUSCADOR);
     }
 
     public void onSectionAttached(int number) {
@@ -282,7 +305,7 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
     }
 
     // Fragmento de marcador de posición
-    public static class PlaceholderFragment extends Fragment {
+    /*public static class PlaceholderFragment extends Fragment {
         // Número de la posición de la sección del menú lateral
         private static final String ARG_SECTION_NUMBER = "section_number";
 
@@ -300,7 +323,7 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_principal, container, false);
+            View rootView = inflater.inflate(R.layout.cardview_evento, container, false);
             return rootView;
         }
 
@@ -310,6 +333,6 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
             ((Principal) activity).onSectionAttached(
                     getArguments().getInt(ARG_SECTION_NUMBER));
         }
-    }
+    }*/
 
 }

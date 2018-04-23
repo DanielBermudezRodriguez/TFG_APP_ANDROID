@@ -16,17 +16,40 @@
             android:id="@+id/appbar"
             layout="@layout/toolbar"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/reciclador"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="3dp"
+            android:scrollbars="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/container" />
+            app:layout_constraintTop_toBottomOf="@+id/appbar" />
 
     <!-- Como la vista de contenido principal, la vista a continuación consume todo el espacio disponible utilizando match_parent en ambas dimensiones. -->
-        <FrameLayout
-            android:id="@+id/container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </android.support.constraint.ConstraintLayout>
+    <!--<FrameLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="64dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <!-- El cajón tiene un ancho fijo en dp y se extiende a la altura completa del contenedor. -->
+
+        <include
+            android:id="@+id/cardView"
+            layout="@layout/cardview_evento"
+         />
+
+
+    </FrameLayout>-->
+
+</android.support.constraint.ConstraintLayout>
+
+<!-- El cajón tiene un ancho fijo en dp y se extiende a la altura completa del contenedor. -->
     <fragment
         android:id="@+id/navigation_drawer"
         android:name="org.udg.pds.todoandroid.fragment.MenuLateralFragment"
