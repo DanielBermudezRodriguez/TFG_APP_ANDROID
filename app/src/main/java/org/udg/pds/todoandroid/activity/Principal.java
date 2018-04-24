@@ -98,6 +98,9 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
         // Obtener el Recycler
         recycler = findViewById(R.id.reciclador);
         recycler.setHasFixedSize(true);
+        recycler.setItemViewCacheSize(20);
+        recycler.setDrawingCacheEnabled(true);
+        recycler.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
         // Usar un administrador para LinearLayout
         lManager = new LinearLayoutManager(this);
         recycler.setLayoutManager(lManager);
@@ -119,7 +122,7 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
         if (requestCode == Global.REQUEST_CODE_BUSCADOR) {
             if (resultCode == RESULT_OK) {
                 List<Evento> eventos = (List<Evento>) data.getExtras().getSerializable("resultadoBuscador");
-                adapter = new EventoAdapter(eventos);
+                adapter = new EventoAdapter(getApplicationContext(),eventos);
                 recycler.setAdapter(adapter);
                 System.out.println("Eventos recuperados" + eventos.size());
             }
@@ -232,7 +235,7 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
                             if (response.raw().code() != 500 && response.isSuccessful()) {
                                 List<Evento> eventos = response.body();
                                 // Crear un nuevo adaptador
-                                adapter = new EventoAdapter(eventos);
+                                adapter = new EventoAdapter(getApplicationContext(),eventos);
                                 recycler.setAdapter(adapter);
 
                             } else

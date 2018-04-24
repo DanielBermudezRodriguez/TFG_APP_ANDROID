@@ -13,19 +13,71 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-
-        <TextView
-            android:id="@+id/cardview_titulo_evento"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/cardview_imagen_administrador"
+            android:layout_width="50dp"
+            android:layout_height="75dp"
+            android:layout_centerHorizontal="true"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:text="TextView"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:civ_border_color="@color/cast_expanded_controller_background_color"
+            app:civ_border_overlay="false"
+            app:civ_border_width="2dp"
+            app:civ_circle_background_color="@color/cast_expanded_controller_text_color"
+            tools:src="@mipmap/no_image_header_menu"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/cardview_username_administrador"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="22dp"
+            android:textColor="@color/cast_expanded_controller_background_color"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/cardview_imagen_administrador"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Danimek123" />
+
+        <TextView
+            android:id="@+id/cardview_email_administrador"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:textSize="10sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/cardview_imagen_administrador"
+            app:layout_constraintTop_toBottomOf="@+id/cardview_username_administrador"
+            tools:text="dani_bermu12@hotmail.com" />
+
+        <View
+            android:id="@+id/view"
+            android:layout_width="fill_parent"
+            android:layout_height="2dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginStart="4dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cardview_imagen_administrador" />
+
+        <ImageView
+            android:id="@+id/cardview_imagen_evento"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_marginStart="4dp"
+            android:adjustViewBounds="true"
+            tools:src="@drawable/ic_search_black_24dp"
+            android:layout_marginTop="4dp"
+            app:layout_constraintStart_toStartOf="@+id/view"
+            app:layout_constraintTop_toBottomOf="@+id/view"
+             />
+
+
     </android.support.constraint.ConstraintLayout>
 </android.support.v7.widget.CardView>
