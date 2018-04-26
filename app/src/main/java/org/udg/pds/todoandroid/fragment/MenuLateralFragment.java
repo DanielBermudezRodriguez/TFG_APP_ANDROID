@@ -22,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.squareup.picasso.Picasso;
 
 import org.udg.pds.todoandroid.R;
@@ -184,7 +185,8 @@ public class MenuLateralFragment extends Fragment {
             TextView email = myHeader.findViewById(R.id.email_menu_lateral);
             username.setText(UsuarioActual.getInstance().getUsername());
             email.setText(UsuarioActual.getInstance().getMail());
-            Picasso.with(getContext()).load(Global.BASE_URL + "imagen/usuario/" + UsuarioActual.getInstance().getId().toString()).into((ImageView) myHeader.findViewById(R.id.circleView));
+            //Picasso.with(getContext()).load(Global.BASE_URL + "imagen/usuario/" + UsuarioActual.getInstance().getId().toString()).fit().into((ImageView) myHeader.findViewById(R.id.circleView));
+            Glide.with(getContext()).load(Global.BASE_URL + "imagen/usuario/" + UsuarioActual.getInstance().getId().toString()).into((ImageView) myHeader.findViewById(R.id.circleView));
         }
         listView.addHeaderView(myHeader);
         listView.setAdapter(mNavigationDrawerAdapter);

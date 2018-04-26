@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.squareup.picasso.Picasso;
 
 import org.udg.pds.todoandroid.R;
@@ -68,11 +69,13 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
     public void onBindViewHolder(@NonNull EventoAdapter.EventoViewHoler holder, int position) {
 
         if (holder.imagenAdmin.getDrawable() == null){
-            Picasso.with(context).load(Global.BASE_URL + "imagen/usuario/" + eventos.get(position).getAdministrador().getId().toString()).into(holder.imagenAdmin);
+            //Picasso.with(context).load(Global.BASE_URL + "imagen/usuario/" + eventos.get(position).getAdministrador().getId().toString()).fit().into(holder.imagenAdmin);
+            Glide.with(context).load(Global.BASE_URL + "imagen/usuario/" + eventos.get(position).getAdministrador().getId().toString()).into(holder.imagenAdmin);
 
         }
         if (holder.imagenEvento.getDrawable() == null){
-            Picasso.with(context).load(Global.BASE_URL + "imagen/usuario/" + eventos.get(position).getAdministrador().getId().toString()).resize(150,150).into(holder.imagenEvento);
+            //Picasso.with(context).load(Global.BASE_URL + "imagen/usuario/" + eventos.get(position).getAdministrador().getId().toString()).fit().into(holder.imagenEvento);
+            Glide.with(context).load(Global.BASE_URL + "imagen/usuario/" + eventos.get(position).getAdministrador().getId().toString()).into(holder.imagenEvento);
         }
 
         holder.usernameAdmin.setText(eventos.get(position).getAdministrador().getUsername());
