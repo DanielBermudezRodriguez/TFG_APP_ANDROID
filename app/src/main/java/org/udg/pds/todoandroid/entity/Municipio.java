@@ -12,9 +12,9 @@ public class Municipio implements Serializable{
 
     private String slug;
 
-    private double latitud;
+    private double latitudEstimada;
 
-    private double longitud;
+    private double longitudEstimada;
 
     public Municipio() {
 
@@ -24,8 +24,8 @@ public class Municipio implements Serializable{
         this.id = id;
         this.municipio = municipio;
         this.slug = slug;
-        this.latitud = latitud;
-        this.longitud = longitud;
+        this.latitudEstimada = latitud;
+        this.longitudEstimada = longitud;
     }
 
     public Long getId() {
@@ -52,19 +52,19 @@ public class Municipio implements Serializable{
         this.slug = slug;
     }
 
-    public double getLatitud() {
-        return latitud;
+    public double getLatitudEstimada() {
+        return latitudEstimada;
     }
 
-    public void setLatitud(double latitud) {
-        this.latitud = latitud;
+    public void setLatitudEstimada(double latitudEstimada) {
+        this.latitudEstimada = latitudEstimada;
     }
 
-    public double getLongitud() {
-        return longitud;
+    public double getLongitudEstimada() {
+        return longitudEstimada;
     }
 
-    public void setLongitud(double longitud) {
-        this.longitud = longitud;
+    public void setLongitudEstimada(double longitudEstimada) {
+        this.longitudEstimada = longitudEstimada;
     }
 }

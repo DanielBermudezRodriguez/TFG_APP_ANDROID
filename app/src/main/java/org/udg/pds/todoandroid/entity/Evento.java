@@ -1,7 +1,5 @@
 package org.udg.pds.todoandroid.entity;
 
-import android.os.Parcelable;
-
 import java.io.Serializable;
 import java.util.Date;
 
@@ -15,7 +13,7 @@ public class Evento implements Serializable {
 
     private int duracion;
 
-    private int numeroDeParticipantes;
+    private int numeroParticipantes;
 
     private Date fechaEvento;
 
@@ -32,12 +30,12 @@ public class Evento implements Serializable {
     public Evento() {
     }
 
-    public Evento(Long id, String titulo, String descripcion, int duracion, int numeroDeParticipantes, Date fechaEvento, Deporte deporte, Estado estado, int participantesRegistrados, Administrador administrador, Municipio municipio) {
+    public Evento(Long id, String titulo, String descripcion, int duracion, int numeroParticipantes, Date fechaEvento, Deporte deporte, Estado estado, int participantesRegistrados, Administrador administrador, Municipio municipio) {
         this.id = id;
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.duracion = duracion;
-        this.numeroDeParticipantes = numeroDeParticipantes;
+        this.numeroParticipantes = numeroParticipantes;
         this.fechaEvento = fechaEvento;
         this.deporte = deporte;
         this.estado = estado;
@@ -78,12 +76,12 @@ public class Evento implements Serializable {
         this.duracion = duracion;
     }
 
-    public int getNumeroDeParticipantes() {
-        return numeroDeParticipantes;
+    public int getNumeroParticipantes() {
+        return numeroParticipantes;
     }
 
-    public void setNumeroDeParticipantes(int numeroDeParticipantes) {
-        this.numeroDeParticipantes = numeroDeParticipantes;
+    public void setNumeroParticipantes(int numeroParticipantes) {
+        this.numeroParticipantes = numeroParticipantes;
     }
 
     public Date getFechaEvento() {
