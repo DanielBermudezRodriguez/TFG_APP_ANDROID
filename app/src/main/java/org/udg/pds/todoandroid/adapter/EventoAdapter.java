@@ -24,6 +24,8 @@ import org.udg.pds.todoandroid.util.ExpandAndCollapseViewUtil;
 import org.udg.pds.todoandroid.util.Global;
 import org.w3c.dom.Text;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoViewHoler> {
@@ -52,6 +54,10 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
         ConstraintLayout layoutTitulo;
         ConstraintLayout layoutDescripcion;
         ImageView imagenTitulo;
+        TextView diaMesEvento;
+        TextView horaEvento;
+        TextView mesEvento;
+        TextView diaSemanaEvento;
 
         EventoViewHoler(View itemView) {
             super(itemView);
@@ -69,6 +75,10 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
             layoutDescripcion = itemView.findViewById(R.id.constraintLayout15);
             imagenTitulo = itemView.findViewById(R.id.cardview_icono_descripcion);
             descripcionEvento = itemView.findViewById(R.id.cardview_descripcion_evento);
+            diaMesEvento = itemView.findViewById(R.id.cardview_dia_mes_evento);
+            horaEvento = itemView.findViewById(R.id.cardview_hora_evento);
+            mesEvento = itemView.findViewById(R.id.cardview_mes_evento);
+            diaSemanaEvento = itemView.findViewById(R.id.cardview_string_dia);
 
 
         }
@@ -109,6 +119,19 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
         holder.duracionEvento.setText(String.valueOf(eventoActual.getDuracion()) + " minutos");
         holder.tituloEvento.setText(eventoActual.getTitulo());
         holder.descripcionEvento.setText(eventoActual.getDescripcion());
+
+        Date fechaEvento = eventoActual.getFechaEvento();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(fechaEvento);
+
+        System.out.println(cal.get(Calendar.YEAR));
+        System.out.println(cal.get(Calendar.MONTH));
+        System.out.println(cal.get(Calendar.DAY_OF_MONTH));
+        System.out.println(cal.get(Calendar.HOUR_OF_DAY));
+        System.out.println(cal.get(Calendar.MINUTE));
+
+
+
 
         holder.layoutTitulo.setOnClickListener(new View.OnClickListener() {
             @Override
