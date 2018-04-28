@@ -13,139 +13,326 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/cardview_imagen_administrador"
-            android:layout_width="50dp"
-            android:layout_height="75dp"
-            android:layout_centerHorizontal="true"
-            android:layout_marginStart="4dp"
-            app:civ_border_color="@color/cast_expanded_controller_background_color"
-            app:civ_border_overlay="false"
-            app:civ_border_width="2dp"
-            app:civ_circle_background_color="@color/cast_expanded_controller_text_color"
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/constraintLayout15"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:orientation="vertical"
+            app:layout_constraintHorizontal_bias="0.0"
+            android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:src="@mipmap/no_image_header_menu" />
+            app:layout_constraintTop_toBottomOf="@+id/constraintLayout14">
 
-        <TextView
-            android:id="@+id/cardview_username_administrador"
+            <TextView
+                android:id="@+id/cardview_descripcion_evento"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:text="Descripción del evento con una transformación personalizada"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/constraintLayout14"
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@+id/constraintLayout15"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/constraintLayout13">
+
+            <TextView
+                android:id="@+id/cardview_titulo_evento"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:text="Título Evento"
+                android:textColor="@android:color/black"
+                android:textSize="20sp"
+                app:layout_constraintEnd_toStartOf="@+id/cardview_icono_descripcion"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/cardview_icono_descripcion"
+                android:layout_width="40dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="16dp"
+                android:background="@android:color/transparent"
+                android:src="@mipmap/ic_expand_description"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/cardview_titulo_evento"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/constraintLayout13"
+            android:layout_width="match_parent"
+            android:layout_height="248dp"
+            app:layout_constraintBottom_toTopOf="@+id/constraintLayout14"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/constraintLayout12">
+
+            <ImageView
+                android:id="@+id/cardview_imagen_evento"
+                android:layout_width="325dp"
+                android:layout_height="225dp"
+                android:adjustViewBounds="true"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:src="@drawable/ic_search_black_24dp" />
+
+            <TextView
+                android:id="@+id/cardview_deporte_evento"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_marginTop="32dp"
+                android:background="#8c000000"
+                android:padding="10dp"
+                android:textColor="#ffe3e3e3"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/cardview_imagen_evento"
+                app:layout_constraintEnd_toEndOf="@+id/cardview_imagen_evento"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="@+id/cardview_imagen_evento"
+                app:layout_constraintTop_toTopOf="@+id/cardview_imagen_evento"
+                app:layout_constraintVertical_bias="1.0"
+                tools:text="Ciclismo de carretera" />
+
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/constraintLayout12"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="4dp"
-            android:layout_marginStart="4dp"
-            android:layout_marginTop="22dp"
-            android:textColor="@color/cast_expanded_controller_background_color"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@+id/view3"
-            app:layout_constraintStart_toEndOf="@+id/cardview_imagen_administrador"
-            app:layout_constraintTop_toTopOf="parent"
-            android:text="Danimek123" />
-
-        <TextView
-            android:id="@+id/cardview_email_administrador"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="4dp"
-            android:layout_marginStart="4dp"
-            android:textSize="10sp"
-            app:layout_constraintEnd_toStartOf="@+id/view3"
-            app:layout_constraintStart_toEndOf="@+id/cardview_imagen_administrador"
-            app:layout_constraintTop_toBottomOf="@+id/cardview_username_administrador"
-            android:text="dani_bermu12@hotmail.com" />
-
-        <View
-            android:id="@+id/view"
-            android:layout_width="fill_parent"
-            android:layout_height="2dp"
-            android:layout_marginEnd="4dp"
-            android:layout_marginStart="4dp"
-            android:background="@android:color/darker_gray"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/constraintLayout13"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cardview_imagen_administrador" />
+            app:layout_constraintTop_toBottomOf="@+id/constraintLayout8">
 
-        <ImageView
-            android:id="@+id/cardview_imagen_evento"
-            android:layout_width="325dp"
-            android:layout_height="225dp"
-            android:layout_marginBottom="4dp"
-            android:layout_marginTop="4dp"
-            android:adjustViewBounds="true"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/view"
-            tools:src="@drawable/ic_search_black_24dp" />
+            <View
+                android:id="@+id/view3"
+                android:layout_width="fill_parent"
+                android:layout_height="2dp"
+                android:background="@android:color/darker_gray"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
 
-        <TextView
-            android:id="@+id/cardview_deporte_evento"
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/constraintLayout9"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/constraintLayout10"
+                app:layout_constraintStart_toStartOf="@+id/constraintLayout12"
+                app:layout_constraintTop_toTopOf="@+id/constraintLayout12">
+
+                <ImageView
+                    android:id="@+id/cardview_icono_ubicacion"
+                    android:layout_width="20dp"
+                    android:layout_height="30dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    card_view:layout_constraintEnd_toEndOf="parent"
+                    card_view:srcCompat="@mipmap/ic_ubicacion_evento" />
+
+                <TextView
+                    android:id="@+id/cardview_evento_municipio"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginStart="4dp"
+                    android:textAlignment="center"
+                    android:gravity="center"
+                    android:textSize="12sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/cardview_icono_ubicacion"
+                    app:layout_constraintVertical_bias="0.0"
+                    tools:text="Lloret de Mar" />
+
+                <View
+                    android:id="@+id/view4"
+                    android:layout_width="2dp"
+                    android:layout_height="40dp"
+                    android:background="@android:color/darker_gray"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </android.support.constraint.ConstraintLayout>
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/constraintLayout10"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/constraintLayout11"
+                app:layout_constraintStart_toEndOf="@+id/constraintLayout9"
+                app:layout_constraintTop_toTopOf="@+id/constraintLayout12">
+
+                <View
+                    android:id="@+id/view5"
+                    android:layout_width="2dp"
+                    android:layout_height="40dp"
+                    android:background="@android:color/darker_gray"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/cardview_participantes_evento"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginStart="4dp"
+                    android:textAlignment="center"
+                    android:gravity="center"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/cardview_icono_participantes"
+                    tools:text="10/15"
+                    tools:textAlignment="viewEnd" />
+
+                <ImageView
+                    android:id="@+id/cardview_icono_participantes"
+                    android:layout_width="20dp"
+                    android:layout_height="30dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    card_view:srcCompat="@mipmap/ic_participantes_evento" />
+            </android.support.constraint.ConstraintLayout>
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/constraintLayout11"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="@+id/constraintLayout12"
+                app:layout_constraintEnd_toEndOf="@+id/constraintLayout12"
+                app:layout_constraintStart_toEndOf="@+id/constraintLayout10"
+                app:layout_constraintTop_toTopOf="@+id/constraintLayout12">
+
+                <TextView
+                    android:id="@+id/cardview_duracion_evento"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:gravity="center"
+                    android:layout_marginStart="4dp"
+                    android:textAlignment="center"
+                    android:textSize="12sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/cardview_icono_duracion"
+                    tools:text="120 minutos"
+                    tools:textAlignment="viewEnd" />
+
+                <ImageView
+                    android:id="@+id/cardview_icono_duracion"
+                    android:layout_width="20dp"
+                    android:layout_height="30dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    card_view:srcCompat="@mipmap/ic_duracion_evento" />
+
+            </android.support.constraint.ConstraintLayout>
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/constraintLayout8"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_marginTop="32dp"
-            android:background="#8c000000"
-            android:padding="10dp"
-            tools:text="Ciclismo de carretera"
-            android:textColor="#ffe3e3e3"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@+id/cardview_imagen_evento"
-            app:layout_constraintEnd_toEndOf="@+id/cardview_imagen_evento"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="@+id/cardview_imagen_evento"
-            app:layout_constraintTop_toTopOf="@+id/cardview_imagen_evento"
-            app:layout_constraintVertical_bias="1.0" />
-
-        <View
-            android:id="@+id/view2"
-            android:layout_width="fill_parent"
-            android:layout_height="2dp"
-            android:layout_marginEnd="4dp"
-            android:layout_marginStart="4dp"
-            android:layout_marginTop="4dp"
-            android:background="@android:color/darker_gray"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/constraintLayout12"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cardview_deporte_evento" />
+            app:layout_constraintTop_toTopOf="parent">
 
-        <View
-            android:id="@+id/view3"
-            android:layout_width="2dp"
-            android:layout_height="60dp"
-            android:layout_marginBottom="12dp"
-            android:layout_marginStart="156dp"
-            android:layout_marginTop="8dp"
-            android:background="@android:color/darker_gray"
-            app:layout_constraintBottom_toTopOf="@+id/cardview_imagen_evento"
-            app:layout_constraintStart_toEndOf="@+id/cardview_imagen_administrador"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="1.0" />
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/cardview_imagen_administrador"
+                android:layout_width="40dp"
+                android:layout_height="65dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="4dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="4dp"
+                app:civ_border_color="@color/cast_expanded_controller_background_color"
+                app:civ_border_overlay="false"
+                app:civ_border_width="2dp"
+                app:civ_circle_background_color="@color/cast_expanded_controller_text_color"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.57"
+                tools:src="@mipmap/no_image_header_menu" />
 
-        <TextView
-            android:id="@+id/cardview_participantes_evento"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
-            android:layout_marginTop="44dp"
-            android:textAlignment="viewEnd"
-            app:layout_constraintBottom_toTopOf="@+id/view"
-            app:layout_constraintEnd_toStartOf="@+id/cardview_icono_participantes"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="10/15"
-            tools:textAlignment="viewEnd" />
+            <TextView
+                android:id="@+id/cardview_username_administrador"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="20dp"
+                android:text="Danimek123"
+                android:textColor="@color/cast_expanded_controller_background_color"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/cardview_imagen_administrador"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/cardview_icono_participantes"
-            android:layout_width="40dp"
-            android:layout_height="34dp"
-            android:layout_marginBottom="4dp"
-            android:layout_marginEnd="32dp"
-            app:layout_constraintBottom_toBottomOf="@+id/view"
-            app:layout_constraintEnd_toEndOf="parent"
-            card_view:srcCompat="@mipmap/ic_participantes_evento" />
+            <TextView
+                android:id="@+id/cardview_email_administrador"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="dani_bermu12@hotmail.com"
+                android:textSize="10sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/cardview_imagen_administrador"
+                app:layout_constraintTop_toBottomOf="@+id/cardview_username_administrador" />
 
+            <View
+                android:id="@+id/view2"
+                android:layout_width="fill_parent"
+                android:layout_height="2dp"
+                android:background="@android:color/darker_gray"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+        </android.support.constraint.ConstraintLayout>
 
     </android.support.constraint.ConstraintLayout>
+
 </android.support.v7.widget.CardView>

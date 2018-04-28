@@ -307,6 +307,10 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
         actionBar.setTitle(mTitle);
     }
 
+    // RECYCLERVIEW AND CARDVIEW ---------------------------------------------------------------------------------------------
+
+
+
     // Fragmento de marcador de posición
     /*public static class PlaceholderFragment extends Fragment {
         // Número de la posición de la sección del menú lateral
