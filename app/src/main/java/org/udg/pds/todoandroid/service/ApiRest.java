@@ -59,4 +59,7 @@ public interface ApiRest {
 
     @GET("usuario/{idUsuario}")
     Call<Usuario> perfilUsuario(@Path("idUsuario") Long idUsuario);
+
+    @GET("ubicacion/{idEvento}")
+    Call<Ubicacion> ubicacionEvento(@Path("idEvento") Long idUsuario);
 }

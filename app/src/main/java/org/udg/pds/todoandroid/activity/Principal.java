@@ -40,6 +40,8 @@ import org.udg.pds.todoandroid.util.Global;
 import org.udg.pds.todoandroid.util.InitRetrofit;
 import org.udg.pds.todoandroid.util.Localizacion;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -58,6 +60,8 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
     private RecyclerView recycler;
     private RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager lManager;
+
+    private List<Evento> eventos = new ArrayList<>();
 
 
     @Override
@@ -121,12 +125,23 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == Global.REQUEST_CODE_BUSCADOR) {
             if (resultCode == RESULT_OK) {
-                List<Evento> eventos = (List<Evento>) data.getExtras().getSerializable("resultadoBuscador");
-                adapter = new EventoAdapter(getApplicationContext(),eventos);
-                recycler.setAdapter(adapter);
-                System.out.println("Eventos recuperados" + eventos.size());
+                eventos = (List<Evento>) data.getExtras().getSerializable("resultadoBuscador");
+                inicializarAdaptador(eventos);
             }
         }
+    }
+
+    private void inicializarAdaptador(List<Evento> eventos) {
+        adapter = new EventoAdapter(getApplicationContext(),eventos, new EventoAdapter.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(Evento e) {
+             Intent i = new Intent(getApplicationContext(),EventoDetalle.class);
+             i.putExtra(Global.KEY_SELECTED_EVENT,(Serializable) e);
+             startActivity(i);
+            }
+        });
+        recycler.setAdapter(adapter);
     }
 
     // LOCALIZACIÓN GPS -------------------------------------------------------------------------------------------------------------
@@ -233,10 +248,8 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
                         @Override
                         public void onResponse(Call<List<Evento>> call, Response<List<Evento>> response) {
                             if (response.raw().code() != 500 && response.isSuccessful()) {
-                                List<Evento> eventos = response.body();
-                                // Crear un nuevo adaptador
-                                adapter = new EventoAdapter(getApplicationContext(),eventos);
-                                recycler.setAdapter(adapter);
+                                eventos = response.body();
+                                inicializarAdaptador(eventos);
 
                             } else
                                 Toast.makeText(getApplicationContext(), "Error al buscar eventos", Toast.LENGTH_SHORT).show();
@@ -306,6 +319,8 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(mTitle);
     }
+
+
 
     // RECYCLERVIEW AND CARDVIEW ---------------------------------------------------------------------------------------------
 

@@ -16,4 +16,6 @@ public class Global {
     public static final int DEFAULT_PROVINCE = 16;
     public static final int DEFAULT_LOCALITY = 74;
 
+    public static final String KEY_SELECTED_EVENT = "SELECTED_EVENT";
+
 }

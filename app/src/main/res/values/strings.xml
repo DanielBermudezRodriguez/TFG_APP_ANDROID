@@ -72,6 +72,15 @@
     <string name="buscador_cerca_de_mi">Cerca de mi</string>
     <string name="buscador_unicacion">Ubicación</string>
     <string name="cualquier_distancia_buscador">Cualquier distancia</string>
+    <string name="title_activity_evento_detalle">EventoDetalle</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+    <string name="tab_text_3">Tab 3</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="tab_evento_informacion">Información</string>
+    <string name="tab_evento_participantes">Participantes</string>
+    <string name="tab_evento_foro">Foro</string>
+    <string name="tab_evento_ubicacion">Ubicación</string>
 
 
 </resources>

@@ -2,6 +2,7 @@ package org.udg.pds.todoandroid.adapter;
 
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
@@ -14,12 +15,16 @@ import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
 import org.udg.pds.todoandroid.R;
+import org.udg.pds.todoandroid.activity.Registro;
 import org.udg.pds.todoandroid.entity.Evento;
+import org.udg.pds.todoandroid.fragment.SeleccionarDeporteDialog;
+import org.udg.pds.todoandroid.util.DateUtil;
 import org.udg.pds.todoandroid.util.ExpandAndCollapseViewUtil;
 import org.udg.pds.todoandroid.util.Global;
 import org.w3c.dom.Text;
@@ -28,15 +33,22 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoViewHoler> {
+public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoViewHoler>  {
 
     private List<Evento> eventos;
     private Context context;
+    private OnItemClickListener mOnItemClickListener;
 
-    public EventoAdapter(Context context, List<Evento> eventos) {
+    public interface OnItemClickListener {
+        public void onItemClick(Evento e);
+    }
+
+    public EventoAdapter(Context context, List<Evento> eventos, OnItemClickListener onItemClickListener) {
         this.context = context;
         this.eventos = eventos;
+        this.mOnItemClickListener = onItemClickListener;
     }
+
 
 
     public static class EventoViewHoler extends RecyclerView.ViewHolder {
@@ -89,15 +101,15 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
     @Override
     public EventoAdapter.EventoViewHoler onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.cardview_evento, viewGroup, false);
-        EventoViewHoler eventoViewHoler = new EventoViewHoler(v);
-        return eventoViewHoler;
+        return new EventoViewHoler(v);
     }
 
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull final EventoAdapter.EventoViewHoler holder, final int position) {
 
-        Evento eventoActual = eventos.get(position);
+
+        final Evento eventoActual = eventos.get(position);
         RequestOptions options = new RequestOptions();
         options.centerCrop();
 
@@ -124,14 +136,10 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
         Calendar cal = Calendar.getInstance();
         cal.setTime(fechaEvento);
 
-        System.out.println(cal.get(Calendar.YEAR));
-        System.out.println(cal.get(Calendar.MONTH));
-        System.out.println(cal.get(Calendar.DAY_OF_MONTH));
-        System.out.println(cal.get(Calendar.HOUR_OF_DAY));
-        System.out.println(cal.get(Calendar.MINUTE));
-
-
-
+        holder.diaMesEvento.setText(String.valueOf(cal.get(Calendar.DAY_OF_MONTH)));
+        holder.diaSemanaEvento.setText(DateUtil.diaSemana(cal.get(Calendar.DAY_OF_WEEK)));
+        holder.mesEvento.setText(DateUtil.mes(cal.get(Calendar.MONTH)) + " de " + String.valueOf(cal.get(Calendar.YEAR)));
+        holder.horaEvento.setText(String.valueOf(cal.get(Calendar.HOUR_OF_DAY)) + ":" + String.valueOf(cal.get(Calendar.MINUTE)));
 
         holder.layoutTitulo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -155,8 +163,14 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
                 }
             }
         });
-    }
 
+        holder.cardView.setOnClickListener( new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                mOnItemClickListener.onItemClick(eventoActual);
+            }
+        });
+    }
 
     @Override
     public int getItemCount() {
@@ -167,5 +181,8 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
     }
+
+
+
 
 }
