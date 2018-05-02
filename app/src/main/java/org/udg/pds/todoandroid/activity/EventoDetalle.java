@@ -1,9 +1,9 @@
 package org.udg.pds.todoandroid.activity;
 
-import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -12,23 +12,12 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 
-import android.widget.TextView;
-import android.widget.Toast;
-
-import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.entity.Evento;
-import org.udg.pds.todoandroid.entity.Ubicacion;
-import org.udg.pds.todoandroid.entity.UsuarioActual;
-import org.udg.pds.todoandroid.entity.UsuarioLoginPeticion;
-import org.udg.pds.todoandroid.entity.UsuarioLoginRespuesta;
 import org.udg.pds.todoandroid.fragment.TabEventoForo;
 import org.udg.pds.todoandroid.fragment.TabEventoInformacion;
 import org.udg.pds.todoandroid.fragment.TabEventoParticipantes;
@@ -37,12 +26,6 @@ import org.udg.pds.todoandroid.service.ApiRest;
 import org.udg.pds.todoandroid.util.Global;
 import org.udg.pds.todoandroid.util.InitRetrofit;
 
-import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
 public class EventoDetalle extends AppCompatActivity {
 
 
@@ -50,6 +33,7 @@ public class EventoDetalle extends AppCompatActivity {
     private ViewPager mViewPager;
     private Evento eventoActual;
     private ApiRest apiRest;
+    private FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +60,7 @@ public class EventoDetalle extends AppCompatActivity {
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -115,7 +99,7 @@ public class EventoDetalle extends AppCompatActivity {
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+    public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -125,12 +109,16 @@ public class EventoDetalle extends AppCompatActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
+                    fab.setVisibility(View.VISIBLE);
                     return new TabEventoInformacion();
                 case 1:
+                    fab.setVisibility(View.VISIBLE);
                     return new TabEventoParticipantes();
                 case 2:
-                    return new TabEventoForo();
+                    fab.setVisibility(View.GONE);
+                    return new TabEventoForo(eventoActual);
                 case 3:
+                    fab.setVisibility(View.GONE);
                     return new TabEventoUbicacion(eventoActual.getId());
             }
             return null;
