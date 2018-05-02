@@ -7,6 +7,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -27,7 +29,12 @@ import com.scaledrone.lib.RoomListener;
 import com.scaledrone.lib.Scaledrone;
 
 import org.udg.pds.todoandroid.R;
+import org.udg.pds.todoandroid.adapter.MensajeForoAdapter;
+import org.udg.pds.todoandroid.entity.DatosUsuarioForo;
 import org.udg.pds.todoandroid.entity.Evento;
+import org.udg.pds.todoandroid.entity.MensajeForo;
+import org.udg.pds.todoandroid.entity.UsuarioActual;
+import org.udg.pds.todoandroid.util.ExpandAndCollapseViewUtil;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,7 +50,11 @@ public class TabEventoForo extends Fragment {
     private Evento evento;
     private String username;
     private String nombreSala;
-    private DatabaseReference root = FirebaseDatabase.getInstance().getReference().getRoot();
+    private DatabaseReference salaForo;
+    private EditText editText;
+    private ImageButton botonEnviar;
+    private MensajeForoAdapter mensajeAdapter;
+    private ListView listaMensajes;
 
 
     @SuppressLint("ValidFragment")
@@ -56,40 +67,57 @@ public class TabEventoForo extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.tab_foro_evento, container, false);
 
+        mensajeAdapter = new MensajeForoAdapter(getActivity().getApplicationContext());
+        listaMensajes = (ListView) rootView.findViewById(R.id.messages_view);
+        listaMensajes.setAdapter(mensajeAdapter);
+
         // Obtener nombre de usuario
-        username = "yo";
+        username = UsuarioActual.getInstance().getUsername();
         // Nombre de la sala
         nombreSala = "observable-salaevento" + evento.getId().toString();
 
-        // crear room chat si no existe ya en database firebase SE DEBERÁ CREAR AL CREAR EL EVENTO
+        // IMPORTANTE: CREAR SALA CUANDO SE CREA EL EVENTO
+        /*
+        private DatabaseReference root = FirebaseDatabase.getInstance().getReference().getRoot();
         Map<String, Object> map = new HashMap<String, Object>();
         map.put(nombreSala, "");
         root.updateChildren(map);
+        */
+
+        editText = (EditText) rootView.findViewById(R.id.editText);
+        botonEnviar = rootView.findViewById(R.id.boton_enviar_mensaje_foro);
+        botonEnviar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendMessage(v);
+            }
+        });
 
         // Accedemos a la sala
-        DatabaseReference sala = FirebaseDatabase.getInstance().getReference().child(nombreSala);
+        salaForo = FirebaseDatabase.getInstance().getReference().child(nombreSala);
 
-        // Al hacer click botón enviar mensaje
-        Map<String,Object> mapa = new HashMap<String,Object>();
-        String tempKey = sala.push().getKey();
-        sala.updateChildren(mapa);
 
-        DatabaseReference mensajeSala = sala.child(tempKey);
-        Map<String,Object> mapa2 = new HashMap<String,Object>();
-        mapa2.put("name",username);
-        mapa2.put("msg","Hola como estas?");
-        mensajeSala.updateChildren(mapa2);
-
-        sala.addChildEventListener(new ChildEventListener() {
+        salaForo.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
                 Iterator i = dataSnapshot.getChildren().iterator();
 
                 while(i.hasNext()){
-                    String nombreUsuario = ((DataSnapshot)i.next()).getValue().toString();
                     String mensajeUsuario = ((DataSnapshot)i.next()).getValue().toString();
-                    System.out.println("NOMBRE USUARIO: " + nombreUsuario);
-                    System.out.println("MENSAJE USUARIO: " + mensajeUsuario);
+                    String nombreUsuario = ((DataSnapshot)i.next()).getValue().toString();
+
+                    DatosUsuarioForo datosUsuarioForo = new DatosUsuarioForo(nombreUsuario,getRandomColor());
+                    boolean esUsuarioActual = nombreUsuario.equals(username);
+                    final MensajeForo mensajeForo = new MensajeForo(mensajeUsuario,datosUsuarioForo,esUsuarioActual);
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mensajeAdapter.add(mensajeForo);
+                            listaMensajes.setSelection(listaMensajes.getCount() - 1);
+                        }
+                    });
+
                 }
             }
 
@@ -98,10 +126,20 @@ public class TabEventoForo extends Fragment {
                 Iterator i = dataSnapshot.getChildren().iterator();
 
                 while(i.hasNext()){
-                    String nombreUsuario = ((DataSnapshot)i.next()).getValue().toString();
                     String mensajeUsuario = ((DataSnapshot)i.next()).getValue().toString();
-                    System.out.println("NOMBRE USUARIO: " + nombreUsuario);
-                    System.out.println("MENSAJE USUARIO: " + mensajeUsuario);
+                    String nombreUsuario = ((DataSnapshot)i.next()).getValue().toString();
+
+                    DatosUsuarioForo datosUsuarioForo = new DatosUsuarioForo(nombreUsuario,getRandomColor());
+                    boolean esUsuarioActual = nombreUsuario.equals(username);
+                    final MensajeForo mensajeForo = new MensajeForo(mensajeUsuario,datosUsuarioForo,esUsuarioActual);
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mensajeAdapter.add(mensajeForo);
+                            listaMensajes.setSelection(listaMensajes.getCount() - 1);
+                        }
+                    });
+
                 }
             }
 
@@ -121,26 +159,34 @@ public class TabEventoForo extends Fragment {
             }
         });
 
-
-        /*root.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Set<String> set = new HashSet<String>();
-                Iterator i = dataSnapshot.getChildren().iterator();
-
-                while (i.hasNext()){
-                    set.add(((DataSnapshot)i.next()).getKey());
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });*/
-
-
         return rootView;
+    }
+
+    public void sendMessage(View view) {
+        String message = editText.getText().toString();
+        if (message.length() > 0) {
+            // Al hacer click botón enviar mensaje
+            Map<String,Object> mapa = new HashMap<String,Object>();
+            String tempKey = salaForo.push().getKey();
+            salaForo.updateChildren(mapa);
+
+            DatabaseReference mensajeSala = salaForo.child(tempKey);
+            Map<String,Object> mapa2 = new HashMap<String,Object>();
+            mapa2.put("name",username);
+            mapa2.put("msg",editText.getText().toString());
+            mensajeSala.updateChildren(mapa2);
+
+            editText.getText().clear();
+        }
+    }
+
+    private String getRandomColor() {
+        Random r = new Random();
+        StringBuffer sb = new StringBuffer("#");
+        while(sb.length() < 7){
+            sb.append(Integer.toHexString(r.nextInt()));
+        }
+        return sb.toString().substring(0, 7);
     }
 
 

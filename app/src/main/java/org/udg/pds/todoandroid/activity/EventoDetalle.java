@@ -56,11 +56,11 @@ public class EventoDetalle extends AppCompatActivity {
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setVisibility(View.GONE);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -70,6 +70,8 @@ public class EventoDetalle extends AppCompatActivity {
         });
 
     }
+
+
 
 
     @Override
@@ -95,24 +97,27 @@ public class EventoDetalle extends AppCompatActivity {
     }
 
 
+
+
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
-    public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
+    public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
+
         @Override
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    fab.setVisibility(View.VISIBLE);
+                    fab.setVisibility(View.GONE);
                     return new TabEventoInformacion();
                 case 1:
-                    fab.setVisibility(View.VISIBLE);
+                    fab.setVisibility(View.GONE);
                     return new TabEventoParticipantes();
                 case 2:
                     fab.setVisibility(View.GONE);
@@ -120,8 +125,9 @@ public class EventoDetalle extends AppCompatActivity {
                 case 3:
                     fab.setVisibility(View.GONE);
                     return new TabEventoUbicacion(eventoActual.getId());
+                default:
+                    return null;
             }
-            return null;
         }
 
         @Override

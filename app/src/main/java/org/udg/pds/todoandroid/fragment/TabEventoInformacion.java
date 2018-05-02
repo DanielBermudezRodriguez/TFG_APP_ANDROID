@@ -26,4 +26,6 @@ public class TabEventoInformacion extends Fragment {
 
         return rootView;
     }
+
+
 }
