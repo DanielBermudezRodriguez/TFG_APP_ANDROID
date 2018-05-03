@@ -24,6 +24,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONObject;
@@ -60,7 +61,7 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
     private RecyclerView recycler;
     private RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager lManager;
-
+    private TextView noResultadosPorDefecto;
     private List<Evento> eventos = new ArrayList<>();
 
 
@@ -99,6 +100,10 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
             determinarUbicacion();
         }
 
+        // Texto si no hay resultados por defecto
+        noResultadosPorDefecto = findViewById(R.id.no_resultados_eventos_por_defecto);
+        noResultadosPorDefecto.setVisibility(View.GONE);
+
         // Obtener el Recycler
         recycler = findViewById(R.id.reciclador);
         recycler.setHasFixedSize(true);
@@ -126,7 +131,16 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
         if (requestCode == Global.REQUEST_CODE_BUSCADOR) {
             if (resultCode == RESULT_OK) {
                 eventos = (List<Evento>) data.getExtras().getSerializable("resultadoBuscador");
-                inicializarAdaptador(eventos);
+                if (eventos == null || eventos.isEmpty()){
+                    inicializarAdaptador(eventos);
+                    noResultadosPorDefecto.setText(R.string.no_resultados_busqueda);
+                    noResultadosPorDefecto.setVisibility(View.VISIBLE);
+                }
+                else {
+                    noResultadosPorDefecto.setVisibility(View.GONE);
+                    inicializarAdaptador(eventos);
+                }
+
             }
         }
     }
@@ -249,7 +263,15 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
                         public void onResponse(Call<List<Evento>> call, Response<List<Evento>> response) {
                             if (response.raw().code() != 500 && response.isSuccessful()) {
                                 eventos = response.body();
-                                inicializarAdaptador(eventos);
+                                if (eventos == null || eventos.isEmpty()){
+                                    inicializarAdaptador(eventos);
+                                    noResultadosPorDefecto.setText(R.string.no_resultados_busqueda_inicial);
+                                    noResultadosPorDefecto.setVisibility(View.VISIBLE);
+                                }
+                                else{
+                                    noResultadosPorDefecto.setVisibility(View.GONE);
+                                    inicializarAdaptador(eventos);
+                                }
 
                             } else
                                 Toast.makeText(getApplicationContext(), "Error al buscar eventos", Toast.LENGTH_SHORT).show();

@@ -8,26 +8,14 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.RotateAnimation;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ListView;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.scaledrone.lib.Listener;
-import com.scaledrone.lib.Member;
-import com.scaledrone.lib.Room;
-import com.scaledrone.lib.RoomListener;
-import com.scaledrone.lib.Scaledrone;
 
 import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.adapter.MensajeForoAdapter;
@@ -35,14 +23,11 @@ import org.udg.pds.todoandroid.entity.DatosUsuarioForo;
 import org.udg.pds.todoandroid.entity.Evento;
 import org.udg.pds.todoandroid.entity.MensajeForo;
 import org.udg.pds.todoandroid.entity.UsuarioActual;
-import org.udg.pds.todoandroid.util.ExpandAndCollapseViewUtil;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
 
 @SuppressLint("ValidFragment")
@@ -56,6 +41,7 @@ public class TabEventoForo extends Fragment {
     private MensajeForoAdapter mensajeAdapter;
     private ListView listaMensajes;
     private FloatingActionButton botonEnviar;
+    private ChildEventListener childEventListener = null;
 
 
     @SuppressLint("ValidFragment")
@@ -97,20 +83,20 @@ public class TabEventoForo extends Fragment {
         // Accedemos a la sala
         salaForo = FirebaseDatabase.getInstance().getReference().child(nombreSala);
 
-
-        salaForo.addChildEventListener(new ChildEventListener() {
+        if (childEventListener != null){ salaForo.removeEventListener(childEventListener);}
+         childEventListener = salaForo.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
                 Iterator i = dataSnapshot.getChildren().iterator();
 
-                while(i.hasNext()){
-                    String mensajeUsuario = ((DataSnapshot)i.next()).getValue().toString();
-                    String nombreUsuario = ((DataSnapshot)i.next()).getValue().toString();
+                while (i.hasNext()) {
+                    String mensajeUsuario = ((DataSnapshot) i.next()).getValue().toString();
+                    String nombreUsuario = ((DataSnapshot) i.next()).getValue().toString();
 
-                    DatosUsuarioForo datosUsuarioForo = new DatosUsuarioForo(nombreUsuario,getRandomColor());
+                    DatosUsuarioForo datosUsuarioForo = new DatosUsuarioForo(nombreUsuario, getRandomColor());
                     boolean esUsuarioActual = nombreUsuario.equals(username);
-                    final MensajeForo mensajeForo = new MensajeForo(mensajeUsuario,datosUsuarioForo,esUsuarioActual);
+                    final MensajeForo mensajeForo = new MensajeForo(mensajeUsuario, datosUsuarioForo, esUsuarioActual);
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -122,17 +108,18 @@ public class TabEventoForo extends Fragment {
                 }
             }
 
+
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 Iterator i = dataSnapshot.getChildren().iterator();
 
-                while(i.hasNext()){
-                    String mensajeUsuario = ((DataSnapshot)i.next()).getValue().toString();
-                    String nombreUsuario = ((DataSnapshot)i.next()).getValue().toString();
+                while (i.hasNext()) {
+                    String mensajeUsuario = ((DataSnapshot) i.next()).getValue().toString();
+                    String nombreUsuario = ((DataSnapshot) i.next()).getValue().toString();
 
-                    DatosUsuarioForo datosUsuarioForo = new DatosUsuarioForo(nombreUsuario,getRandomColor());
+                    DatosUsuarioForo datosUsuarioForo = new DatosUsuarioForo(nombreUsuario, getRandomColor());
                     boolean esUsuarioActual = nombreUsuario.equals(username);
-                    final MensajeForo mensajeForo = new MensajeForo(mensajeUsuario,datosUsuarioForo,esUsuarioActual);
+                    final MensajeForo mensajeForo = new MensajeForo(mensajeUsuario, datosUsuarioForo, esUsuarioActual);
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -163,18 +150,24 @@ public class TabEventoForo extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        salaForo.removeEventListener(childEventListener);
+    }
+
     public void sendMessage(View view) {
         String message = editText.getText().toString();
         if (message.length() > 0) {
             // Al hacer click botón enviar mensaje
-            Map<String,Object> mapa = new HashMap<String,Object>();
+            Map<String, Object> mapa = new HashMap<String, Object>();
             String tempKey = salaForo.push().getKey();
             salaForo.updateChildren(mapa);
 
             DatabaseReference mensajeSala = salaForo.child(tempKey);
-            Map<String,Object> mapa2 = new HashMap<String,Object>();
-            mapa2.put("name",username);
-            mapa2.put("msg",editText.getText().toString());
+            Map<String, Object> mapa2 = new HashMap<String, Object>();
+            mapa2.put("name", username);
+            mapa2.put("msg", editText.getText().toString());
             mensajeSala.updateChildren(mapa2);
 
             editText.getText().clear();
@@ -184,7 +177,7 @@ public class TabEventoForo extends Fragment {
     private String getRandomColor() {
         Random r = new Random();
         StringBuffer sb = new StringBuffer("#");
-        while(sb.length() < 7){
+        while (sb.length() < 7) {
             sb.append(Integer.toHexString(r.nextInt()));
         }
         return sb.toString().substring(0, 7);

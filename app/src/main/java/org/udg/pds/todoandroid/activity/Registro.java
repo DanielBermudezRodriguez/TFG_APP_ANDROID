@@ -478,14 +478,15 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
                                                 Intent principal = new Intent(getApplicationContext(), Principal.class);
                                                 // Eliminamos de la pila todas las actividades
                                                 principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                                progressBar.setVisibility(View.INVISIBLE);
+                                                progressBar.setVisibility(View.GONE);
                                                 startActivity(principal);
                                             } else {
                                                 try {
                                                     JSONObject jObjError = new JSONObject(response.errorBody().string());
                                                     Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
-                                                    progressBar.setVisibility(View.INVISIBLE);
+                                                    progressBar.setVisibility(View.GONE);
                                                 } catch (Exception e) {
+                                                    progressBar.setVisibility(View.GONE);
                                                     Log.i("ERROR:", e.getMessage());
                                                 }
                                             }
@@ -494,7 +495,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
                                         @Override
                                         public void onFailure(Call<Imagen> call, Throwable t) {
                                             Log.i("ERROR:", t.getMessage());
-                                            progressBar.setVisibility(View.INVISIBLE);
+                                            progressBar.setVisibility(View.GONE);
                                         }
                                     });
                                 } catch (Exception e) {
@@ -505,7 +506,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
                                 Intent principal = new Intent(getApplicationContext(), Principal.class);
                                 // Eliminamos de la pila todas las actividades
                                 principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                progressBar.setVisibility(View.INVISIBLE);
+                                progressBar.setVisibility(View.GONE);
                                 startActivity(principal);
                             }
 
@@ -514,8 +515,9 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
                             try {
                                 JSONObject jObjError = new JSONObject(response.errorBody().string());
                                 Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                                progressBar.setVisibility(View.GONE);
                             } catch (Exception e) {
-                                progressBar.setVisibility(View.INVISIBLE);
+                                progressBar.setVisibility(View.GONE);
                                 Log.i("ERROR:", e.getMessage());
                             }
                         }

@@ -82,5 +82,9 @@
     <string name="tab_evento_foro">Foro</string>
     <string name="tab_evento_ubicacion">Ubicación</string>
 
+    //No resultados búsqueda evento
+    <string name="no_resultados_busqueda_inicial">No se han encontrado resultados que se ajusten a sus preferencias por defecto. Puede modificar dichas preferencias accediendo a su perfil.</string>
+    <string name="no_resultados_busqueda">No se han encontrado resultados.</string>
+
 
 </resources>
