@@ -34,6 +34,9 @@ public class Login extends AppCompatActivity implements View.OnClickListener  {
 
     private TextView crearCuenta;
 
+    private EditText mail;
+    private EditText password;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,11 +47,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener  {
         setSupportActionBar(toolbar);
         // Inicializamos el servicio de APIRest de retrofit
         apiRest = InitRetrofit.getInstance().getApiRest();
-        //Button botonLogin = (Button) findViewById(R.id.boton_iniciar_sesion);
-        // Listener cuando el usuario pulse el botón de Login
-        //botonLogin.setOnClickListener(this);
-        // Mostrar botón "atras" en action bar
-        //getActionBar().setDisplayHomeAsUpEnabled(true);
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
@@ -69,7 +68,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener  {
 
     }
 
-    private boolean validarFormularioLogin(EditText mail, EditText password) {
+    private boolean validarFormularioLogin() {
         boolean esCorrecto = true;
         if (mail == null || TextUtils.isEmpty(mail.getText().toString())) {
             mail.setError(getString(R.string.mail_vacio_validacion));
@@ -95,9 +94,9 @@ public class Login extends AppCompatActivity implements View.OnClickListener  {
         int id = item.getItemId();
 
         if (id == R.id.toolbar_iniciar_sesion) {
-            EditText mail = (EditText) findViewById(R.id.texto_login_mail);
-            EditText password = (EditText) findViewById(R.id.texto_login_password);
-            if (validarFormularioLogin(mail, password)){
+            mail = findViewById(R.id.texto_login_mail);
+            password = findViewById(R.id.texto_login_password);
+            if (validarFormularioLogin()){
                 String tokenFireBase = FirebaseInstanceId.getInstance().getToken();
                 UsuarioLoginPeticion datosLogin = new UsuarioLoginPeticion(mail.getText().toString(), password.getText().toString(),tokenFireBase);
                 Call<UsuarioLoginRespuesta> peticionRest = apiRest.iniciarSesion(datosLogin);
@@ -120,6 +119,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener  {
 
                         } else {
                             try {
+                                limpiarFormulario();
                                 JSONObject jObjError = new JSONObject(response.errorBody().string());
                                 Toast.makeText(getApplicationContext(),jObjError.getString("message"), Toast.LENGTH_LONG).show();
                             } catch (Exception e) {
@@ -129,6 +129,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener  {
                     }
                     @Override
                     public void onFailure (Call <UsuarioLoginRespuesta> call, Throwable t){
+                        limpiarFormulario();
                         Log.i("ERROR:", t.getMessage());
                     }
                 });
@@ -137,6 +138,11 @@ public class Login extends AppCompatActivity implements View.OnClickListener  {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void limpiarFormulario (){
+        mail.getText().clear();
+        password.getText().clear();
     }
 
     // Función que define comportamiento del botón "Atras"

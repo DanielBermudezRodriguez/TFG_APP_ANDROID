@@ -6,6 +6,7 @@ import org.udg.pds.todoandroid.entity.Evento;
 import org.udg.pds.todoandroid.entity.Imagen;
 import org.udg.pds.todoandroid.entity.Municipio;
 import org.udg.pds.todoandroid.entity.Pais;
+import org.udg.pds.todoandroid.entity.ParticipanteEvento;
 import org.udg.pds.todoandroid.entity.Provincia;
 import org.udg.pds.todoandroid.entity.Ubicacion;
 import org.udg.pds.todoandroid.entity.Usuario;
@@ -61,5 +62,8 @@ public interface ApiRest {
     Call<Usuario> perfilUsuario(@Path("idUsuario") Long idUsuario);
 
     @GET("ubicacion/{idEvento}")
-    Call<Ubicacion> ubicacionEvento(@Path("idEvento") Long idUsuario);
+    Call<Ubicacion> ubicacionEvento(@Path("idEvento") Long idEvento);
+
+    @GET("participante/{idEvento}")
+    Call<List<ParticipanteEvento>> obtenerParticipantesEvento(@Path("idEvento") Long idEvento);
 }

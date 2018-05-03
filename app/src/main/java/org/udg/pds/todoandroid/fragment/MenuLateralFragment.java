@@ -1,5 +1,6 @@
 package org.udg.pds.todoandroid.fragment;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
@@ -23,6 +24,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.squareup.picasso.Picasso;
 
 import org.udg.pds.todoandroid.R;
@@ -166,6 +168,7 @@ public class MenuLateralFragment extends Fragment {
         setHasOptionsMenu(true);
     }
 
+    @SuppressLint("CheckResult")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         listView = (ListView) inflater.inflate(
@@ -185,8 +188,10 @@ public class MenuLateralFragment extends Fragment {
             TextView email = myHeader.findViewById(R.id.email_menu_lateral);
             username.setText(UsuarioActual.getInstance().getUsername());
             email.setText(UsuarioActual.getInstance().getMail());
+            RequestOptions options = new RequestOptions();
+            options.centerCrop();
             //Picasso.with(getContext()).load(Global.BASE_URL + "imagen/usuario/" + UsuarioActual.getInstance().getId().toString()).fit().into((ImageView) myHeader.findViewById(R.id.circleView));
-            Glide.with(getContext()).load(Global.BASE_URL + "imagen/usuario/" + UsuarioActual.getInstance().getId().toString()).into((ImageView) myHeader.findViewById(R.id.circleView));
+            Glide.with(getContext()).load(Global.BASE_URL + "imagen/usuario/" + UsuarioActual.getInstance().getId().toString()).apply(options).into((ImageView) myHeader.findViewById(R.id.circleView));
         }
         listView.addHeaderView(myHeader);
         listView.setAdapter(mNavigationDrawerAdapter);

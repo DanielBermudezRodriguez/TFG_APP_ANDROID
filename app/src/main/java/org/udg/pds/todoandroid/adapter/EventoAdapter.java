@@ -125,7 +125,7 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
 
         holder.usernameAdmin.setText(eventoActual.getAdministrador().getUsername());
         holder.emailAdmin.setText(eventoActual.getAdministrador().getEmail());
-        holder.deporteEvento.setText(eventoActual.getTitulo());
+        holder.deporteEvento.setText(eventoActual.getDeporte().getDeporte());
         holder.participantesEvento.setText(String.valueOf(eventoActual.getParticipantesRegistrados()) + " / " + String.valueOf(eventoActual.getNumeroParticipantes()));
         holder.municipioEvento.setText(eventoActual.getMunicipio().getMunicipio());
         holder.duracionEvento.setText(String.valueOf(eventoActual.getDuracion()) + " minutos");

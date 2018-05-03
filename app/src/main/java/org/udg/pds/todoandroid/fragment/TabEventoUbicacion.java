@@ -31,7 +31,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
-@SuppressLint("ValidFragment")
+
 public class TabEventoUbicacion extends Fragment {
 
     private GoogleMap googleMap;
@@ -39,6 +39,9 @@ public class TabEventoUbicacion extends Fragment {
     private ApiRest apiRest;
     private Long idEventoActual;
 
+    public TabEventoUbicacion(){}
+
+    @SuppressLint("ValidFragment")
     public TabEventoUbicacion(Long id) {
         this.idEventoActual = id;
     }

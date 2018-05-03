@@ -118,7 +118,7 @@ public class EventoDetalle extends AppCompatActivity {
                     return new TabEventoInformacion();
                 case 1:
                     fab.setVisibility(View.GONE);
-                    return new TabEventoParticipantes();
+                    return new TabEventoParticipantes(eventoActual.getId());
                 case 2:
                     fab.setVisibility(View.GONE);
                     return new TabEventoForo(eventoActual);

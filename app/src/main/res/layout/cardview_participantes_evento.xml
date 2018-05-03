@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="0dp"
+    android:layout_marginStart="0dp"
+    android:layout_marginEnd="0dp" style="@style/CardView.Light" android:id="@+id/cardview"  card_view:cardCornerRadius="4dp"
+    card_view:cardElevation="4dp"
+    card_view:cardUseCompatPadding="true" >
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/cardview_imagen_participante_evento"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_marginBottom="4dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            card_view:srcCompat="@mipmap/ic_duracion_evento" />
+
+        <TextView
+            android:id="@+id/cardview_participante_username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            app:layout_constraintBottom_toTopOf="@+id/cardview_participante_municipio"
+            app:layout_constraintStart_toEndOf="@+id/cardview_imagen_participante_evento"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Danimek123" />
+
+        <TextView
+            android:id="@+id/cardview_participante_municipio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/cardview_imagen_participante_evento"
+            app:layout_constraintTop_toBottomOf="@+id/cardview_participante_username"
+            tools:text="lloret de Mar" />
+
+    </android.support.constraint.ConstraintLayout>
+
+</android.support.v7.widget.CardView>

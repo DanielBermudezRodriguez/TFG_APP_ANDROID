@@ -70,7 +70,7 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
 
         // Miramos si el usuario está logeado
         if (UsuarioActual.getInstance().getId() == -1L) {
-            Intent main = new Intent(this, MainActivity.class);
+            Intent main = new Intent(this, Login.class);
             // Si no está logeado eliminamos de la pila la actividad Principal
             main.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(main);

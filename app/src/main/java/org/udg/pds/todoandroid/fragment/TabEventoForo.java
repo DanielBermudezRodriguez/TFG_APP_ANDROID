@@ -3,6 +3,7 @@ package org.udg.pds.todoandroid.fragment;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,9 +53,9 @@ public class TabEventoForo extends Fragment {
     private String nombreSala;
     private DatabaseReference salaForo;
     private EditText editText;
-    private ImageButton botonEnviar;
     private MensajeForoAdapter mensajeAdapter;
     private ListView listaMensajes;
+    private FloatingActionButton botonEnviar;
 
 
     @SuppressLint("ValidFragment")
