@@ -3,13 +3,14 @@ package org.udg.pds.todoandroid.entity;
 
 
 public class DatosUsuarioForo {
-
+    private Long id;
     private String name;
-    private String color;
+    //private String color;
 
-    public DatosUsuarioForo(String name, String color) {
+    public DatosUsuarioForo(String name, Long id) {
         this.name = name;
-        this.color = color;
+        // this.color = color;
+        this.id = id;
     }
 
     public DatosUsuarioForo() {
@@ -19,7 +20,11 @@ public class DatosUsuarioForo {
         return name;
     }
 
-    public String getColor() {
-        return color;
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

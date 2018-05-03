@@ -8,10 +8,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.entity.MensajeForo;
+import org.udg.pds.todoandroid.util.Global;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,16 +65,21 @@ public class MensajeForoAdapter extends BaseAdapter {
             convertView.setTag(holder);
             holder.messageBody.setText(message.getText());
         } else { // this message was sent by someone else so let's create an advanced chat bubble on the left
+
             convertView = messageInflater.inflate(R.layout.tab_foro_evento_mensaje_alieno, null);
-            holder.avatar = (View) convertView.findViewById(R.id.avatar);
+           // holder.avatar = (View) convertView.findViewById(R.id.avatar_foro);
+            holder.avatarForo = convertView.findViewById(R.id.avatar_foro);
             holder.name = (TextView) convertView.findViewById(R.id.name);
             holder.messageBody = (TextView) convertView.findViewById(R.id.message_body);
             convertView.setTag(holder);
 
             holder.name.setText(message.getData().getName());
             holder.messageBody.setText(message.getText());
-            GradientDrawable drawable = (GradientDrawable) holder.avatar.getBackground();
-            drawable.setColor(Color.parseColor(message.getData().getColor()));
+            Glide.with(context).load(Global.BASE_URL + "imagen/usuario/" + message.getData().getId().toString()).apply(new RequestOptions().circleCrop()).into(holder.avatarForo);
+
+
+           // GradientDrawable drawable = (GradientDrawable) holder.avatar.getBackground();
+            //drawable.setColor(Color.parseColor(message.getData().getColor()));
         }
 
         return convertView;
@@ -78,7 +88,8 @@ public class MensajeForoAdapter extends BaseAdapter {
 }
 
 class MessageViewHolder {
-    public View avatar;
+    public ImageView avatarForo;
+    //public View avatar;
     public TextView name;
     public TextView messageBody;
 }

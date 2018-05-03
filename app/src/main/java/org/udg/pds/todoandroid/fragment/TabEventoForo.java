@@ -91,10 +91,12 @@ public class TabEventoForo extends Fragment {
                 Iterator i = dataSnapshot.getChildren().iterator();
 
                 while (i.hasNext()) {
+                    Long idUsuario = Long.parseLong( ((DataSnapshot) i.next()).getValue().toString() );
                     String mensajeUsuario = ((DataSnapshot) i.next()).getValue().toString();
                     String nombreUsuario = ((DataSnapshot) i.next()).getValue().toString();
 
-                    DatosUsuarioForo datosUsuarioForo = new DatosUsuarioForo(nombreUsuario, getRandomColor());
+
+                    DatosUsuarioForo datosUsuarioForo = new DatosUsuarioForo(nombreUsuario, idUsuario);
                     boolean esUsuarioActual = nombreUsuario.equals(username);
                     final MensajeForo mensajeForo = new MensajeForo(mensajeUsuario, datosUsuarioForo, esUsuarioActual);
                     getActivity().runOnUiThread(new Runnable() {
@@ -114,10 +116,12 @@ public class TabEventoForo extends Fragment {
                 Iterator i = dataSnapshot.getChildren().iterator();
 
                 while (i.hasNext()) {
+                    Long idUsuario = Long.parseLong( ((DataSnapshot) i.next()).getValue().toString() );
                     String mensajeUsuario = ((DataSnapshot) i.next()).getValue().toString();
                     String nombreUsuario = ((DataSnapshot) i.next()).getValue().toString();
 
-                    DatosUsuarioForo datosUsuarioForo = new DatosUsuarioForo(nombreUsuario, getRandomColor());
+
+                    DatosUsuarioForo datosUsuarioForo = new DatosUsuarioForo(nombreUsuario, idUsuario);
                     boolean esUsuarioActual = nombreUsuario.equals(username);
                     final MensajeForo mensajeForo = new MensajeForo(mensajeUsuario, datosUsuarioForo, esUsuarioActual);
                     getActivity().runOnUiThread(new Runnable() {
@@ -168,20 +172,13 @@ public class TabEventoForo extends Fragment {
             Map<String, Object> mapa2 = new HashMap<String, Object>();
             mapa2.put("name", username);
             mapa2.put("msg", editText.getText().toString());
+            mapa2.put("id", UsuarioActual.getInstance().getId().toString());
             mensajeSala.updateChildren(mapa2);
 
             editText.getText().clear();
         }
     }
 
-    private String getRandomColor() {
-        Random r = new Random();
-        StringBuffer sb = new StringBuffer("#");
-        while (sb.length() < 7) {
-            sb.append(Integer.toHexString(r.nextInt()));
-        }
-        return sb.toString().substring(0, 7);
-    }
 
 
 }
