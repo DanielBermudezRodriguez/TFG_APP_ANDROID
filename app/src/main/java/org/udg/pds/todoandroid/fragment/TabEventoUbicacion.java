@@ -22,6 +22,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
+import org.udg.pds.todoandroid.activity.EventoDetalle;
 import org.udg.pds.todoandroid.entity.Ubicacion;
 import org.udg.pds.todoandroid.service.ApiRest;
 import org.udg.pds.todoandroid.util.InitRetrofit;
@@ -50,6 +51,7 @@ public class TabEventoUbicacion extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.tab_ubicacion_evento, container, false);
+        ((EventoDetalle) getActivity()).actualizarVisibilidadBotonRegistroParticipantes();
         // Inicializamos el servicio de APIRest de retrofit
         apiRest = InitRetrofit.getInstance().getApiRest();
         mMapView = (MapView) rootView.findViewById(R.id.mapView);

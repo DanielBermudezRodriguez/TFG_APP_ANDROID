@@ -1,9 +1,10 @@
 package org.udg.pds.todoandroid.activity;
 
+import android.content.Intent;
 import android.support.design.widget.TabLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -12,12 +13,18 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
+import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
+import org.udg.pds.todoandroid.adapter.ParticipanteEventoAdapter;
 import org.udg.pds.todoandroid.entity.Evento;
+import org.udg.pds.todoandroid.entity.ParticipanteEvento;
+import org.udg.pds.todoandroid.entity.UsuarioActual;
 import org.udg.pds.todoandroid.fragment.TabEventoForo;
 import org.udg.pds.todoandroid.fragment.TabEventoInformacion;
 import org.udg.pds.todoandroid.fragment.TabEventoParticipantes;
@@ -26,6 +33,14 @@ import org.udg.pds.todoandroid.service.ApiRest;
 import org.udg.pds.todoandroid.util.Global;
 import org.udg.pds.todoandroid.util.InitRetrofit;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import ru.dimorinny.floatingtextbutton.FloatingTextButton;
+
 public class EventoDetalle extends AppCompatActivity {
 
 
@@ -33,7 +48,11 @@ public class EventoDetalle extends AppCompatActivity {
     private ViewPager mViewPager;
     private Evento eventoActual;
     private ApiRest apiRest;
-    private FloatingActionButton fab;
+    private FloatingTextButton apuntarParticipanteEvento;
+    private FloatingTextButton desapuntarParticipanteEvento;
+    private Boolean esParticipante;
+    private TabLayout tabLayout;
+    private List<ParticipanteEvento> participanteEventos = new ArrayList<ParticipanteEvento>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,23 +74,151 @@ public class EventoDetalle extends AppCompatActivity {
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout = findViewById(R.id.tabs);
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setVisibility(View.GONE);
-        fab.setOnClickListener(new View.OnClickListener() {
+        obtenerParticipantesEvento();
+
+        desapuntarParticipanteEvento = findViewById(R.id.eliminar_participante_evento);
+        desapuntarParticipanteEvento.setVisibility(View.GONE);
+
+        apuntarParticipanteEvento = findViewById(R.id.apuntar_participante_evento);
+        apuntarParticipanteEvento.setVisibility(View.GONE);
+
+
+        apuntarParticipanteEvento.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                mSectionsPagerAdapter.notifyDataSetChanged();
+                esParticipante = true;
+                desapuntarParticipanteEvento.setVisibility(View.VISIBLE);
+                apuntarParticipanteEvento.setVisibility(View.GONE);
+                registrarPartipanteEvento();
+            }
+        });
+
+
+        desapuntarParticipanteEvento.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mSectionsPagerAdapter.notifyDataSetChanged();
+                esParticipante = false;
+                apuntarParticipanteEvento.setVisibility(View.VISIBLE);
+                desapuntarParticipanteEvento.setVisibility(View.GONE);
+                eliminarParticipanteEvento();
             }
         });
 
     }
 
+    public void obtenerParticipantesEvento() {
 
+        Call<List<ParticipanteEvento>> peticionRest = apiRest.obtenerParticipantesEvento(eventoActual.getId());
+        peticionRest.enqueue(new Callback<List<ParticipanteEvento>>() {
+            @Override
+            public void onResponse(Call<List<ParticipanteEvento>> call, Response<List<ParticipanteEvento>> response) {
+                if (response.raw().code() != 500 && response.isSuccessful()) {
+
+                    participanteEventos = response.body();
+                    esParticipante = false;
+                    apuntarParticipanteEvento.setVisibility(View.VISIBLE);
+                    desapuntarParticipanteEvento.setVisibility(View.GONE);
+
+                    if (participanteEventos == null || participanteEventos.isEmpty()) {
+                        esParticipante = false;
+                        apuntarParticipanteEvento.setVisibility(View.VISIBLE);
+                        desapuntarParticipanteEvento.setVisibility(View.GONE);
+                    } else {
+                        for (ParticipanteEvento participante : participanteEventos) {
+                            if (participante.getId().equals(UsuarioActual.getInstance().getId())) {
+                                esParticipante = true;
+                                apuntarParticipanteEvento.setVisibility(View.GONE);
+                                desapuntarParticipanteEvento.setVisibility(View.VISIBLE);
+                            }
+                        }
+                    }
+                } else {
+                    try {
+                        JSONObject jObjError = new JSONObject(response.errorBody().string());
+                        Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {
+                        Log.i("ERROR:", e.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<ParticipanteEvento>> call, Throwable t) {
+                Log.i("ERROR:", t.getMessage());
+            }
+        });
+
+    }
+
+    private void registrarPartipanteEvento() {
+
+        Call<Long> peticionRest = apiRest.addParticipanteEvento(eventoActual.getId());
+        peticionRest.enqueue(new Callback<Long>() {
+            @Override
+            public void onResponse(Call<Long> call, Response<Long> response) {
+                if (response.raw().code() != 500 && response.isSuccessful()) {
+                    Long id = response.body();
+                    esParticipante = true;
+                    apuntarParticipanteEvento.setVisibility(View.GONE);
+                    desapuntarParticipanteEvento.setVisibility(View.VISIBLE);
+                    Toast.makeText(getApplicationContext(), "Registrado correctamente", Toast.LENGTH_LONG).show();
+                } else {
+                    try {
+                        apuntarParticipanteEvento.setVisibility(View.VISIBLE);
+                        desapuntarParticipanteEvento.setVisibility(View.GONE);
+                        esParticipante = false;
+                        JSONObject jObjError = new JSONObject(response.errorBody().string());
+                        Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {
+                        Log.i("ERROR:", e.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Long> call, Throwable t) {
+                Log.i("ERROR:", t.getMessage());
+            }
+        });
+    }
+
+    private void eliminarParticipanteEvento() {
+
+        Call<Long> peticionRest = apiRest.eliminarParticipanteEvento(eventoActual.getId(), UsuarioActual.getInstance().getId());
+        peticionRest.enqueue(new Callback<Long>() {
+            @Override
+            public void onResponse(Call<Long> call, Response<Long> response) {
+                if (response.raw().code() != 500 && response.isSuccessful()) {
+                    Long id = response.body();
+                    esParticipante = false;
+                    apuntarParticipanteEvento.setVisibility(View.VISIBLE);
+                    desapuntarParticipanteEvento.setVisibility(View.GONE);
+                    Toast.makeText(getApplicationContext(), "Desapuntado correctamente", Toast.LENGTH_LONG).show();
+                } else {
+                    try {
+                        apuntarParticipanteEvento.setVisibility(View.GONE);
+                        desapuntarParticipanteEvento.setVisibility(View.VISIBLE);
+                        esParticipante = true;
+                        JSONObject jObjError = new JSONObject(response.errorBody().string());
+                        Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {
+                        Log.i("ERROR:", e.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Long> call, Throwable t) {
+                Log.i("ERROR:", t.getMessage());
+            }
+        });
+    }
 
 
     @Override
@@ -97,33 +244,26 @@ public class EventoDetalle extends AppCompatActivity {
     }
 
 
-
-
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+    public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
-
         @Override
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    fab.setVisibility(View.GONE);
                     return new TabEventoInformacion();
                 case 1:
-                    fab.setVisibility(View.GONE);
                     return new TabEventoParticipantes(eventoActual.getId());
                 case 2:
-                    fab.setVisibility(View.GONE);
                     return new TabEventoForo(eventoActual);
                 case 3:
-                    fab.setVisibility(View.GONE);
                     return new TabEventoUbicacion(eventoActual.getId());
                 default:
                     return null;
@@ -134,7 +274,41 @@ public class EventoDetalle extends AppCompatActivity {
         public int getCount() {
             return 4;
         }
+
+        @Override
+        public int getItemPosition(Object object) {
+            if (object instanceof TabEventoParticipantes) {
+                ((TabEventoParticipantes) object).update(1);
+            }
+            return super.getItemPosition(object);
+        }
+
+
     }
 
+    public void actualizarVisibilidadBotonRegistroParticipantes() {
+        int tabSelected = tabLayout.getSelectedTabPosition();
+
+        if (tabSelected > 1) {
+            apuntarParticipanteEvento.setVisibility(View.GONE);
+            desapuntarParticipanteEvento.setVisibility(View.GONE);
+        } else {
+
+            if ((tabSelected == 0 || tabSelected == 1)) {
+                if (esParticipante != null && !esParticipante) {
+                    apuntarParticipanteEvento.setVisibility(View.VISIBLE);
+                    desapuntarParticipanteEvento.setVisibility(View.GONE);
+                } else if (esParticipante != null && esParticipante) {
+                    apuntarParticipanteEvento.setVisibility(View.GONE);
+                    desapuntarParticipanteEvento.setVisibility(View.VISIBLE);
+                } else {
+                    //apuntarParticipanteEvento.setVisibility(View.VISIBLE);
+                }
+            }
+
+        }
+
+
+    }
 
 }

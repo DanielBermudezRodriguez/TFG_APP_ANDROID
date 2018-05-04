@@ -21,6 +21,7 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
@@ -66,4 +67,10 @@ public interface ApiRest {
 
     @GET("participante/{idEvento}")
     Call<List<ParticipanteEvento>> obtenerParticipantesEvento(@Path("idEvento") Long idEvento);
+
+    @POST("participante/{idEvento}")
+    Call<Long> addParticipanteEvento(@Path("idEvento") Long idEvento);
+
+    @DELETE("participante/{idEvento}/{idUsuario}")
+    Call<Long> eliminarParticipanteEvento(@Path("idEvento") Long idEvento, @Path("idUsuario") Long idUsuario);
 }

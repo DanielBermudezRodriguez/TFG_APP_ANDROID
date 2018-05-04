@@ -18,6 +18,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import org.udg.pds.todoandroid.R;
+import org.udg.pds.todoandroid.activity.EventoDetalle;
 import org.udg.pds.todoandroid.adapter.MensajeForoAdapter;
 import org.udg.pds.todoandroid.entity.DatosUsuarioForo;
 import org.udg.pds.todoandroid.entity.Evento;
@@ -53,6 +54,7 @@ public class TabEventoForo extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.tab_foro_evento, container, false);
+        ((EventoDetalle) getActivity()).actualizarVisibilidadBotonRegistroParticipantes();
 
         mensajeAdapter = new MensajeForoAdapter(getActivity().getApplicationContext());
         listaMensajes = (ListView) rootView.findViewById(R.id.messages_view);
