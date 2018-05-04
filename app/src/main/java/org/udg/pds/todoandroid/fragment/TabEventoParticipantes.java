@@ -62,8 +62,6 @@ public class TabEventoParticipantes extends Fragment  {
     }
 
 
-
-
     public TabEventoParticipantes (){}
 
     @SuppressLint("ValidFragment")

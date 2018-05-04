@@ -258,7 +258,7 @@ public class EventoDetalle extends AppCompatActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return new TabEventoInformacion();
+                    return new TabEventoInformacion(eventoActual.getId());
                 case 1:
                     return new TabEventoParticipantes(eventoActual.getId());
                 case 2:

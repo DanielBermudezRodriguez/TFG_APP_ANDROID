@@ -73,4 +73,7 @@ public interface ApiRest {
 
     @DELETE("participante/{idEvento}/{idUsuario}")
     Call<Long> eliminarParticipanteEvento(@Path("idEvento") Long idEvento, @Path("idUsuario") Long idUsuario);
+
+    @GET("evento/{idEvento}")
+    Call<Evento> obtenerInformacionEvento(@Path("idEvento") Long idEvento);
 }
