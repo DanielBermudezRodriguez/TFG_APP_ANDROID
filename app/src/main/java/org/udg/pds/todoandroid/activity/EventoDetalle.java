@@ -1,13 +1,9 @@
 package org.udg.pds.todoandroid.activity;
 
-import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -21,7 +17,6 @@ import android.widget.Toast;
 
 import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
-import org.udg.pds.todoandroid.adapter.ParticipanteEventoAdapter;
 import org.udg.pds.todoandroid.entity.Evento;
 import org.udg.pds.todoandroid.entity.ParticipanteEvento;
 import org.udg.pds.todoandroid.entity.UsuarioActual;
@@ -58,17 +53,16 @@ public class EventoDetalle extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_evento_detalle);
+        // Inicializamos el servicio de APIRest de retrofit
+        apiRest = InitRetrofit.getInstance().getApiRest();
+        eventoActual = (Evento) getIntent().getExtras().getSerializable(Global.KEY_SELECTED_EVENT);
+        obtenerParticipantesEvento();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
-        // Inicializamos el servicio de APIRest de retrofit
-        apiRest = InitRetrofit.getInstance().getApiRest();
-
-        eventoActual = (Evento) getIntent().getExtras().getSerializable(Global.KEY_SELECTED_EVENT);
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
@@ -77,8 +71,6 @@ public class EventoDetalle extends AppCompatActivity {
         tabLayout = findViewById(R.id.tabs);
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
-
-        obtenerParticipantesEvento();
 
         desapuntarParticipanteEvento = findViewById(R.id.eliminar_participante_evento);
         desapuntarParticipanteEvento.setVisibility(View.GONE);
@@ -90,11 +82,11 @@ public class EventoDetalle extends AppCompatActivity {
         apuntarParticipanteEvento.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mSectionsPagerAdapter.notifyDataSetChanged();
                 esParticipante = true;
                 desapuntarParticipanteEvento.setVisibility(View.VISIBLE);
                 apuntarParticipanteEvento.setVisibility(View.GONE);
                 registrarPartipanteEvento();
+                mSectionsPagerAdapter.notifyDataSetChanged();
             }
         });
 
@@ -102,11 +94,11 @@ public class EventoDetalle extends AppCompatActivity {
         desapuntarParticipanteEvento.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mSectionsPagerAdapter.notifyDataSetChanged();
                 esParticipante = false;
                 apuntarParticipanteEvento.setVisibility(View.VISIBLE);
                 desapuntarParticipanteEvento.setVisibility(View.GONE);
                 eliminarParticipanteEvento();
+                mSectionsPagerAdapter.notifyDataSetChanged();
             }
         });
 
@@ -280,10 +272,20 @@ public class EventoDetalle extends AppCompatActivity {
             if (object instanceof TabEventoParticipantes) {
                 ((TabEventoParticipantes) object).update(1);
             }
+            if (object instanceof TabEventoInformacion) {
+                ((TabEventoInformacion) object).update(0);
+            }
+            if (object instanceof TabEventoForo) {
+                ((TabEventoForo) object).update(esParticipante);
+            }
             return super.getItemPosition(object);
         }
 
 
+    }
+
+    public Boolean esParticipante(){
+        return esParticipante;
     }
 
     public void actualizarVisibilidadBotonRegistroParticipantes() {
@@ -301,14 +303,9 @@ public class EventoDetalle extends AppCompatActivity {
                 } else if (esParticipante != null && esParticipante) {
                     apuntarParticipanteEvento.setVisibility(View.GONE);
                     desapuntarParticipanteEvento.setVisibility(View.VISIBLE);
-                } else {
-                    //apuntarParticipanteEvento.setVisibility(View.VISIBLE);
                 }
             }
-
         }
-
-
     }
 
 }

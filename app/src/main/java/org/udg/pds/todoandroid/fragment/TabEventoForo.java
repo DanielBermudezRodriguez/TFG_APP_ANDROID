@@ -3,8 +3,10 @@ package org.udg.pds.todoandroid.fragment;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,6 +45,21 @@ public class TabEventoForo extends Fragment {
     private ListView listaMensajes;
     private FloatingActionButton botonEnviar;
     private ChildEventListener childEventListener = null;
+    private ConstraintLayout layoutForo;
+    private ConstraintLayout foroPrivado;
+
+    public void update(Boolean esParticipante) {
+
+        if (!evento.getForo().getEsPublico() && !esParticipante){
+            layoutForo.setVisibility(View.GONE);
+            foroPrivado.setVisibility(View.VISIBLE);
+        }
+        else {
+            layoutForo.setVisibility(View.VISIBLE);
+            foroPrivado.setVisibility(View.GONE);
+        }
+
+    }
 
 
     @SuppressLint("ValidFragment")
@@ -54,6 +71,19 @@ public class TabEventoForo extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.tab_foro_evento, container, false);
+
+        layoutForo = rootView.findViewById(R.id.layout_foro);
+        foroPrivado = rootView.findViewById(R.id.tab_foro_evento_privado);
+
+        if (!evento.getForo().getEsPublico() && !((EventoDetalle) getActivity()).esParticipante()){
+            layoutForo.setVisibility(View.GONE);
+            foroPrivado.setVisibility(View.VISIBLE);
+        }
+        else {
+            layoutForo.setVisibility(View.VISIBLE);
+            foroPrivado.setVisibility(View.GONE);
+        }
+
         ((EventoDetalle) getActivity()).actualizarVisibilidadBotonRegistroParticipantes();
 
         mensajeAdapter = new MensajeForoAdapter(getActivity().getApplicationContext());

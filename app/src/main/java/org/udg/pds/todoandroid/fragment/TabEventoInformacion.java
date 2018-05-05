@@ -3,7 +3,8 @@ package org.udg.pds.todoandroid.fragment;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.FragmentTransaction;
+
+import android.support.v4.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -15,7 +16,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
@@ -32,6 +32,8 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -48,6 +50,8 @@ public class TabEventoInformacion extends Fragment {
     private TextView deporteEvento;
     private TextView municipioEvento;
     private TextView fechaEvento;
+    private TextView participantesEvento;
+    private TextView duracionEvento;
 
     public TabEventoInformacion() {
     }
@@ -55,6 +59,18 @@ public class TabEventoInformacion extends Fragment {
     @SuppressLint("ValidFragment")
     public TabEventoInformacion(Long idEvento) {
         this.idEventoActual = idEvento;
+    }
+
+    public void update(int posicion) {
+        if (posicion == 0){
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                   obtenerDatosEvento();
+                }
+            }, 500);
+
+        }
     }
 
     @Nullable
@@ -73,6 +89,8 @@ public class TabEventoInformacion extends Fragment {
         deporteEvento = rootView.findViewById(R.id.tab_evento_informacion_deporte);
         municipioEvento = rootView.findViewById(R.id.tab_evento_informacion_municipio);
         fechaEvento = rootView.findViewById(R.id.tab_evento_informacion_fecha);
+        participantesEvento = rootView.findViewById(R.id.tab_evento_informacion_participantes);
+        duracionEvento = rootView.findViewById(R.id.tab_evento_informacion_duracion);
 
         obtenerDatosEvento();
 
@@ -96,14 +114,13 @@ public class TabEventoInformacion extends Fragment {
                     descripcionEvento.setText(evento.getDescripcion());
                     deporteEvento.setText(evento.getDeporte().getDeporte());
                     municipioEvento.setText(evento.getMunicipio().getMunicipio());
+                    participantesEvento.setText(String.valueOf(evento.getParticipantesRegistrados()) + "/" + evento.getNumeroParticipantes() + " " + evento.getEstado().getEstado() );
+                    duracionEvento.setText(String.valueOf(evento.getDuracion()) + " minutos");
 
                     Date fecha = evento.getFechaEvento();
                     Calendar cal = Calendar.getInstance();
                     cal.setTime(fecha);
                     fechaEvento.setText(String.valueOf(cal.get(Calendar.DAY_OF_MONTH)) + "/" +  String.valueOf(cal.get(Calendar.MONTH) + 1) + "/" + String.valueOf(cal.get(Calendar.YEAR)) + " " + String.valueOf(cal.get(Calendar.HOUR_OF_DAY)) + ":" + String.valueOf(cal.get(Calendar.MINUTE)) + " h");
-
-
-
 
                 } else {
                     Toast.makeText(getActivity().getApplicationContext(), "Error al obtener la información del evento", Toast.LENGTH_SHORT).show();
