@@ -1,5 +1,6 @@
 package org.udg.pds.todoandroid.activity;
 
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v7.app.AppCompatActivity;
@@ -13,11 +14,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.entity.Evento;
+import org.udg.pds.todoandroid.entity.GenericId;
 import org.udg.pds.todoandroid.entity.ParticipanteEvento;
 import org.udg.pds.todoandroid.entity.UsuarioActual;
 import org.udg.pds.todoandroid.fragment.TabEventoForo;
@@ -56,6 +59,12 @@ public class EventoDetalle extends AppCompatActivity {
         // Inicializamos el servicio de APIRest de retrofit
         apiRest = InitRetrofit.getInstance().getApiRest();
         eventoActual = (Evento) getIntent().getExtras().getSerializable(Global.KEY_SELECTED_EVENT);
+
+        desapuntarParticipanteEvento = findViewById(R.id.eliminar_participante_evento);
+        apuntarParticipanteEvento = findViewById(R.id.apuntar_participante_evento);
+        apuntarParticipanteEvento.setVisibility(View.GONE);
+        desapuntarParticipanteEvento.setVisibility(View.GONE);
+        // Eventos cancelados, completos o finalizados
         obtenerParticipantesEvento();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -65,28 +74,20 @@ public class EventoDetalle extends AppCompatActivity {
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
+        mViewPager = findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         tabLayout = findViewById(R.id.tabs);
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
-        desapuntarParticipanteEvento = findViewById(R.id.eliminar_participante_evento);
-        desapuntarParticipanteEvento.setVisibility(View.GONE);
-
-        apuntarParticipanteEvento = findViewById(R.id.apuntar_participante_evento);
-        apuntarParticipanteEvento.setVisibility(View.GONE);
 
 
         apuntarParticipanteEvento.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                esParticipante = true;
-                desapuntarParticipanteEvento.setVisibility(View.VISIBLE);
-                apuntarParticipanteEvento.setVisibility(View.GONE);
                 registrarPartipanteEvento();
-                mSectionsPagerAdapter.notifyDataSetChanged();
+
             }
         });
 
@@ -94,11 +95,7 @@ public class EventoDetalle extends AppCompatActivity {
         desapuntarParticipanteEvento.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                esParticipante = false;
-                apuntarParticipanteEvento.setVisibility(View.VISIBLE);
-                desapuntarParticipanteEvento.setVisibility(View.GONE);
                 eliminarParticipanteEvento();
-                mSectionsPagerAdapter.notifyDataSetChanged();
             }
         });
 
@@ -114,26 +111,25 @@ public class EventoDetalle extends AppCompatActivity {
 
                     participanteEventos = response.body();
                     esParticipante = false;
-                    apuntarParticipanteEvento.setVisibility(View.VISIBLE);
-                    desapuntarParticipanteEvento.setVisibility(View.GONE);
 
-                    if (participanteEventos == null || participanteEventos.isEmpty()) {
-                        esParticipante = false;
+                    for (ParticipanteEvento participante : participanteEventos) {
+                        if (participante.getId().equals(UsuarioActual.getInstance().getId())) {
+                            esParticipante = true;
+                        }
+
+                    }
+                    if (esParticipante) {
+                        apuntarParticipanteEvento.setVisibility(View.GONE);
+                        desapuntarParticipanteEvento.setVisibility(View.VISIBLE);
+                    } else {
                         apuntarParticipanteEvento.setVisibility(View.VISIBLE);
                         desapuntarParticipanteEvento.setVisibility(View.GONE);
-                    } else {
-                        for (ParticipanteEvento participante : participanteEventos) {
-                            if (participante.getId().equals(UsuarioActual.getInstance().getId())) {
-                                esParticipante = true;
-                                apuntarParticipanteEvento.setVisibility(View.GONE);
-                                desapuntarParticipanteEvento.setVisibility(View.VISIBLE);
-                            }
-                        }
                     }
+
+
                 } else {
                     try {
                         JSONObject jObjError = new JSONObject(response.errorBody().string());
-                        Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
                     } catch (Exception e) {
                         Log.i("ERROR:", e.getMessage());
                     }
@@ -150,23 +146,20 @@ public class EventoDetalle extends AppCompatActivity {
 
     private void registrarPartipanteEvento() {
 
-        Call<Long> peticionRest = apiRest.addParticipanteEvento(eventoActual.getId());
-        peticionRest.enqueue(new Callback<Long>() {
+        Call<GenericId> peticionRest = apiRest.addParticipanteEvento(eventoActual.getId());
+        peticionRest.enqueue(new Callback<GenericId>() {
             @Override
-            public void onResponse(Call<Long> call, Response<Long> response) {
+            public void onResponse(Call<GenericId> call, Response<GenericId> response) {
                 if (response.raw().code() != 500 && response.isSuccessful()) {
-                    Long id = response.body();
                     esParticipante = true;
                     apuntarParticipanteEvento.setVisibility(View.GONE);
                     desapuntarParticipanteEvento.setVisibility(View.VISIBLE);
-                    Toast.makeText(getApplicationContext(), "Registrado correctamente", Toast.LENGTH_LONG).show();
+                    mSectionsPagerAdapter.notifyDataSetChanged();
+                    Snackbar.make(findViewById(android.R.id.content), "Registrado correctamente", Snackbar.LENGTH_SHORT).show();
                 } else {
                     try {
-                        apuntarParticipanteEvento.setVisibility(View.VISIBLE);
-                        desapuntarParticipanteEvento.setVisibility(View.GONE);
-                        esParticipante = false;
                         JSONObject jObjError = new JSONObject(response.errorBody().string());
-                        Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                        Snackbar.make(findViewById(android.R.id.content),  jObjError.getString("message"), Snackbar.LENGTH_SHORT).show();
                     } catch (Exception e) {
                         Log.i("ERROR:", e.getMessage());
                     }
@@ -174,7 +167,7 @@ public class EventoDetalle extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<Long> call, Throwable t) {
+            public void onFailure(Call<GenericId> call, Throwable t) {
                 Log.i("ERROR:", t.getMessage());
             }
         });
@@ -182,23 +175,20 @@ public class EventoDetalle extends AppCompatActivity {
 
     private void eliminarParticipanteEvento() {
 
-        Call<Long> peticionRest = apiRest.eliminarParticipanteEvento(eventoActual.getId(), UsuarioActual.getInstance().getId());
-        peticionRest.enqueue(new Callback<Long>() {
+        Call<GenericId> peticionRest = apiRest.eliminarParticipanteEvento(eventoActual.getId(), UsuarioActual.getInstance().getId());
+        peticionRest.enqueue(new Callback<GenericId>() {
             @Override
-            public void onResponse(Call<Long> call, Response<Long> response) {
+            public void onResponse(Call<GenericId> call, Response<GenericId> response) {
                 if (response.raw().code() != 500 && response.isSuccessful()) {
-                    Long id = response.body();
                     esParticipante = false;
                     apuntarParticipanteEvento.setVisibility(View.VISIBLE);
                     desapuntarParticipanteEvento.setVisibility(View.GONE);
-                    Toast.makeText(getApplicationContext(), "Desapuntado correctamente", Toast.LENGTH_LONG).show();
+                    mSectionsPagerAdapter.notifyDataSetChanged();
+                    Snackbar.make(findViewById(android.R.id.content), "Desapuntado correctamente", Snackbar.LENGTH_SHORT).show();
                 } else {
                     try {
-                        apuntarParticipanteEvento.setVisibility(View.GONE);
-                        desapuntarParticipanteEvento.setVisibility(View.VISIBLE);
-                        esParticipante = true;
                         JSONObject jObjError = new JSONObject(response.errorBody().string());
-                        Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                        Snackbar.make(findViewById(android.R.id.content),  jObjError.getString("message"), Snackbar.LENGTH_SHORT).show();
                     } catch (Exception e) {
                         Log.i("ERROR:", e.getMessage());
                     }
@@ -206,7 +196,7 @@ public class EventoDetalle extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<Long> call, Throwable t) {
+            public void onFailure(Call<GenericId> call, Throwable t) {
                 Log.i("ERROR:", t.getMessage());
             }
         });
@@ -284,7 +274,7 @@ public class EventoDetalle extends AppCompatActivity {
 
     }
 
-    public Boolean esParticipante(){
+    public Boolean esParticipante() {
         return esParticipante;
     }
 
@@ -295,7 +285,6 @@ public class EventoDetalle extends AppCompatActivity {
             apuntarParticipanteEvento.setVisibility(View.GONE);
             desapuntarParticipanteEvento.setVisibility(View.GONE);
         } else {
-
             if ((tabSelected == 0 || tabSelected == 1)) {
                 if (esParticipante != null && !esParticipante) {
                     apuntarParticipanteEvento.setVisibility(View.VISIBLE);

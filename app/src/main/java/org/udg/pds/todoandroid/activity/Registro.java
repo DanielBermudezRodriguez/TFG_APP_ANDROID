@@ -480,6 +480,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
                                                 principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                                 progressBar.setVisibility(View.GONE);
                                                 startActivity(principal);
+                                                finish();
                                             } else {
                                                 try {
                                                     JSONObject jObjError = new JSONObject(response.errorBody().string());

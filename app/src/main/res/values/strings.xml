@@ -88,6 +88,8 @@
 
 
     <string name="apuntar_participante_evento">Apuntarme</string>
+    <string name="crear_evento_principal">Crear Evento</string>
+    <string name="crear_vento_menu">Crear</string>
 
 
 </resources>

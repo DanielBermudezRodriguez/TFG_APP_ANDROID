@@ -59,6 +59,9 @@ public class MenuLateralFragment extends Fragment {
         void onNavigationDrawerItemSelected(int position);
 
         void onSearchItemSelected();
+
+        void crearEvento();
+
     }
 
     public MenuLateralFragment() {
@@ -251,6 +254,8 @@ public class MenuLateralFragment extends Fragment {
             return true;
         } else if (id == R.id.icono_buscador) {
             mCallbacks.onSearchItemSelected();
+        } else if (id == R.id.ic_crear_evento){
+            mCallbacks.crearEvento();
         }
 
         return super.onOptionsItemSelected(item);

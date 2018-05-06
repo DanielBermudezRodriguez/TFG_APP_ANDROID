@@ -3,6 +3,7 @@ package org.udg.pds.todoandroid.service;
 
 import org.udg.pds.todoandroid.entity.Deporte;
 import org.udg.pds.todoandroid.entity.Evento;
+import org.udg.pds.todoandroid.entity.GenericId;
 import org.udg.pds.todoandroid.entity.Imagen;
 import org.udg.pds.todoandroid.entity.Municipio;
 import org.udg.pds.todoandroid.entity.Pais;
@@ -50,7 +51,7 @@ public interface ApiRest {
     Call<List<Deporte>> getDeportes();
 
     @POST("ubicacion/usuario")
-    Call<Long> guardarUbicacionActualUsuario(@Body Ubicacion ubicacion);
+    Call<GenericId> guardarUbicacionActualUsuario(@Body Ubicacion ubicacion);
 
     @Multipart
     @POST("imagen/usuario")
@@ -69,11 +70,14 @@ public interface ApiRest {
     Call<List<ParticipanteEvento>> obtenerParticipantesEvento(@Path("idEvento") Long idEvento);
 
     @POST("participante/{idEvento}")
-    Call<Long> addParticipanteEvento(@Path("idEvento") Long idEvento);
+    Call<GenericId> addParticipanteEvento(@Path("idEvento") Long idEvento);
 
     @DELETE("participante/{idEvento}/{idUsuario}")
-    Call<Long> eliminarParticipanteEvento(@Path("idEvento") Long idEvento, @Path("idUsuario") Long idUsuario);
+    Call<GenericId> eliminarParticipanteEvento(@Path("idEvento") Long idEvento, @Path("idUsuario") Long idUsuario);
 
     @GET("evento/{idEvento}")
     Call<Evento> obtenerInformacionEvento(@Path("idEvento") Long idEvento);
+
+    @DELETE("usuario/logout/{id}")
+    Call<GenericId> logout(@Path("id") Long id);
 }

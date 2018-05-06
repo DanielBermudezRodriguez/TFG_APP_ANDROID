@@ -34,6 +34,7 @@ import retrofit2.Response;
 import ru.dimorinny.floatingtextbutton.FloatingTextButton;
 
 
+@SuppressLint("ValidFragment")
 public class TabEventoParticipantes extends Fragment {
 
 

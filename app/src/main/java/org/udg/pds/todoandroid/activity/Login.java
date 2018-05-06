@@ -116,6 +116,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener  {
                             // Eliminamos de la pila todas las actividades
                             principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(principal);
+                            finish();
 
                         } else {
                             try {

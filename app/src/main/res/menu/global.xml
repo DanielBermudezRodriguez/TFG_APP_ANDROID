@@ -1,10 +1,18 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/ic_crear_evento"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@mipmap/ic_crear_evento"
+        android:title="@string/crear_evento_principal"
+        app:showAsAction="ifRoom|withText" />
+    <item
         android:id="@+id/icono_buscador"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:icon="@android:drawable/ic_menu_search"
         android:title="@string/buscador"
         app:showAsAction="ifRoom|withText" />
+
 </menu>
