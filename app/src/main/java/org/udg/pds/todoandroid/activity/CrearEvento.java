@@ -13,8 +13,10 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -62,6 +64,9 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
     private TextView deporteEventoText;
     private EditText participantesEvento;
     private ImageView tooltipParticipantes;
+    private EditText  duracionEvento;
+    private Switch privacidadForo;
+    private ImageView tooltipPrivacidadForo;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -91,6 +96,18 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
         participantesEvento.setFilters(new InputFilter[]{new InputFilterMinMax("0", "9999")});
         tooltipParticipantes = findViewById(R.id.crear_evento_tooltip_participantes);
         tooltipParticipantes.setOnClickListener(this);
+        duracionEvento = findViewById(R.id.crear_evento_duracion);
+        duracionEvento.setFilters(new InputFilter[]{new InputFilterMinMax("0", "9999")});
+        privacidadForo = findViewById(R.id.crear_evento_privacidad_foro);
+        privacidadForo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (privacidadForo.isChecked()) privacidadForo.setText("Público");
+                else privacidadForo.setText("Privado");
+            }
+        });
+        tooltipPrivacidadForo = findViewById(R.id.crear_evento_tooltip_privacidad_foro);
+        tooltipPrivacidadForo.setOnClickListener(this);
 
 
     }
@@ -103,13 +120,22 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
                 seleccionarDeporte();
                 break;
             case R.id.crear_evento_tooltip_participantes:
-                Tooltip.Builder builder = new Tooltip.Builder(v, R.style.Tooltip2)
+                Tooltip.Builder tooltipParticipantes = new Tooltip.Builder(v, R.style.Tooltip2)
                         .setCancelable(true)
                         .setDismissOnClick(true)
                         .setCornerRadius(20f)
-                        .setGravity(Gravity.BOTTOM)
+                        .setGravity(Gravity.TOP)
                         .setText("Indique 0 para una cantidad ilimitada de participantes");
-                builder.show();
+                tooltipParticipantes.show();
+                break;
+            case R.id.crear_evento_tooltip_privacidad_foro:
+                Tooltip.Builder tooltipForo = new Tooltip.Builder(v, R.style.Tooltip2)
+                        .setCancelable(true)
+                        .setDismissOnClick(true)
+                        .setCornerRadius(20f)
+                        .setGravity(Gravity.TOP)
+                        .setText("Seleccione privado para que solamente los usuarios registrados al evento puedan visualizar y participar en el foro. Si selecciona público, cualquier usuario registrado podrá visualizar y participar en el foro.");
+                tooltipForo.show();
                 break;
         }
 
