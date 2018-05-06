@@ -46,7 +46,7 @@
             android:label="@string/app_name" />
         <activity android:name=".activity.PerfilUsuario" />
         <activity android:name=".activity.Buscador" />
-        <activity android:name=".activity.CrearEvento" />
+        <activity android:name=".activity.CrearEvento" android:windowSoftInputMode="stateHidden|adjustPan"/>
         <activity
             android:name=".activity.EventoDetalle"
             android:label="@string/title_activity_evento_detalle"
