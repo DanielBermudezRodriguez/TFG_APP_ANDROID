@@ -70,7 +70,7 @@ public class Buscador extends AppCompatActivity implements View.OnClickListener,
 
     private TextView deporte;
 
-    EditText fechaEvento;
+    private EditText fechaEvento;
 
     private List<Pais> paises = new ArrayList<Pais>();
     private int paisActual = -1;
