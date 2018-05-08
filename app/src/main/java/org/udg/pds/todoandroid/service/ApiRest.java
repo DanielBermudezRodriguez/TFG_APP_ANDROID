@@ -3,6 +3,7 @@ package org.udg.pds.todoandroid.service;
 
 import org.udg.pds.todoandroid.entity.Deporte;
 import org.udg.pds.todoandroid.entity.Evento;
+import org.udg.pds.todoandroid.entity.EventoCrearPeticion;
 import org.udg.pds.todoandroid.entity.GenericId;
 import org.udg.pds.todoandroid.entity.Imagen;
 import org.udg.pds.todoandroid.entity.Municipio;
@@ -38,6 +39,9 @@ public interface ApiRest {
     @POST("usuario")
     Call<UsuarioRegistroRespuesta> registrar(@Body UsuarioRegistroPeticion datosRegistro);
 
+    @POST("evento")
+    Call<GenericId> crearEvento (@Body EventoCrearPeticion datosEvento);
+
     @GET("pais")
     Call<List<Pais>> paises();
 
@@ -56,6 +60,10 @@ public interface ApiRest {
     @Multipart
     @POST("imagen/usuario")
     Call<Imagen> subirImagenUsuario(@Part MultipartBody.Part file);
+
+    @Multipart
+    @POST("imagen/evento/{idEvento}")
+    Call<Imagen> subirImagenEvento(@Part MultipartBody.Part file, @Path("idEvento") Long idEvento);
 
     @GET
     Call<List<Evento>> buscadorEventos(@Url String url);

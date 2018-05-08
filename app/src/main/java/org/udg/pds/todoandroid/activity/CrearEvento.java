@@ -1,15 +1,25 @@
 package org.udg.pds.todoandroid.activity;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.location.Address;
 import android.location.Geocoder;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -34,14 +44,22 @@ import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.model.LatLng;
+import com.squareup.picasso.Picasso;
 import com.tooltip.Tooltip;
 
 import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.entity.Deporte;
+import org.udg.pds.todoandroid.entity.EventoCrearPeticion;
+import org.udg.pds.todoandroid.entity.GenericId;
+import org.udg.pds.todoandroid.entity.Imagen;
 import org.udg.pds.todoandroid.entity.Municipio;
 import org.udg.pds.todoandroid.entity.Pais;
 import org.udg.pds.todoandroid.entity.Provincia;
+import org.udg.pds.todoandroid.entity.Ubicacion;
+import org.udg.pds.todoandroid.entity.UsuarioActual;
+import org.udg.pds.todoandroid.entity.UsuarioRegistroPeticion;
+import org.udg.pds.todoandroid.entity.UsuarioRegistroRespuesta;
 import org.udg.pds.todoandroid.fragment.DatePickerFragment;
 import org.udg.pds.todoandroid.fragment.SeleccionarDeporteEventoDialog;
 import org.udg.pds.todoandroid.fragment.SeleccionarMunicipioDialog;
@@ -51,15 +69,20 @@ import org.udg.pds.todoandroid.util.Global;
 import org.udg.pds.todoandroid.util.InitRetrofit;
 import org.udg.pds.todoandroid.util.InputFilterMinMax;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import ru.dimorinny.floatingtextbutton.FloatingTextButton;
 
 public class CrearEvento extends AppCompatActivity implements View.OnClickListener, SeleccionarDeporteEventoDialog.SeleccionarDeporteEventoDialogListener, SeleccionarProvinciasDialog.SeleccionarProvinciasDialogListener, SeleccionarMunicipioDialog.SeleccionarMunicipioDialogListener {
 
@@ -116,6 +139,10 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
     private TextView municipio;
     private ConstraintLayout seleccionarUbicacion;
     private TextView ubicacion;
+    private ImageView imagenEvento;
+    private FloatingActionButton tomarImagenEvento;
+    private Uri pathImagenPerfil;
+    private boolean esNuevaImagen = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -178,8 +205,117 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
         municipio = findViewById(R.id.crear_evento_municipio);
         seleccionarUbicacion = findViewById(R.id.crear_evento_ubicacion_layout);
         ubicacion = findViewById(R.id.crear_evento_ubicacion);
+        imagenEvento = findViewById(R.id.crear_evento_imagen_evento);
+        Picasso.with(getApplicationContext()).load(Global.BASE_URL + "imagen/evento/0").fit().centerCrop().into(imagenEvento);
+        tomarImagenEvento = findViewById(R.id.crear_evento_tomar_imagen_evento);
+        tomarImagenEvento.setOnClickListener(this);
 
 
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.toolbar_crear_evento) {
+            // VALIDAR FORMULARIO
+            String fechaEvento = day + "/" + month + "/" + year + " " + hora + ":" + minutos;
+            EventoCrearPeticion datosEvento = new EventoCrearPeticion();
+            if (!esMunicipio){
+                datosEvento = new EventoCrearPeticion(tituloEvento.getText().toString() , descripcionEvento.getText().toString(),Integer.parseInt(duracionEvento.getText().toString()),
+                        Integer.parseInt(participantesEvento.getText().toString()), fechaEvento, privacidadForo.isChecked(), null , deportes.get(deporteSeleccionado).getId(), new Ubicacion(latitud,longitud,direccion,municipioDireccion), "tituloForo" );
+            }
+            else {
+                datosEvento = new EventoCrearPeticion(tituloEvento.getText().toString() , descripcionEvento.getText().toString(),Integer.parseInt(duracionEvento.getText().toString()),
+                        Integer.parseInt(participantesEvento.getText().toString()), fechaEvento, privacidadForo.isChecked(), municipios.get(municipioActual).getId() , (long)deporteSeleccionado, null, "tituloForo" );
+            }
+
+            Call<GenericId> peticionRest = apiRest.crearEvento(datosEvento);
+            peticionRest.enqueue(new Callback<GenericId>() {
+                @Override
+                public void onResponse(Call<GenericId> call, Response<GenericId> response) {
+                    if (response.raw().code() != 500 && response.isSuccessful()) {
+
+                        GenericId idEvento = response.body();
+
+                        if (esNuevaImagen) {
+                            try {
+                                File file = new File(getRealPathFromURIPath(pathImagenPerfil, CrearEvento.this));
+                                RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
+                                MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), reqFile);
+                                Call<Imagen> peticionRest = apiRest.subirImagenEvento(body,idEvento.getId());
+                                peticionRest.enqueue(new Callback<Imagen>() {
+                                    @Override
+                                    public void onResponse(Call<Imagen> call, Response<Imagen> response) {
+                                        if (response.raw().code() != 500 && response.isSuccessful()) {
+                                            Imagen imagen = response.body();
+                                            Intent principal = new Intent(getApplicationContext(), Principal.class);
+                                            // Eliminamos de la pila todas las actividades
+                                            principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                            startActivity(principal);
+                                            finish();
+                                        } else {
+                                            try {
+                                                JSONObject jObjError = new JSONObject(response.errorBody().string());
+                                                Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                                            } catch (Exception e) {
+                                                Log.i("ERROR:", e.getMessage());
+                                            }
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<Imagen> call, Throwable t) {
+                                        Log.i("ERROR:", t.getMessage());
+                                    }
+                                });
+                            } catch (Exception e) {
+                                System.out.println(e);
+                            }
+                        } else {
+                            Intent principal = new Intent(getApplicationContext(), Principal.class);
+                            // Eliminamos de la pila todas las actividades
+                            principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(principal);
+                        }
+
+
+                    } else {
+                        try {
+                            JSONObject jObjError = new JSONObject(response.errorBody().string());
+                            Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                        } catch (Exception e) {
+                            Log.i("ERROR:", e.getMessage());
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<GenericId> call, Throwable t) {
+                    Log.i("ERROR:", t.getMessage());
+                }
+            });
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private String getRealPathFromURIPath(Uri contentURI, Activity activity) {
+        Cursor cursor = activity.getContentResolver().query(contentURI, null, null, null, null);
+        if (cursor == null) {
+            return contentURI.getPath();
+        } else {
+            cursor.moveToFirst();
+            int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+            return cursor.getString(idx);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_crear_evento, menu);
+        return true;
     }
 
     @Override
@@ -249,23 +385,78 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
             case R.id.crear_evento_seleccionar_municipio:
                 seleccionarMunicipio();
                 break;
+            case R.id.crear_evento_tomar_imagen_evento:
+                cargarImagenEvento();
+                break;
         }
 
     }
 
-    private void showPlacePicker() {
-
-        PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
-
-        try {
-            startActivityForResult(builder.build(this), Global.REQUEST_CODE_PLACE_PICKER);
-        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
-            e.printStackTrace();
-        }
+    private void cargarImagenEvento() {
+        AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
+        pictureDialog.setTitle("Seleccionar opción:");
+        String[] pictureDialogItems = {
+                "Foto de la galería",
+                "Foto de la cámara"};
+        pictureDialog.setItems(pictureDialogItems,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                choosePhotoFromGallary();
+                                break;
+                            case 1:
+                                takePhotoFromCamera();
+                                break;
+                        }
+                    }
+                });
+        pictureDialog.show();
     }
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == Global.REQUEST_CODE_PLACE_PICKER) {
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == this.RESULT_CANCELED) {
+            return;
+        }
+        if (requestCode == Global.REQUEST_CODE_GALLERY) {
+            if (data != null) {
+
+                pathImagenPerfil = data.getData();
+                try {
+                    Picasso.with(getApplicationContext()).load(pathImagenPerfil).fit().centerCrop().into(imagenEvento);
+                    esNuevaImagen = true;
+                    Toast.makeText(CrearEvento.this, "Imagen guardada!", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    Picasso.with(getApplicationContext()).load(Global.BASE_URL + "imagen/evento/0").into(imagenEvento);
+                    esNuevaImagen = false;
+                    e.printStackTrace();
+                    Toast.makeText(CrearEvento.this, "Error al guardar imagen!", Toast.LENGTH_SHORT).show();
+
+                }
+            }
+
+        } else if (requestCode == Global.REQUEST_CODE_CAMERA) {
+            try {
+
+                pathImagenPerfil = data.getData();
+                Picasso.with(getApplicationContext()).load(pathImagenPerfil).fit().centerCrop().into(imagenEvento);
+                esNuevaImagen = true;
+                Toast.makeText(CrearEvento.this, "Imagen guardada!", Toast.LENGTH_SHORT).show();
+
+            } catch (Exception e) {
+                esNuevaImagen = false;
+                e.printStackTrace();
+                Picasso.with(getApplicationContext()).load(Global.BASE_URL + "imagen/evento/0").into(imagenEvento);
+                Toast.makeText(CrearEvento.this, "Error al guardar imagen!", Toast.LENGTH_SHORT).show();
+
+
+            }
+        }
+        else if (requestCode == Global.REQUEST_CODE_PLACE_PICKER) {
             if (resultCode == RESULT_OK) {
                 Place place = PlacePicker.getPlace(data, this);
                 if (place != null) {
@@ -297,6 +488,55 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
 
 
             }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == Global.REQUEST_CODE_CAMERA) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(intent, Global.REQUEST_CODE_CAMERA);
+            }
+        } else if (requestCode == Global.REQUEST_CODE_GALLERY) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(galleryIntent, Global.REQUEST_CODE_GALLERY);
+            }
+        }
+    }
+
+    private void takePhotoFromCamera() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA,}, Global.REQUEST_CODE_CAMERA);
+        } else {
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            startActivityForResult(intent, Global.REQUEST_CODE_CAMERA);
+        }
+
+    }
+
+    private void choosePhotoFromGallary() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,}, Global.REQUEST_CODE_GALLERY);
+        } else {
+            Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+            startActivityForResult(galleryIntent, Global.REQUEST_CODE_GALLERY);
+        }
+
+    }
+
+    private void showPlacePicker() {
+
+        PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+
+        try {
+            startActivityForResult(builder.build(this), Global.REQUEST_CODE_PLACE_PICKER);
+        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
+            e.printStackTrace();
         }
     }
 
@@ -508,23 +748,6 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.toolbar_crear_evento) {
-            // Crear foro al crear evento MIRAR TABFOROEVENTO
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_crear_evento, menu);
-        return true;
-    }
 
     private void obtenerDeportes() {
         Call<List<Deporte>> peticionRestDeportes = apiRest.getDeportes();

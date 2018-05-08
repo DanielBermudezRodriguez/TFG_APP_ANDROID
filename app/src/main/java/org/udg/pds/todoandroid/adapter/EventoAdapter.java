@@ -120,7 +120,7 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
         }
         if (holder.imagenEvento.getDrawable() == null) {
             //Picasso.with(context).load(Global.BASE_URL + "imagen/usuario/" + eventos.get(position).getAdministrador().getId().toString()).fit().into(holder.imagenEvento);
-            Glide.with(context).load(Global.BASE_URL + "imagen/usuario/" + eventoActual.getAdministrador().getId().toString()).apply(options).into(holder.imagenEvento);
+            Glide.with(context).load(Global.BASE_URL + "imagen/evento/" + eventoActual.getAdministrador().getId().toString()).apply(options).into(holder.imagenEvento);
         }
 
         holder.usernameAdmin.setText(eventoActual.getAdministrador().getUsername());

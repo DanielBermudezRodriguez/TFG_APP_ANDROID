@@ -109,7 +109,7 @@ public class TabEventoInformacion extends Fragment {
 
                     RequestOptions options = new RequestOptions();
                     options.centerCrop();
-                    Glide.with(getActivity().getApplicationContext()).load(Global.BASE_URL + "imagen/usuario/" + evento.getAdministrador().getId()).apply(options).into(imagenEvento);
+                    Glide.with(getActivity().getApplicationContext()).load(Global.BASE_URL + "imagen/evento/" + evento.getAdministrador().getId()).apply(options).into(imagenEvento);
                     tituloEvento.setText(evento.getTitulo());
                     descripcionEvento.setText(evento.getDescripcion());
                     deporteEvento.setText(evento.getDeporte().getDeporte());

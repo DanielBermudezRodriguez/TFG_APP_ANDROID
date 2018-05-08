@@ -87,7 +87,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
 
     private ProgressBar progressBar;
 
-    FloatingActionButton cargarImagenPerfil;
+    private FloatingActionButton cargarImagenPerfil;
 
 
     @Override
