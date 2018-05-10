@@ -27,7 +27,7 @@ public class NavigationDrawerAdapter extends BaseAdapter {
 
     public NavigationDrawerAdapter(Context context) {
         this.mContext = context;
-        String[] secciones = {"Perfil", "Modificar perfil", "Cerrar sesión"};
+        String[] secciones = {"Perfil", "Modificar perfil", "Cerrar sesión", "Mis eventos"};
         seccionesMenuLateral = Arrays.asList(secciones);
     }
 
@@ -50,11 +50,13 @@ public class NavigationDrawerAdapter extends BaseAdapter {
         switch (position) {
             default:
             case 0:
-                return android.R.drawable.ic_menu_myplaces;
+                return R.mipmap.ic_perfil_usuario;
             case 1:
-                return android.R.drawable.ic_menu_edit;
+                return R.mipmap.ic_editar_perfil;
             case 2:
-                return android.R.drawable.ic_notification_clear_all;
+                return R.mipmap.ic_cerrar_sesion;
+            case 3:
+                return R.mipmap.ic_eventos_creados;
         }
     }
 

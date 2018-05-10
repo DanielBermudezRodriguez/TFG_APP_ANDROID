@@ -26,6 +26,7 @@ import org.udg.pds.todoandroid.entity.DatosUsuarioForo;
 import org.udg.pds.todoandroid.entity.Evento;
 import org.udg.pds.todoandroid.entity.MensajeForo;
 import org.udg.pds.todoandroid.entity.UsuarioActual;
+import org.udg.pds.todoandroid.util.Global;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -93,15 +94,8 @@ public class TabEventoForo extends Fragment {
         // Obtener nombre de usuario
         username = UsuarioActual.getInstance().getUsername();
         // Nombre de la sala
-        nombreSala = "observable-salaevento" + evento.getId().toString();
+        nombreSala = Global.PREFIJO_SALA_FORO_EVENTO + evento.getId().toString();
 
-        // IMPORTANTE: CREAR SALA CUANDO SE CREA EL EVENTO
-        /*
-        private DatabaseReference root = FirebaseDatabase.getInstance().getReference().getRoot();
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put(nombreSala, "");
-        root.updateChildren(map);
-        */
 
         editText = (EditText) rootView.findViewById(R.id.editText);
         botonEnviar = rootView.findViewById(R.id.boton_enviar_mensaje_foro);

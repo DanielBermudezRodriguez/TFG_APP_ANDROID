@@ -88,4 +88,7 @@ public interface ApiRest {
 
     @DELETE("usuario/logout/{id}")
     Call<GenericId> logout(@Path("id") Long id);
+
+    @GET("usuario/evento/{tipoEventos}")
+    Call<List<Evento>> eventosUsuario(@Path("tipoEventos") int tipoEventos);
 }

@@ -309,11 +309,22 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
             Intent perfilUsuario = new Intent(getApplicationContext(), PerfilUsuario.class);
             startActivity(perfilUsuario);
         }
+        // Modificar perfil
+        if (position == 2) {
+
+        }
         // Cerrar Sesión
         if (position == 3) {
             cerrarSesion();
         }
+        // Eventos creados y apuntados del usuario actual
+        if (position == 4) {
+            Intent i = new Intent(getApplicationContext(), MisEventos.class);
+            startActivity(i);
+        }
+
     }
+
 
     private void cerrarSesion() {
 
@@ -369,19 +380,18 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
         }
     }
 
-    public void restoreActionBar() {
+   /* public void restoreActionBar() {
         ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(mTitle);
-    }
+    }*/
 
 
     // RECYCLERVIEW AND CARDVIEW ---------------------------------------------------------------------------------------------
 
     @Override
-    public void onBackPressed()
-    {
+    public void onBackPressed() {
         moveTaskToBack(true);
     }
 

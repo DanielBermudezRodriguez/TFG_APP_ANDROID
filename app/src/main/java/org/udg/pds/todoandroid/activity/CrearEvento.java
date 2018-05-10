@@ -44,6 +44,8 @@ import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
 import com.tooltip.Tooltip;
 
@@ -73,8 +75,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -111,10 +115,10 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
     private boolean esMunicipio = false;
 
     // Ubicación evento seleccionando en el mapa de google
-    public double latitud;
-    public double longitud;
-    public String direccion;
-    public String municipioDireccion;
+    private double latitud;
+    private double longitud;
+    private String direccion;
+    private String municipioDireccion;
     private boolean esUbicacionGPS = false;
 
     // Campos formulario
@@ -211,7 +215,6 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
         tomarImagenEvento.setOnClickListener(this);
 
 
-
     }
 
     @Override
@@ -220,85 +223,150 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
 
         if (id == R.id.toolbar_crear_evento) {
             // VALIDAR FORMULARIO
-            String fechaEvento = day + "/" + month + "/" + year + " " + hora + ":" + minutos;
-            EventoCrearPeticion datosEvento = new EventoCrearPeticion();
-            if (!esMunicipio){
-                datosEvento = new EventoCrearPeticion(tituloEvento.getText().toString() , descripcionEvento.getText().toString(),Integer.parseInt(duracionEvento.getText().toString()),
-                        Integer.parseInt(participantesEvento.getText().toString()), fechaEvento, privacidadForo.isChecked(), null , deportes.get(deporteSeleccionado).getId(), new Ubicacion(latitud,longitud,direccion,municipioDireccion), "tituloForo" );
-            }
-            else {
-                datosEvento = new EventoCrearPeticion(tituloEvento.getText().toString() , descripcionEvento.getText().toString(),Integer.parseInt(duracionEvento.getText().toString()),
-                        Integer.parseInt(participantesEvento.getText().toString()), fechaEvento, privacidadForo.isChecked(), municipios.get(municipioActual).getId() , (long)deporteSeleccionado, null, "tituloForo" );
-            }
+            if (validarFormulario()) {
+                String fechaEvento = dosDigitos(day) + "/" + dosDigitos(month + 1) + "/" + year + " " + dosDigitos(hora) + ":" + dosDigitos(minutos);
+                EventoCrearPeticion datosEvento = new EventoCrearPeticion();
+                if (!esMunicipio) {
+                    datosEvento = new EventoCrearPeticion(tituloEvento.getText().toString(), descripcionEvento.getText().toString(), Integer.parseInt(duracionEvento.getText().toString()),
+                            Integer.parseInt(participantesEvento.getText().toString()), fechaEvento, privacidadForo.isChecked(), null, deportes.get(deporteSeleccionado).getId(), new Ubicacion(latitud, longitud, direccion, municipioDireccion), "tituloForo");
+                } else {
+                    datosEvento = new EventoCrearPeticion(tituloEvento.getText().toString(), descripcionEvento.getText().toString(), Integer.parseInt(duracionEvento.getText().toString()),
+                            Integer.parseInt(participantesEvento.getText().toString()), fechaEvento, privacidadForo.isChecked(), municipios.get(municipioActual).getId(), (long) deporteSeleccionado, null, "tituloForo");
+                }
 
-            Call<GenericId> peticionRest = apiRest.crearEvento(datosEvento);
-            peticionRest.enqueue(new Callback<GenericId>() {
-                @Override
-                public void onResponse(Call<GenericId> call, Response<GenericId> response) {
-                    if (response.raw().code() != 500 && response.isSuccessful()) {
+                Call<GenericId> peticionRest = apiRest.crearEvento(datosEvento);
+                peticionRest.enqueue(new Callback<GenericId>() {
+                    @Override
+                    public void onResponse(Call<GenericId> call, Response<GenericId> response) {
+                        if (response.raw().code() != 500 && response.isSuccessful()) {
 
-                        GenericId idEvento = response.body();
+                            GenericId idEvento = response.body();
 
-                        if (esNuevaImagen) {
-                            try {
-                                File file = new File(getRealPathFromURIPath(pathImagenPerfil, CrearEvento.this));
-                                RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
-                                MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), reqFile);
-                                Call<Imagen> peticionRest = apiRest.subirImagenEvento(body,idEvento.getId());
-                                peticionRest.enqueue(new Callback<Imagen>() {
-                                    @Override
-                                    public void onResponse(Call<Imagen> call, Response<Imagen> response) {
-                                        if (response.raw().code() != 500 && response.isSuccessful()) {
-                                            Imagen imagen = response.body();
-                                            Intent principal = new Intent(getApplicationContext(), Principal.class);
-                                            // Eliminamos de la pila todas las actividades
-                                            principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                            startActivity(principal);
-                                            finish();
-                                        } else {
-                                            try {
-                                                JSONObject jObjError = new JSONObject(response.errorBody().string());
-                                                Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
-                                            } catch (Exception e) {
-                                                Log.i("ERROR:", e.getMessage());
+                            // Creamos el foro en la base de datos de FireBase
+                            DatabaseReference root = FirebaseDatabase.getInstance().getReference().getRoot();
+                            Map<String, Object> map = new HashMap<String, Object>();
+                            map.put(Global.PREFIJO_SALA_FORO_EVENTO + idEvento.getId().toString(), "");
+                            root.updateChildren(map);
+
+
+                            if (esNuevaImagen) {
+                                try {
+                                    File file = new File(getRealPathFromURIPath(pathImagenPerfil, CrearEvento.this));
+                                    RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
+                                    MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), reqFile);
+                                    Call<Imagen> peticionRest = apiRest.subirImagenEvento(body, idEvento.getId());
+                                    peticionRest.enqueue(new Callback<Imagen>() {
+                                        @Override
+                                        public void onResponse(Call<Imagen> call, Response<Imagen> response) {
+                                            if (response.raw().code() != 500 && response.isSuccessful()) {
+                                                Imagen imagen = response.body();
+                                                Intent principal = new Intent(getApplicationContext(), Principal.class);
+                                                // Eliminamos de la pila todas las actividades
+                                                principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                startActivity(principal);
+                                                finish();
+                                            } else {
+                                                try {
+                                                    JSONObject jObjError = new JSONObject(response.errorBody().string());
+                                                    Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                                                } catch (Exception e) {
+                                                    Log.i("ERROR:", e.getMessage());
+                                                }
                                             }
                                         }
-                                    }
 
-                                    @Override
-                                    public void onFailure(Call<Imagen> call, Throwable t) {
-                                        Log.i("ERROR:", t.getMessage());
-                                    }
-                                });
-                            } catch (Exception e) {
-                                System.out.println(e);
+                                        @Override
+                                        public void onFailure(Call<Imagen> call, Throwable t) {
+                                            Log.i("ERROR:", t.getMessage());
+                                        }
+                                    });
+                                } catch (Exception e) {
+                                    System.out.println(e);
+                                }
+                            } else {
+                                Intent principal = new Intent(getApplicationContext(), Principal.class);
+                                // Eliminamos de la pila todas las actividades
+                                principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(principal);
                             }
+
+
                         } else {
-                            Intent principal = new Intent(getApplicationContext(), Principal.class);
-                            // Eliminamos de la pila todas las actividades
-                            principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(principal);
-                        }
-
-
-                    } else {
-                        try {
-                            JSONObject jObjError = new JSONObject(response.errorBody().string());
-                            Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
-                        } catch (Exception e) {
-                            Log.i("ERROR:", e.getMessage());
+                            try {
+                                JSONObject jObjError = new JSONObject(response.errorBody().string());
+                                Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                            } catch (Exception e) {
+                                Log.i("ERROR:", e.getMessage());
+                            }
                         }
                     }
-                }
 
-                @Override
-                public void onFailure(Call<GenericId> call, Throwable t) {
-                    Log.i("ERROR:", t.getMessage());
-                }
-            });
+                    @Override
+                    public void onFailure(Call<GenericId> call, Throwable t) {
+                        Log.i("ERROR:", t.getMessage());
+                    }
+                });
+            }
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private boolean validarFormulario() {
+
+        boolean esCorrecto = true;
+
+        if (tituloEvento == null || tituloEvento.getText().toString().isEmpty()){
+            tituloEvento.setError("Debe introducir un título para el evento");
+            tituloEvento.requestFocus();
+            esCorrecto = false;
+        }
+
+        if (descripcionEvento == null || descripcionEvento.getText().toString().isEmpty()){
+            descripcionEvento.setError("Debe introducir una descripción para el evento");
+            descripcionEvento.requestFocus();
+            esCorrecto = false;
+        }
+
+        if (deporteSeleccionado < 0){
+            deporteEvento.setError("Debe seleccionar una categoría deportiva");
+            deporteEvento.requestFocus();
+            esCorrecto = false;
+        }
+
+        if (  participantesEvento == null || participantesEvento.getText().toString().isEmpty() || Integer.parseInt(participantesEvento.getText().toString()) < 0 || Integer.parseInt(participantesEvento.getText().toString()) > 9999){
+            participantesEvento.setError("Debe introducir el número de participantes");
+            participantesEvento.requestFocus();
+            esCorrecto = false;
+        }
+
+        if (  duracionEvento == null || duracionEvento.getText().toString().isEmpty() || Integer.parseInt(duracionEvento.getText().toString()) < 0 || Integer.parseInt(duracionEvento.getText().toString()) > 9999){
+            duracionEvento.setError("Debe introducir la duración estimada del evento");
+            duracionEvento.requestFocus();
+            esCorrecto = false;
+        }
+
+        if (hora < 0 || minutos < 0 ){
+            mostrarHora.setError("Debe seleccionar una hora");
+            mostrarHora.requestFocus();
+            esCorrecto = false;
+        }
+
+        if (year < 0 || month < 0 || day < 0){
+            mostrarFecha.setError("Debe seleccionar una fecha");
+            mostrarFecha.requestFocus();
+            esCorrecto = false;
+        }
+
+        if ( (esUbicacionGPS && (ubicacion == null || ubicacion.getText().toString().isEmpty() ))  || (!esUbicacionGPS && !esMunicipio && (ubicacion == null || ubicacion.getText().toString().isEmpty() )) ){
+            ubicacion.setError("Debe seleccionar una ubicación para el evento");
+            ubicacion.requestFocus();
+            esCorrecto = false;
+        }
+
+
+        return esCorrecto;
+
     }
 
     private String getRealPathFromURIPath(Uri contentURI, Activity activity) {
@@ -455,8 +523,7 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
 
 
             }
-        }
-        else if (requestCode == Global.REQUEST_CODE_PLACE_PICKER) {
+        } else if (requestCode == Global.REQUEST_CODE_PLACE_PICKER) {
             if (resultCode == RESULT_OK) {
                 Place place = PlacePicker.getPlace(data, this);
                 if (place != null) {
@@ -471,8 +538,7 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
                             longitud = place.getLatLng().longitude;
                             municipioDireccion = datosUbicacion.getLocality();
                             ubicacion.setText(direccion);
-                        }
-                        else {
+                        } else {
                             Snackbar.make(findViewById(android.R.id.content), "No se ha podido registrar la ubicación", Snackbar.LENGTH_SHORT).show();
                             esUbicacionGPS = false;
                         }
@@ -709,7 +775,7 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
                                           int minute) {
                         hora = hourOfDay;
                         minutos = minute;
-                        mostrarHora.setText(hora + ":" + minutos + " h");
+                        mostrarHora.setText(dosDigitos(hora) + ":" + dosDigitos(minutos) + " h");
                     }
                 }, horaActual, minutoActual, true);
         timePickerDialog.show();

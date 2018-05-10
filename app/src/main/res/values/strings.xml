@@ -90,6 +90,7 @@
     <string name="apuntar_participante_evento">Apuntarme</string>
     <string name="crear_evento_principal">Crear Evento</string>
     <string name="crear_vento_menu">Crear</string>
+    <string name="title_activity_mis_eventos">MisEventos</string>
 
 
 </resources>

@@ -46,10 +46,16 @@
             android:label="@string/app_name" />
         <activity android:name=".activity.PerfilUsuario" />
         <activity android:name=".activity.Buscador" />
-        <activity android:name=".activity.CrearEvento" android:windowSoftInputMode="stateHidden|adjustPan"/>
+        <activity
+            android:name=".activity.CrearEvento"
+            android:windowSoftInputMode="stateHidden|adjustPan" />
         <activity
             android:name=".activity.EventoDetalle"
             android:label="@string/title_activity_evento_detalle"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".activity.MisEventos"
+            android:label="@string/title_activity_mis_eventos"
             android:theme="@style/AppTheme" />
 
         <service android:name=".MyFirebaseInstanceIDService">
@@ -62,6 +68,7 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
 
     </application>
 

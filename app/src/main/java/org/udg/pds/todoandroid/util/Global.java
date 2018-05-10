@@ -19,4 +19,9 @@ public class Global {
 
     public static final String KEY_SELECTED_EVENT = "SELECTED_EVENT";
 
+    public static final String PREFIJO_SALA_FORO_EVENTO = "observable-salaevento";
+
+    public static final int CODE_EVENTOS_CREADOS = 0;
+    public static final int CODE_EVENTOS_REGISTRADO = 1;
+
 }
