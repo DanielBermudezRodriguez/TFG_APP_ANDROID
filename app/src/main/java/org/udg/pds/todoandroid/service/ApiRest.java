@@ -91,4 +91,7 @@ public interface ApiRest {
 
     @GET("usuario/evento/{tipoEventos}")
     Call<List<Evento>> eventosUsuario(@Path("tipoEventos") int tipoEventos);
+
+    @DELETE("evento/{idEvento}")
+    Call<GenericId> suspenderEvento(@Path("idEvento") Long idEvento);
 }

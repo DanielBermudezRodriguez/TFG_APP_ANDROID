@@ -231,7 +231,7 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
                             Integer.parseInt(participantesEvento.getText().toString()), fechaEvento, privacidadForo.isChecked(), null, deportes.get(deporteSeleccionado).getId(), new Ubicacion(latitud, longitud, direccion, municipioDireccion), "tituloForo");
                 } else {
                     datosEvento = new EventoCrearPeticion(tituloEvento.getText().toString(), descripcionEvento.getText().toString(), Integer.parseInt(duracionEvento.getText().toString()),
-                            Integer.parseInt(participantesEvento.getText().toString()), fechaEvento, privacidadForo.isChecked(), municipios.get(municipioActual).getId(), (long) deporteSeleccionado, null, "tituloForo");
+                            Integer.parseInt(participantesEvento.getText().toString()), fechaEvento, privacidadForo.isChecked(), municipios.get(municipioActual).getId(), deportes.get(deporteSeleccionado).getId(), null, "tituloForo");
                 }
 
                 Call<GenericId> peticionRest = apiRest.crearEvento(datosEvento);
@@ -574,6 +574,9 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
     }
 
     private void takePhotoFromCamera() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,}, Global.REQUEST_CODE_CAMERA);
+        }
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA,}, Global.REQUEST_CODE_CAMERA);
         } else {

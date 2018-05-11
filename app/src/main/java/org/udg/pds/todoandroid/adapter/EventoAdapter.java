@@ -136,10 +136,10 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
         Calendar cal = Calendar.getInstance();
         cal.setTime(fechaEvento);
 
-        holder.diaMesEvento.setText(String.valueOf(cal.get(Calendar.DAY_OF_MONTH)));
+        holder.diaMesEvento.setText(DateUtil.dosDigitos(cal.get(Calendar.DAY_OF_MONTH)));
         holder.diaSemanaEvento.setText(DateUtil.diaSemana(cal.get(Calendar.DAY_OF_WEEK)));
         holder.mesEvento.setText(DateUtil.mes(cal.get(Calendar.MONTH)) + " de " + String.valueOf(cal.get(Calendar.YEAR)));
-        holder.horaEvento.setText(String.valueOf(cal.get(Calendar.HOUR_OF_DAY)) + ":" + String.valueOf(cal.get(Calendar.MINUTE)));
+        holder.horaEvento.setText(DateUtil.dosDigitos(cal.get(Calendar.HOUR_OF_DAY)) + ":" + DateUtil.dosDigitos(cal.get(Calendar.MINUTE)));
 
         holder.layoutTitulo.setOnClickListener(new View.OnClickListener() {
             @Override

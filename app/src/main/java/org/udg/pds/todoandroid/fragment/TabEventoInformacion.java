@@ -25,6 +25,7 @@ import org.udg.pds.todoandroid.entity.Evento;
 import org.udg.pds.todoandroid.entity.Usuario;
 import org.udg.pds.todoandroid.entity.UsuarioActual;
 import org.udg.pds.todoandroid.service.ApiRest;
+import org.udg.pds.todoandroid.util.DateUtil;
 import org.udg.pds.todoandroid.util.Global;
 import org.udg.pds.todoandroid.util.InitRetrofit;
 
@@ -109,18 +110,14 @@ public class TabEventoInformacion extends Fragment {
 
                     RequestOptions options = new RequestOptions();
                     options.centerCrop();
-                    Glide.with(getActivity().getApplicationContext()).load(Global.BASE_URL + "imagen/evento/" + evento.getAdministrador().getId()).apply(options).into(imagenEvento);
+                    Glide.with(getActivity().getApplicationContext()).load(Global.BASE_URL + "imagen/evento/" + evento.getId()).apply(options).into(imagenEvento);
                     tituloEvento.setText(evento.getTitulo());
                     descripcionEvento.setText(evento.getDescripcion());
                     deporteEvento.setText(evento.getDeporte().getDeporte());
                     municipioEvento.setText(evento.getMunicipio().getMunicipio());
                     participantesEvento.setText(String.valueOf(evento.getParticipantesRegistrados()) + "/" + evento.getNumeroParticipantes() + " " + evento.getEstado().getEstado() );
                     duracionEvento.setText(String.valueOf(evento.getDuracion()) + " minutos");
-
-                    Date fecha = evento.getFechaEvento();
-                    Calendar cal = Calendar.getInstance();
-                    cal.setTime(fecha);
-                    fechaEvento.setText(String.valueOf(cal.get(Calendar.DAY_OF_MONTH)) + "/" +  String.valueOf(cal.get(Calendar.MONTH) + 1) + "/" + String.valueOf(cal.get(Calendar.YEAR)) + " " + String.valueOf(cal.get(Calendar.HOUR_OF_DAY)) + ":" + String.valueOf(cal.get(Calendar.MINUTE)) + " h");
+                    fechaEvento.setText(DateUtil.parseData(evento.getFechaEvento()));
 
                 } else {
                     Toast.makeText(getActivity().getApplicationContext(), "Error al obtener la información del evento", Toast.LENGTH_SHORT).show();

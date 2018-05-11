@@ -214,7 +214,7 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
                             } else {
                                 try {
                                     JSONObject jObjError = new JSONObject(response.errorBody().string());
-                                    Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                                    Log.e("ERROR:", jObjError.getString("message"));
                                 } catch (Exception e) {
                                     Log.i("ERROR:", e.getMessage());
                                 }
@@ -365,27 +365,6 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
         Intent crearEvento = new Intent(getApplicationContext(), CrearEvento.class);
         startActivity(crearEvento);
     }
-
-    public void onSectionAttached(int number) {
-        switch (number) {
-            case 1:
-                mTitle = getString(R.string.title_section1);
-                break;
-            case 2:
-                mTitle = getString(R.string.title_section2);
-                break;
-            case 3:
-                mTitle = getString(R.string.title_section3);
-                break;
-        }
-    }
-
-   /* public void restoreActionBar() {
-        ActionBar actionBar = getActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle(mTitle);
-    }*/
 
 
     // RECYCLERVIEW AND CARDVIEW ---------------------------------------------------------------------------------------------

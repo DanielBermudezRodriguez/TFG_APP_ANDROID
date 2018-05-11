@@ -3,6 +3,9 @@ package org.udg.pds.todoandroid.util;
 
 import org.udg.pds.todoandroid.R;
 
+import java.util.Calendar;
+import java.util.Date;
+
 public class DateUtil {
 
     public static String diaSemana(int dia) {
@@ -74,5 +77,15 @@ public class DateUtil {
                 break;
         }
         return mes;
+    }
+
+    public static String parseData(Date fecha) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(fecha);
+        return   dosDigitos(cal.get(Calendar.DAY_OF_MONTH)) + "/" +  dosDigitos(cal.get(Calendar.MONTH) + 1) + "/" + String.valueOf(cal.get(Calendar.YEAR)) + " " + dosDigitos(cal.get(Calendar.HOUR_OF_DAY)) + ":" + dosDigitos(cal.get(Calendar.MINUTE));
+    }
+
+    public static String dosDigitos(int n) {
+        return (n <= 9) ? ("0" + n) : String.valueOf(n);
     }
 }

@@ -24,4 +24,9 @@ public class Global {
     public static final int CODE_EVENTOS_CREADOS = 0;
     public static final int CODE_EVENTOS_REGISTRADO = 1;
 
+    public static final Long EVENTO_ABIERTO = 1L;
+    public static final Long EVENTO_COMPLETO = 2L;
+    public static final Long EVENTO_SUSPENDIDO = 3L;
+    public static final Long EVENTO_FINALIZADO = 4L;
+
 }
