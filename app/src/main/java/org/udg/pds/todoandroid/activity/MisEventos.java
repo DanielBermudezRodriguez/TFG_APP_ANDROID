@@ -1,8 +1,6 @@
 package org.udg.pds.todoandroid.activity;
 
 import android.support.design.widget.TabLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -15,22 +13,19 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 
 import android.widget.TextView;
 
 import org.udg.pds.todoandroid.R;
-import org.udg.pds.todoandroid.fragment.TabEventoForo;
-import org.udg.pds.todoandroid.fragment.TabEventoInformacion;
-import org.udg.pds.todoandroid.fragment.TabEventoParticipantes;
-import org.udg.pds.todoandroid.fragment.TabEventoUbicacion;
 import org.udg.pds.todoandroid.fragment.TabEventosCreados;
+import org.udg.pds.todoandroid.fragment.TabEventosRegistrado;
 
 public class MisEventos extends AppCompatActivity {
 
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
+    private TabLayout tabLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,10 +37,10 @@ public class MisEventos extends AppCompatActivity {
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
+
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
 
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
@@ -82,9 +77,9 @@ public class MisEventos extends AppCompatActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return new TabEventosCreados();
+                    return new TabEventosCreados(tabLayout.getTabAt(position), mSectionsPagerAdapter);
                 case 1:
-                    return new TabEventosCreados();
+                    return new TabEventosRegistrado(tabLayout.getTabAt(position), mSectionsPagerAdapter);
                 default:
                     return null;
             }
@@ -93,6 +88,16 @@ public class MisEventos extends AppCompatActivity {
         @Override
         public int getCount() {
             return 2;
+        }
+
+        public View getTabView(int total, String titulo) {
+            View v = LayoutInflater.from(getApplicationContext()).inflate(R.layout.custom_tab_eventos, null);
+            TextView tv = (TextView) v.findViewById(R.id.tab_eventos_creados_total);
+            tv.setText(String.valueOf(total));
+            TextView m = (TextView) v.findViewById(R.id.tab_eventos_creados);
+            m.setText(titulo);
+
+            return v;
         }
     }
 }

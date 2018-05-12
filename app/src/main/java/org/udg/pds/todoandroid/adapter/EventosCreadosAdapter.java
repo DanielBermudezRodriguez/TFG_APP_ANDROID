@@ -37,10 +37,11 @@ public class EventosCreadosAdapter extends RecyclerView.Adapter<EventosCreadosAd
 
     public interface OnItemClickListener {
         public void visualizardetalleEvento(Evento e);
+
         public void cancelarEvento(Evento e);
     }
 
-    public EventosCreadosAdapter (Context context, List<Evento> eventos,EventosCreadosAdapter.OnItemClickListener onItemClickListener){
+    public EventosCreadosAdapter(Context context, List<Evento> eventos, EventosCreadosAdapter.OnItemClickListener onItemClickListener) {
         this.eventos = eventos;
         this.context = context;
         this.mOnItemClickListener = onItemClickListener;
@@ -62,22 +63,22 @@ public class EventosCreadosAdapter extends RecyclerView.Adapter<EventosCreadosAd
         options.centerCrop();
 
         // Evento abierto o completo (No está en un estado final)
-        if (eventoActual.getEstado().getId().equals(Global.EVENTO_ABIERTO) || eventoActual.getEstado().getId().equals(Global.EVENTO_COMPLETO)){
-            holder.cancelarEvento.setOnClickListener( new View.OnClickListener(){
+        if (eventoActual.getEstado().getId().equals(Global.EVENTO_ABIERTO) || eventoActual.getEstado().getId().equals(Global.EVENTO_COMPLETO)) {
+            holder.cancelarEvento.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     mOnItemClickListener.cancelarEvento(eventoActual);
                 }
             });
-        }
-        else if (eventoActual.getEstado().getId().equals(Global.EVENTO_FINALIZADO) || eventoActual.getEstado().getId().equals(Global.EVENTO_SUSPENDIDO)){
+        } else if (eventoActual.getEstado().getId().equals(Global.EVENTO_FINALIZADO) || eventoActual.getEstado().getId().equals(Global.EVENTO_SUSPENDIDO)) {
             holder.cancelarEvento.setVisibility(View.GONE);
         }
 
         Glide.with(context).load(Global.BASE_URL + "imagen/evento/" + eventoActual.getId().toString()).apply(options).into(holder.imagenEvento);
         holder.deporteEvento.setText(eventoActual.getDeporte().getDeporte());
         holder.fechavento.setText(DateUtil.parseData(eventoActual.getFechaEvento()));
-        holder.cardView.setOnClickListener( new View.OnClickListener(){
+        holder.estadoEvento.setText(eventoActual.getEstado().getEstado());
+        holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mOnItemClickListener.visualizardetalleEvento(eventoActual);
@@ -99,6 +100,7 @@ public class EventosCreadosAdapter extends RecyclerView.Adapter<EventosCreadosAd
         TextView fechavento;
         ConstraintLayout cancelarEvento;
         CardView cardView;
+        TextView estadoEvento;
 
         public EventoCreadoViewHolder(View itemView) {
             super(itemView);
@@ -108,6 +110,7 @@ public class EventosCreadosAdapter extends RecyclerView.Adapter<EventosCreadosAd
             fechavento = itemView.findViewById(R.id.cardview_evento_creado_fecha);
             cancelarEvento = itemView.findViewById(R.id.cardview_evento_creado_cancelar);
             cardView = itemView.findViewById(R.id.cardview_evento_creado);
+            estadoEvento = itemView.findViewById(R.id.cardview_evento_creado_estado);
         }
 
 

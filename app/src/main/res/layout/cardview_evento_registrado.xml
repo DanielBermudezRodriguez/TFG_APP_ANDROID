@@ -4,7 +4,7 @@
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/CardView.Light"
-    android:id="@+id/cardview_evento_creado"
+    android:id="@+id/cardview_evento_registrado"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginEnd="0dp"
@@ -28,7 +28,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
-                android:id="@+id/cardview_evento_creado_estado"
+                android:id="@+id/cardview_evento_registrado_estado"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
@@ -52,7 +52,7 @@
             android:id="@+id/constraintLayout31"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toTopOf="@+id/cardview_evento_creado_cancelar"
+            app:layout_constraintBottom_toTopOf="@+id/cardview_evento_registrado_desapuntar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/constraintLayout30">
@@ -68,7 +68,7 @@
                 card_view:srcCompat="@mipmap/ic_fecha_evento" />
 
             <TextView
-                android:id="@+id/cardview_evento_creado_fecha"
+                android:id="@+id/cardview_evento_registrado_fecha"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="4dp"
@@ -92,7 +92,7 @@
             card_view:layout_constraintStart_toStartOf="parent">
 
             <ImageView
-                android:id="@+id/cardview_evento_creado_imagen"
+                android:id="@+id/cardview_evento_registrado_imagen"
                 android:layout_width="150dp"
                 android:layout_height="150dp"
                 android:adjustViewBounds="true"
@@ -103,7 +103,7 @@
                 tools:src="@drawable/ic_search_black_24dp" />
 
             <TextView
-                android:id="@+id/cardview_evento_creado_deporte"
+                android:id="@+id/cardview_evento_registrado_deporte"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
@@ -112,16 +112,16 @@
                 android:textColor="#ffe3e3e3"
                 android:textSize="12sp"
                 android:textStyle="bold|italic"
-                app:layout_constraintBottom_toBottomOf="@+id/cardview_evento_creado_imagen"
-                app:layout_constraintEnd_toEndOf="@+id/cardview_evento_creado_imagen"
+                app:layout_constraintBottom_toBottomOf="@+id/cardview_evento_registrado_imagen"
+                app:layout_constraintEnd_toEndOf="@+id/cardview_evento_registrado_imagen"
                 app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="@+id/cardview_evento_creado_imagen"
+                app:layout_constraintStart_toStartOf="@+id/cardview_evento_registrado_imagen"
                 tools:text="Ciclismo de carretera" />
 
         </android.support.constraint.ConstraintLayout>
 
         <android.support.constraint.ConstraintLayout
-            android:id="@+id/cardview_evento_creado_cancelar"
+            android:id="@+id/cardview_evento_registrado_desapuntar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
@@ -147,7 +147,7 @@
                 android:layout_marginEnd="4dp"
                 android:layout_marginTop="10dp"
                 android:gravity="center"
-                android:text="Cancelar evento"
+                android:text="Desapuntarme"
                 android:textColor="@color/color_fondo"
                 android:textSize="12sp"
                 android:textStyle="bold"
