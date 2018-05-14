@@ -54,13 +54,10 @@ import retrofit2.Response;
 
 public class Principal extends AppCompatActivity implements MenuLateralFragment.NavigationDrawerCallbacks {
 
-    // guarda el último título de pantalla
-    private CharSequence mTitle;
-
     private ApiRest apiRest;
 
     private RecyclerView recycler;
-    private RecyclerView.Adapter adapter;
+    private EventoAdapter adapter;
     private RecyclerView.LayoutManager lManager;
     private TextView noResultadosPorDefecto;
     private List<Evento> eventos = new ArrayList<>();
@@ -87,7 +84,6 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
         setSupportActionBar(toolbar);
 
         MenuLateralFragment mNavigationDrawerFragment = (MenuLateralFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mTitle = getTitle();
         // Preparar el menú lateral
         mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
 
@@ -115,15 +111,18 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
         lManager = new LinearLayoutManager(this);
         recycler.setLayoutManager(lManager);
 
-        // Crear un nuevo adaptador
-        /*adapter = new AnimeAdapter(items);
-        recycler.setAdapter(adapter);*/
-
-
         // Busqueda inicial de eventos segun características del usuario logeado
         busquedaInicialEventos();
 
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (adapter != null)
+            adapter.notifyDataSetChanged();
+    }
+
 
     // RESULTADOS DEVUELTOS BUSCADOR ------------------------------------------------------------------------------------------------
 
@@ -131,7 +130,7 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == Global.REQUEST_CODE_BUSCADOR) {
             if (resultCode == RESULT_OK) {
-                eventos = (List<Evento>) data.getExtras().getSerializable("resultadoBuscador");
+                eventos = (List<Evento>) data.getExtras().getSerializable(Global.PARAMETER_RESULTADOS_BUSCADOR);
                 if (eventos == null || eventos.isEmpty()) {
                     inicializarAdaptador(eventos);
                     noResultadosPorDefecto.setText(R.string.no_resultados_busqueda);
@@ -143,16 +142,29 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
 
             }
         }
+        if (requestCode == Global.REQUEST_CODE_EVENTO_DETALLE) {
+
+
+            int position = (int) data.getExtras().getInt(Global.PARAMETER_POSICION_EVENTO_ADAPTER);
+            Evento evento = (Evento) data.getExtras().getSerializable(Global.PARAMETER_EVENTO_ADAPTER);
+            /* put setItem function to your adapter class. it will just replace given item with in your list item */
+            if (position >= 0) {
+                adapter.setItem(position, evento);
+                adapter.notifyItemChanged(position);
+            }
+        }
     }
 
     private void inicializarAdaptador(List<Evento> eventos) {
         adapter = new EventoAdapter(getApplicationContext(), eventos, new EventoAdapter.OnItemClickListener() {
 
             @Override
-            public void onItemClick(Evento e) {
+            public void onItemClick(Evento e, int position) {
                 Intent i = new Intent(getApplicationContext(), EventoDetalle.class);
                 i.putExtra(Global.KEY_SELECTED_EVENT, (Serializable) e);
-                startActivity(i);
+                i.putExtra(Global.KEY_SELECTED_EVENT_IS_ADMIN, e.getAdministrador().getId().equals(UsuarioActual.getInstance().getId()));
+                i.putExtra(Global.KEY_SELECTED_EVENT_POSITION, position);
+                startActivityForResult(i, Global.REQUEST_CODE_EVENTO_DETALLE);
             }
         });
         recycler.setAdapter(adapter);

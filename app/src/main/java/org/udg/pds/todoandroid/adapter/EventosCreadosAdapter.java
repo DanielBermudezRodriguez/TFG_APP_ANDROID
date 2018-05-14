@@ -35,10 +35,19 @@ public class EventosCreadosAdapter extends RecyclerView.Adapter<EventosCreadosAd
     private Context context;
     private EventosCreadosAdapter.OnItemClickListener mOnItemClickListener;
 
+    public void actualizarEventos(List<Evento> eventosCreados) {
+        if(eventos == null || eventos.size()==0)
+            return;
+        if (eventos != null && eventos.size()>0)
+            eventos.clear();
+        eventos.addAll(eventosCreados);
+        notifyDataSetChanged();
+    }
+
     public interface OnItemClickListener {
         public void visualizardetalleEvento(Evento e);
 
-        public void cancelarEvento(Evento e);
+        public void cancelarEvento(Evento e, int position);
     }
 
     public EventosCreadosAdapter(Context context, List<Evento> eventos, EventosCreadosAdapter.OnItemClickListener onItemClickListener) {
@@ -56,7 +65,7 @@ public class EventosCreadosAdapter extends RecyclerView.Adapter<EventosCreadosAd
     }
 
     @Override
-    public void onBindViewHolder(@NonNull EventosCreadosAdapter.EventoCreadoViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull EventosCreadosAdapter.EventoCreadoViewHolder holder, final int position) {
 
         final Evento eventoActual = eventos.get(position);
         RequestOptions options = new RequestOptions();
@@ -67,7 +76,7 @@ public class EventosCreadosAdapter extends RecyclerView.Adapter<EventosCreadosAd
             holder.cancelarEvento.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mOnItemClickListener.cancelarEvento(eventoActual);
+                    mOnItemClickListener.cancelarEvento(eventoActual,position);
                 }
             });
         } else if (eventoActual.getEstado().getId().equals(Global.EVENTO_FINALIZADO) || eventoActual.getEstado().getId().equals(Global.EVENTO_SUSPENDIDO)) {

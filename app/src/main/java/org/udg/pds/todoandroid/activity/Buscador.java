@@ -291,7 +291,7 @@ public class Buscador extends AppCompatActivity implements View.OnClickListener,
                 if (response.raw().code() != 500 && response.isSuccessful()) {
                     List<Evento> eventos = response.body();
                     Intent returnIntent = new Intent();
-                    returnIntent.putExtra("resultadoBuscador", (Serializable) eventos);
+                    returnIntent.putExtra(Global.PARAMETER_RESULTADOS_BUSCADOR, (Serializable) eventos);
                     setResult(Activity.RESULT_OK, returnIntent);
                     finish();
 

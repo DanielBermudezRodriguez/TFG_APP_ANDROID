@@ -1,5 +1,8 @@
 package org.udg.pds.todoandroid.activity;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -17,6 +20,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+
 import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.entity.Evento;
@@ -28,9 +34,11 @@ import org.udg.pds.todoandroid.fragment.TabEventoInformacion;
 import org.udg.pds.todoandroid.fragment.TabEventoParticipantes;
 import org.udg.pds.todoandroid.fragment.TabEventoUbicacion;
 import org.udg.pds.todoandroid.service.ApiRest;
+import org.udg.pds.todoandroid.util.DateUtil;
 import org.udg.pds.todoandroid.util.Global;
 import org.udg.pds.todoandroid.util.InitRetrofit;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,6 +59,8 @@ public class EventoDetalle extends AppCompatActivity {
     private Boolean esParticipante;
     private TabLayout tabLayout;
     private List<ParticipanteEvento> participanteEventos = new ArrayList<ParticipanteEvento>();
+    private Boolean esAdministradorEvento;
+    private int posicionEventoAdapter = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +69,10 @@ public class EventoDetalle extends AppCompatActivity {
         // Inicializamos el servicio de APIRest de retrofit
         apiRest = InitRetrofit.getInstance().getApiRest();
         eventoActual = (Evento) getIntent().getExtras().getSerializable(Global.KEY_SELECTED_EVENT);
+        esAdministradorEvento = getIntent().getExtras().getBoolean(Global.KEY_SELECTED_EVENT_IS_ADMIN);
+        posicionEventoAdapter = getIntent().getExtras().getInt(Global.KEY_SELECTED_EVENT_POSITION);
+        Log.d("INFO", "MEK:  " + posicionEventoAdapter);
+
 
         desapuntarParticipanteEvento = findViewById(R.id.eliminar_participante_evento);
         apuntarParticipanteEvento = findViewById(R.id.apuntar_participante_evento);
@@ -118,14 +132,15 @@ public class EventoDetalle extends AppCompatActivity {
                         }
 
                     }
-                    if (esParticipante) {
-                        apuntarParticipanteEvento.setVisibility(View.GONE);
-                        desapuntarParticipanteEvento.setVisibility(View.VISIBLE);
-                    } else {
-                        apuntarParticipanteEvento.setVisibility(View.VISIBLE);
-                        desapuntarParticipanteEvento.setVisibility(View.GONE);
+                    if (!esAdministradorEvento){
+                        if (esParticipante) {
+                            apuntarParticipanteEvento.setVisibility(View.GONE);
+                            desapuntarParticipanteEvento.setVisibility(View.VISIBLE);
+                        } else {
+                            apuntarParticipanteEvento.setVisibility(View.VISIBLE);
+                            desapuntarParticipanteEvento.setVisibility(View.GONE);
+                        }
                     }
-
 
                 } else {
                     try {
@@ -152,8 +167,10 @@ public class EventoDetalle extends AppCompatActivity {
             public void onResponse(Call<GenericId> call, Response<GenericId> response) {
                 if (response.raw().code() != 500 && response.isSuccessful()) {
                     esParticipante = true;
-                    apuntarParticipanteEvento.setVisibility(View.GONE);
-                    desapuntarParticipanteEvento.setVisibility(View.VISIBLE);
+                    if (!esAdministradorEvento){
+                        apuntarParticipanteEvento.setVisibility(View.GONE);
+                        desapuntarParticipanteEvento.setVisibility(View.VISIBLE);
+                    }
                     mSectionsPagerAdapter.notifyDataSetChanged();
                     Snackbar.make(findViewById(android.R.id.content), "Registrado correctamente", Snackbar.LENGTH_SHORT).show();
                 } else {
@@ -181,8 +198,10 @@ public class EventoDetalle extends AppCompatActivity {
             public void onResponse(Call<GenericId> call, Response<GenericId> response) {
                 if (response.raw().code() != 500 && response.isSuccessful()) {
                     esParticipante = false;
-                    apuntarParticipanteEvento.setVisibility(View.VISIBLE);
-                    desapuntarParticipanteEvento.setVisibility(View.GONE);
+                    if (!esAdministradorEvento){
+                        apuntarParticipanteEvento.setVisibility(View.VISIBLE);
+                        desapuntarParticipanteEvento.setVisibility(View.GONE);
+                    }
                     mSectionsPagerAdapter.notifyDataSetChanged();
                     Snackbar.make(findViewById(android.R.id.content), "Desapuntado correctamente", Snackbar.LENGTH_SHORT).show();
                 } else {
@@ -223,6 +242,41 @@ public class EventoDetalle extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        obtenerInformacionEvento();
+    }
+
+    private void obtenerInformacionEvento() {
+
+        Call<Evento> peticionEventos = apiRest.obtenerInformacionEvento(eventoActual.getId());
+        peticionEventos.enqueue(new Callback<Evento>() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onResponse(Call<Evento> call, Response<Evento> response) {
+                if (response.raw().code() != 500 && response.isSuccessful()) {
+                    Evento evento = response.body();
+
+                    Intent intent = new Intent();
+                    intent.putExtra(Global.PARAMETER_EVENTO_ADAPTER, (Serializable) evento);
+                    intent.putExtra(Global.PARAMETER_POSICION_EVENTO_ADAPTER, posicionEventoAdapter);
+                    setResult(Activity.RESULT_OK, intent);
+                    finish();
+
+                } else {
+                    Toast.makeText(getApplicationContext(), "Error al obtener la información del evento", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<Evento> call, Throwable t) {
+                Log.e("ERROR", t.getMessage(), t);
+                Toast.makeText(getApplicationContext(), "Error al obtener la información del evento", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
 
@@ -284,7 +338,7 @@ public class EventoDetalle extends AppCompatActivity {
         if (tabSelected > 1) {
             apuntarParticipanteEvento.setVisibility(View.GONE);
             desapuntarParticipanteEvento.setVisibility(View.GONE);
-        } else {
+        } else if (!esAdministradorEvento) {
             if ((tabSelected == 0 || tabSelected == 1)) {
                 if (esParticipante != null && !esParticipante) {
                     apuntarParticipanteEvento.setVisibility(View.VISIBLE);

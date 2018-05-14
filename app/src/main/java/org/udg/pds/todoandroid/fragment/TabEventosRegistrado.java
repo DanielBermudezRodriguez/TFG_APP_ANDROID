@@ -67,11 +67,8 @@ public class TabEventosRegistrado extends Fragment {
         apiRest = InitRetrofit.getInstance().getApiRest();
         recyclerView = rootView.findViewById(R.id.recyclerview_eventos_registrado);
         recyclerView.setHasFixedSize(true);
-
         staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, 1);
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
-
-        obtenerEventosRegistrado(false);
 
         return rootView;
     }
@@ -92,12 +89,13 @@ public class TabEventosRegistrado extends Fragment {
                         public void visualizardetalleEvento(Evento e) {
                             Intent i = new Intent(getContext(), EventoDetalle.class);
                             i.putExtra(Global.KEY_SELECTED_EVENT, (Serializable) e);
+                            i.putExtra(Global.KEY_SELECTED_EVENT_IS_ADMIN, e.getAdministrador().getId().equals(UsuarioActual.getInstance().getId()));
                             startActivity(i);
                         }
 
                         @Override
-                        public void desapuntarDelEvento(Evento e) {
-                            desapuntarUsuarioEvento(e.getId());
+                        public void desapuntarDelEvento(Evento e, int position) {
+                            desapuntarUsuarioEvento(e.getId(),position);
                         }
 
                     });
@@ -125,7 +123,7 @@ public class TabEventosRegistrado extends Fragment {
         });
     }
 
-    private void desapuntarUsuarioEvento(Long idEvento) {
+    private void desapuntarUsuarioEvento(Long idEvento, final int position) {
         final Call<GenericId> suspenderEvento = apiRest.eliminarParticipanteEvento(idEvento, UsuarioActual.getInstance().getId());
         suspenderEvento.enqueue(new Callback<GenericId>() {
             @Override
@@ -133,7 +131,12 @@ public class TabEventosRegistrado extends Fragment {
                 if (response.raw().code() != 500 && response.isSuccessful()) {
                     GenericId idEvento = response.body();
                     Toast.makeText(getActivity().getApplicationContext(), "Has sido desapuntado del evento", Toast.LENGTH_SHORT).show();
-                    obtenerEventosRegistrado(true);
+                    //obtenerEventosRegistrado(true);
+                    eventosRegistrado.remove(position);
+                    recyclerView.removeViewAt(position);
+                    eventosRegistradoAdapter.notifyItemRemoved(position);
+                    eventosRegistradoAdapter.notifyItemRangeChanged(position, eventosRegistrado.size());
+                    updateTabTitle(eventosRegistrado.size());
 
                 } else
                     try {
@@ -160,4 +163,11 @@ public class TabEventosRegistrado extends Fragment {
             totalEventos.setText(String.valueOf(totalEventosRegistrado));
         }
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        obtenerEventosRegistrado(false);
+    }
+
 }

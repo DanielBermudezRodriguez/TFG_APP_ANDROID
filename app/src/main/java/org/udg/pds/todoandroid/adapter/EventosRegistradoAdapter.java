@@ -32,7 +32,7 @@ public class EventosRegistradoAdapter extends RecyclerView.Adapter<EventosRegist
     public interface OnItemClickListener {
         public void visualizardetalleEvento(Evento e);
 
-        public void desapuntarDelEvento(Evento e);
+        public void desapuntarDelEvento(Evento e,int position);
     }
 
     public EventosRegistradoAdapter(Context context, List<Evento> eventos, EventosRegistradoAdapter.OnItemClickListener onItemClickListener) {
@@ -50,7 +50,7 @@ public class EventosRegistradoAdapter extends RecyclerView.Adapter<EventosRegist
     }
 
     @Override
-    public void onBindViewHolder(@NonNull EventosRegistradoAdapter.EventoRegistradoViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull EventosRegistradoAdapter.EventoRegistradoViewHolder holder, final int position) {
 
         final Evento eventoActual = eventos.get(position);
         RequestOptions options = new RequestOptions();
@@ -60,7 +60,7 @@ public class EventosRegistradoAdapter extends RecyclerView.Adapter<EventosRegist
         holder.desapuntarEvento.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mOnItemClickListener.desapuntarDelEvento(eventoActual);
+                mOnItemClickListener.desapuntarDelEvento(eventoActual,position);
             }
         });
 

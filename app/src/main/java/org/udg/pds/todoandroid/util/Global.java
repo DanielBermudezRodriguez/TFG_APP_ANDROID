@@ -18,8 +18,10 @@ public class Global {
     public static final int DEFAULT_LOCALITY = 74;
 
     public static final String KEY_SELECTED_EVENT = "SELECTED_EVENT";
-
+    public static final String KEY_SELECTED_EVENT_IS_ADMIN = "SELECTED_EVENT_IS_ADMIN";
     public static final String PREFIJO_SALA_FORO_EVENTO = "observable-salaevento";
+    public static final String KEY_SELECTED_EVENT_POSITION = "SELECTED_EVENT_POSITION";
+    public static final int REQUEST_CODE_EVENTO_DETALLE = 4000;
 
     public static final int CODE_EVENTOS_CREADOS = 0;
     public static final int CODE_EVENTOS_REGISTRADO = 1;
@@ -28,5 +30,10 @@ public class Global {
     public static final Long EVENTO_COMPLETO = 2L;
     public static final Long EVENTO_SUSPENDIDO = 3L;
     public static final Long EVENTO_FINALIZADO = 4L;
+
+    // Nombre parámetros onActivityResult
+    public static final String PARAMETER_RESULTADOS_BUSCADOR = "RESULTADOS_BUSCADOR";
+    public static final String PARAMETER_POSICION_EVENTO_ADAPTER = "POSICION_EVENTO_ADAPTER";
+    public static final String PARAMETER_EVENTO_ADAPTER = "EVENTO_ADAPTER";
 
 }

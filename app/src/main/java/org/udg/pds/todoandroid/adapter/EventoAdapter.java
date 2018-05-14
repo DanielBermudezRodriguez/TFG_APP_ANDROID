@@ -39,8 +39,13 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
     private Context context;
     private OnItemClickListener mOnItemClickListener;
 
+    public void setItem(int position, Evento evento) {
+
+        eventos.set( position, evento);
+    }
+
     public interface OnItemClickListener {
-        public void onItemClick(Evento e);
+        public void onItemClick(Evento e, int position);
     }
 
     public EventoAdapter(Context context, List<Evento> eventos, OnItemClickListener onItemClickListener) {
@@ -167,7 +172,7 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
         holder.cardView.setOnClickListener( new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                mOnItemClickListener.onItemClick(eventoActual);
+                mOnItemClickListener.onItemClick(eventoActual,position);
             }
         });
     }

@@ -27,6 +27,7 @@ import org.udg.pds.todoandroid.adapter.EventosCreadosAdapter;
 import org.udg.pds.todoandroid.adapter.ParticipanteEventoAdapter;
 import org.udg.pds.todoandroid.entity.Evento;
 import org.udg.pds.todoandroid.entity.GenericId;
+import org.udg.pds.todoandroid.entity.UsuarioActual;
 import org.udg.pds.todoandroid.service.ApiRest;
 import org.udg.pds.todoandroid.util.Global;
 import org.udg.pds.todoandroid.util.InitRetrofit;
@@ -88,29 +89,30 @@ public class TabEventosCreados extends Fragment {
             public void onResponse(Call<List<Evento>> call, Response<List<Evento>> response) {
                 if (response.raw().code() != 500 && response.isSuccessful()) {
                     eventosCreados = response.body();
-
-                    updateTabTitle(eventosCreados.size());
-
-                    eventosCreadosAdapter = new EventosCreadosAdapter(getActivity().getApplicationContext(),eventosCreados, new EventosCreadosAdapter.OnItemClickListener() {
-
-                        @Override
-                        public void visualizardetalleEvento(Evento e) {
-                            Intent i = new Intent(getContext(), EventoDetalle.class);
-                            i.putExtra(Global.KEY_SELECTED_EVENT, (Serializable) e);
-                            startActivity(i);
-                        }
-                        @Override
-                        public void cancelarEvento(Evento e) {
-                            suspenderEvento(e.getId());
-                        }
-
-                    });
-                    recyclerView.setAdapter(eventosCreadosAdapter);
                     if (recargarVista){
-                        FragmentTransaction ft = getFragmentManager().beginTransaction();
-                        ft.detach(TabEventosCreados.this).attach(TabEventosCreados.this).commit();
+                        eventosCreadosAdapter.actualizarEventos(eventosCreados);
+                        updateTabTitle(eventosCreados.size());
                     }
+                    else{
+                        updateTabTitle(eventosCreados.size());
 
+                        eventosCreadosAdapter = new EventosCreadosAdapter(getActivity().getApplicationContext(),eventosCreados, new EventosCreadosAdapter.OnItemClickListener() {
+
+                            @Override
+                            public void visualizardetalleEvento(Evento e) {
+                                Intent i = new Intent(getContext(), EventoDetalle.class);
+                                i.putExtra(Global.KEY_SELECTED_EVENT, (Serializable) e);
+                                i.putExtra(Global.KEY_SELECTED_EVENT_IS_ADMIN, e.getAdministrador().getId().equals(UsuarioActual.getInstance().getId()));
+                                startActivity(i);
+                            }
+                            @Override
+                            public void cancelarEvento(Evento e, int position) {
+                                suspenderEvento(e.getId());
+                            }
+
+                        });
+                        recyclerView.setAdapter(eventosCreadosAdapter);
+                    }
 
                 } else
                     try {
