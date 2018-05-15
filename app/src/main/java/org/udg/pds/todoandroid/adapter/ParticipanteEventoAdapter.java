@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -14,7 +15,9 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
 import org.udg.pds.todoandroid.R;
+import org.udg.pds.todoandroid.entity.Evento;
 import org.udg.pds.todoandroid.entity.ParticipanteEvento;
+import org.udg.pds.todoandroid.entity.UsuarioActual;
 import org.udg.pds.todoandroid.util.Global;
 
 import java.util.ArrayList;
@@ -24,10 +27,18 @@ public class ParticipanteEventoAdapter extends RecyclerView.Adapter<Participante
 
     private List<ParticipanteEvento> participanteEventos = new ArrayList<ParticipanteEvento>();
     private Context context;
+    private Boolean esAdministradorEvento;
+    private ParticipanteEventoAdapter.OnItemClickListener mOnItemClickListener;
 
-    public ParticipanteEventoAdapter (Context context, List<ParticipanteEvento> participantes){
+    public interface OnItemClickListener {
+        public void desapuntarDelEvento(ParticipanteEvento p,int position);
+    }
+
+    public ParticipanteEventoAdapter (Context context, List<ParticipanteEvento> participantes, Boolean esAdministradorEvento, ParticipanteEventoAdapter.OnItemClickListener onItemClickListener){
         this.participanteEventos = participantes;
         this.context = context;
+        this.esAdministradorEvento = esAdministradorEvento;
+        this.mOnItemClickListener = onItemClickListener;
     }
 
 
@@ -40,11 +51,31 @@ public class ParticipanteEventoAdapter extends RecyclerView.Adapter<Participante
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ParticipanteEventoViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ParticipanteEventoViewHolder holder, final int position) {
 
-        ParticipanteEvento participanteEventoActual = participanteEventos.get(position);
+        final ParticipanteEvento participanteEventoActual = participanteEventos.get(position);
         RequestOptions options = new RequestOptions();
         options.centerCrop();
+
+        // Si el usuario actual no es el administrador del evento no se le permite desapuntar participantes del evento
+        if (!esAdministradorEvento){
+            holder.eliminarParticipante.setVisibility(View.GONE);
+        }
+        // Usuario actual es el administrador del evento
+        else {
+            // No dar de baja al propio administrador, para darse de baja de un evento tiene que cancelar el evento
+            if (UsuarioActual.getInstance().getId().equals(participanteEventoActual.getId()))
+                holder.eliminarParticipante.setVisibility(View.GONE);
+            else{ // Activar la posibilidad al administrador del evento de dar de baja a los participantes
+                holder.eliminarParticipante.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mOnItemClickListener.desapuntarDelEvento(participanteEventoActual,position);
+                    }
+                });
+            }
+
+        }
 
         Glide.with(context).load(Global.BASE_URL + "imagen/usuario/" + participanteEventoActual.getId().toString()).apply(options).into(holder.imagenParticipante);
 
@@ -63,6 +94,7 @@ public class ParticipanteEventoAdapter extends RecyclerView.Adapter<Participante
         ImageView imagenParticipante;
         TextView usernameParticipante;
         TextView municipioParticipante;
+        ImageButton eliminarParticipante;
 
         public ParticipanteEventoViewHolder(View itemView) {
             super(itemView);
@@ -70,6 +102,7 @@ public class ParticipanteEventoAdapter extends RecyclerView.Adapter<Participante
             imagenParticipante = itemView.findViewById(R.id.cardview_imagen_participante_evento);
             usernameParticipante = itemView.findViewById(R.id.cardview_participante_username);
             municipioParticipante = itemView.findViewById(R.id.cardview_participante_municipio);
+            eliminarParticipante = itemView.findViewById(R.id.cardview_participante_eliminar);
         }
     }
 }

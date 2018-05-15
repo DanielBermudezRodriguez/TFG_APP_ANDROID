@@ -351,4 +351,7 @@ public class EventoDetalle extends AppCompatActivity {
         }
     }
 
+    public Boolean getEsAdministradorEvento() {
+        return esAdministradorEvento;
+    }
 }
