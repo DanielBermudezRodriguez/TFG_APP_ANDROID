@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/login_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/background_light">
 
     <include
         android:id="@+id/appbar"
@@ -12,74 +13,108 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/texto_login_cabecera"
+    <android.support.design.widget.CoordinatorLayout
+        android:id="@+id/login_snackbar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/appbar" />
+
+    <ImageView
+        android:id="@+id/login_icono_correo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="72dp"
-        android:textAlignment="center"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:typeface="serif"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:contentDescription="@string/login_descripcion_icono_correo"
+        android:tint="@android:color/darker_gray"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appbar"
-        android:text="@string/texto_login_cabecera" />
+        app:layout_constraintTop_toTopOf="@+id/login_til_correo"
+        app:srcCompat="@android:drawable/sym_action_email" />
 
-    <EditText
-        android:id="@+id/texto_login_mail"
-        style="@android:style/ButtonBar"
-        android:layout_width="215dp"
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/login_til_correo"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="28dp"
-        android:background="@color/cast_expanded_controller_text_color"
-        android:ems="10"
-        android:hint="@string/texto_oculto_mail"
-        android:inputType="textEmailAddress"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="128dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.504"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/texto_login_cabecera" />
+        app:layout_constraintStart_toEndOf="@+id/login_icono_correo"
+        app:layout_constraintTop_toBottomOf="@+id/appbar">
 
-    <EditText
-        android:id="@+id/texto_login_password"
-        style="@android:style/ButtonBar"
-        android:layout_width="215dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="12dp"
-        android:background="@color/cast_expanded_controller_text_color"
-        android:ems="10"
-        android:hint="@string/texto_oculto_password"
-        android:inputType="textPassword"
-        android:textStyle="italic"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.504"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/texto_login_mail" />
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/login_et_correo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/login_correo"
+            android:inputType="textEmailAddress"
+            android:singleLine="true" />
+    </android.support.design.widget.TextInputLayout>
 
-    <TextView
-        android:id="@+id/texto_login_crear_cuenta"
+    <ImageView
+        android:id="@+id/login_icono_password"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="20dp"
-        android:shadowColor="@color/cast_expanded_controller_background_color"
-        android:shadowDx="4"
-        android:shadowDy="4"
-        android:shadowRadius="4"
-        android:text="@string/texto_login_crear_cuenta"
-        android:textAlignment="center"
-        android:textColor="@color/cast_expanded_controller_text_color"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:contentDescription="@string/login_icono_descripcion_password"
+        android:tint="@android:color/darker_gray"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/texto_login_password" />
+        app:layout_constraintTop_toTopOf="@+id/login_til_password"
+        app:srcCompat="@android:drawable/ic_lock_idle_lock" />
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/login_til_password"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/login_icono_password"
+        app:layout_constraintTop_toBottomOf="@+id/login_til_correo">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/login_et_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/login_password"
+            android:inputType="textPassword"
+            android:singleLine="true" />
+    </android.support.design.widget.TextInputLayout>
+
+    <Button
+        android:id="@+id/login_boton_iniciar_sesion"
+        style="@style/Widget.AppCompat.Button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginStart="16dp"
+        android:backgroundTint="@android:color/background_dark"
+        android:text="@string/login_boton_iniciar_sesion"
+        android:textColor="@android:color/background_light"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/login_boton_crear_cuenta" />
+
+    <Button
+        android:id="@+id/login_boton_crear_cuenta"
+        style="@style/Widget.AppCompat.Button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="32dp"
+        android:backgroundTint="@android:color/transparent"
+        android:text="@string/login_boton_crear_cuenta"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/login_boton_iniciar_sesion"
+        app:layout_constraintStart_toStartOf="parent" />
+
 
 </android.support.constraint.ConstraintLayout>

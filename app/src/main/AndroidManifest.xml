@@ -17,7 +17,7 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_logo_prueba2"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <meta-data
@@ -25,11 +25,10 @@
             android:value="AIzaSyATYEauUwddszOAc5I65NyjXuXNBn8vDWA" />
 
         <activity
-            android:name=".activity.MainActivity"
-            android:label="@string/app_name" />
-        <activity
             android:name=".activity.Login"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -37,26 +36,43 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".activity.MainActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustPan"/>
+
+        <activity
             android:name=".activity.Registro"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustPan" />
+            android:windowSoftInputMode="stateHidden|adjustPan"/>
         <activity
             android:name=".activity.Principal"
-            android:label="@string/app_name" />
-        <activity android:name=".activity.PerfilUsuario" />
-        <activity android:name=".activity.Buscador" />
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustPan"/>
+        <activity android:name=".activity.PerfilUsuario"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustPan"/>
+        <activity android:name=".activity.Buscador"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustPan"/>
         <activity
             android:name=".activity.CrearEvento"
-            android:windowSoftInputMode="stateHidden|adjustPan" />
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustPan"/>
         <activity
             android:name=".activity.EventoDetalle"
             android:label="@string/title_activity_evento_detalle"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustPan"/>
         <activity
             android:name=".activity.MisEventos"
             android:label="@string/title_activity_mis_eventos"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustPan"/>
 
         <service android:name=".MyFirebaseInstanceIDService">
             <intent-filter>

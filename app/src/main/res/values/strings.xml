@@ -3,6 +3,37 @@
     // Nombre Aplicación
     <string name="app_name">YourSport</string>
 
+    // Login
+    <string name="login_correo">Correo</string>
+    <string name="login_descripcion_icono_correo">Icono correo login</string>
+    <string name="login_icono_descripcion_password">Icono password login</string>
+    <string name="login_password">Contrasenya</string>
+    <string name="login_boton_iniciar_sesion">Iniciar sesión</string>
+    <string name="login_boton_crear_cuenta">Crear cuenta</string>
+    <string name="toolbar_iniciar_sesion">Iniciar</string>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // String menú principal
     <string name="boton_iniciar_sesion">Iniciar sesión</string>
     <string name="boton_crear_cuenta">Crear cuenta</string>
@@ -56,8 +87,7 @@
     <string name="toolbar_editar_perfil">Editar</string>
 
 
-    // Toolbar iniciar sesión
-    <string name="toolbar_iniciar_sesion">Iniciar</string>
+
 
     // Toolbar crear cuenta
     <string name="toolbar_crear_cuenta">Registrar</string>
@@ -95,6 +125,7 @@
     <string name="crear_evento_principal">Crear Evento</string>
     <string name="crear_vento_menu">Crear</string>
     <string name="title_activity_mis_eventos">MisEventos</string>
+
 
 
 </resources>
