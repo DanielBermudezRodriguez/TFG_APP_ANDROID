@@ -4,6 +4,12 @@ package org.udg.pds.todoandroid.util;
 public class Global {
 
     public static final String BASE_URL = "http://192.168.42.132:8080/rest/";
+    public static final String DEFAULT_IMAGE_USER = "imagen/usuario/0";
+
+    public static final String TAG_PROVINCIAS_DIALOG = "seleccionarProvincias";
+    public static final String TAG_MUNICIPIOS_DIALOG = "seleccionarMunicio";
+    public static final String TAG_DEPORTES_DIALOG = "seleccionarDeportes";
+
     public static final int REQUEST_CODE_GPS_LOCATION = 1000; // Código para peticiones GPS
     public static final int REQUEST_CODE_BUSCADOR = 2000; // Código para peticion buscador
     public static final long MINIMUM_TIME_UPDATE_LOCATION = 60000; // Cada minuto se mira si hay actualizaciones GPS
@@ -35,5 +41,7 @@ public class Global {
     public static final String PARAMETER_RESULTADOS_BUSCADOR = "RESULTADOS_BUSCADOR";
     public static final String PARAMETER_POSICION_EVENTO_ADAPTER = "POSICION_EVENTO_ADAPTER";
     public static final String PARAMETER_EVENTO_ADAPTER = "EVENTO_ADAPTER";
+
+    public static final int CODE_ERROR_RESPONSE_SERVER = 500;
 
 }

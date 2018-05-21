@@ -3,15 +3,49 @@
     // Nombre Aplicación
     <string name="app_name">YourSport</string>
 
+    // retofit
+    <string name="error_server_message">message</string>
+
+    // logs
+    <string name="log_error">ERROR: </string>
+
+    // Fragments dialogs
+    <string name="titulo_seleccionar_foto">Selecciona una foto</string>
+    <string name="titulo_seleccionar_foto_camara">Cámara</string>
+    <string name="titulo_seleccionar_foto_galeria">Galería</string>
+
+    // SnackBar messages
+    <string name="imagen_cargada_correctamente">Imagen guardada</string>
+    <string name="imagen_cargada_error">Error al cargar la imagen</string>
+
     // Login
     <string name="login_correo">Correo</string>
-    <string name="login_descripcion_icono_correo">Icono correo login</string>
-    <string name="login_icono_descripcion_password">Icono password login</string>
     <string name="login_password">Contrasenya</string>
     <string name="login_boton_iniciar_sesion">Iniciar sesión</string>
     <string name="login_boton_crear_cuenta">Crear cuenta</string>
     <string name="toolbar_iniciar_sesion">Iniciar</string>
+    <string name="login_correo_obligatorio">Introduzca la dirección de correo</string>
+    <string name="login_contrasenya_obligatoria">Introduzca la contrasenya</string>
 
+    // Registro
+    <string name="registro_titulo_datos_personales">Datos personales</string>
+    <string name="registro_titulo_ubicacion">Ubicación</string>
+    <string name="registro_titulo_deportes">Deportes</string>
+    <string name="registro_titulo_provincias">Provincia</string>
+    <string name="registro_titulo_municipios">Municipio</string>
+    <string name="registro_nombre_obligatorio">Introduzca su nombre</string>
+    <string name="registro_apellido_obligatorio">Introduzca sus apellidos</string>
+    <string name="registro_username_obligatorio">Introduzca un nombre de usuario</string>
+    <string name="registro_correo_obligatorio">Introduzca su correo electrónico</string>
+    <string name="registro_password_obligatorio">Introduzca una constraseña</string>
+    <string name="registro_password2_obligatorio">Repita su constraseña</string>
+    <string name="registro_passwords_incorrectos">Contraseñas incorrectas</string>
+    <string name="registro_deportes_obligatorio">Selecciona alguna categoría deportiva</string>
+    <string name="registro_apellidos">Apellidos</string>
+    <string name="registro_nombre">Nombre</string>
+    <string name="registro_username">Username</string>
+    <string name="registro_password">Contraseña</string>
+    <string name="registro_password_repetir">Repetir contraseña</string>
 
 
 
@@ -39,45 +73,15 @@
     <string name="boton_crear_cuenta">Crear cuenta</string>
     <string name="boton_salir">Salir</string>
 
-    // String menú de inicio de sesión
-    <string name="texto_login_cabecera">Cuenta de YourSport</string>
-    <string name="texto_oculto_mail">Email</string>
-    <string name="texto_oculto_password">Contraseña</string>
-    <string name="boton_enviar_inicio_sesion">Iniciar</string>
-    <string name="mail_vacio_validacion">El email está vacio</string>
-    <string name="password_vacio_validacion">La contraseña está vacia</string>
-
-
-    // String formulario registro
-    <string name="boton_crear_cuenta_nueva">Crear cuenta</string>
-    <string name="texto_registro_usuario_nuevo">Datos personales</string>
-    <string name="texto_registro_usuario_nuevo_ubicacion">Ubicación</string>
-    <string name="texto_registro_nombre_nuevo">Nombre</string>
-    <string name="texto_registro_apellidos_nuevo">Apellidos</string>
-    <string name="texto_registro_telefono_nuevo">Teléfono</string>
-    <string name="texto_registro_nick_nuevo">Username</string>
-    <string name="texto_registro_password">Contraseña</string>
     <string name="texto_registro_password_repetir">Repetir contraseña</string>
     <string name="texto_registro_email_nuevo">Email</string>
-    <string name="nombre_registro_validacion">El nombre está vacio</string>
-    <string name="apellidos_registro_validacion">El campo apellidos está vacio</string>
-    <string name="telefono_registro_validacion">El campo teléfono está vacio</string>
-    <string name="nick_registro_validacion">El nombre de usuario está vacio</string>
-    <string name="email_registro_validacion">El campo email está vacio</string>
-    <string name="password_registro_validacion">El campo contraseña está vacio</string>
-    <string name="password_diferentes_registro_validacion">Las contraseñas són incorrectas</string>
-    <string name="registrar_usuario_pais">País: </string>
     <string name="registrar_usuario_provincia">Provincia: </string>
     <string name="registrar_usuario_municipio">Municipio: </string>
     <string name="texto_registro_usuario_nuevo_deportes_favoritos">Deportes Favoritos</string>
 
     // Menú lateral
-    <string name="title_section1">Perfil</string>
-    <string name="title_section2">Modificar perfil</string>
-    <string name="title_section3">Cerrar sesión</string>
     <string name="navigation_drawer_open">Abrir menú lateral</string>
     <string name="navigation_drawer_close">Cerrar menú lateral</string>
-    <string name="action_example">Example action</string>
     <string name="action_settings">Settings</string>
     // Menú lateral header
     <string name="nick_header_menu">Username</string>
@@ -91,8 +95,7 @@
 
     // Toolbar crear cuenta
     <string name="toolbar_crear_cuenta">Registrar</string>
-    <string name="registrar_usuario_deportes">Deportes:</string>
-    <string name="texto_login_crear_cuenta">Crear cuenta de yourSport</string>
+
     <string name="buscador">Buscador</string>
     <string name="buscador_titulo">¿Qué estás buscando?</string>
     <string name="buscador_reiniciar_filtros">Reiniciar filtros</string>
@@ -103,10 +106,6 @@
     <string name="buscador_unicacion">Ubicación</string>
     <string name="cualquier_distancia_buscador">Cualquier distancia</string>
     <string name="title_activity_evento_detalle">EventoDetalle</string>
-    <string name="tab_text_1">Tab 1</string>
-    <string name="tab_text_2">Tab 2</string>
-    <string name="tab_text_3">Tab 3</string>
-    <string name="section_format">Hello World from section: %1$d</string>
     <string name="tab_evento_informacion">Información</string>
     <string name="tab_evento_participantes">Participantes</string>
     <string name="tab_evento_foro">Foro</string>
@@ -121,7 +120,6 @@
     <string name="eventos_registrado">Eventos registrado</string>
 
 
-    <string name="apuntar_participante_evento">Apuntarme</string>
     <string name="crear_evento_principal">Crear Evento</string>
     <string name="crear_vento_menu">Crear</string>
     <string name="title_activity_mis_eventos">MisEventos</string>

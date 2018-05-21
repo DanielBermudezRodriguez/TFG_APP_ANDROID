@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="color_fondo">#d94040</color>
-    <color name="crema">#f8e9d8</color>
     <color name="blanco">@color/cast_libraries_material_featurehighlight_text_header_color</color>
     <color name="negro">@color/cast_expanded_controller_background_color</color>
 </resources>

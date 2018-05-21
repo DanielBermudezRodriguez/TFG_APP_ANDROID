@@ -200,7 +200,6 @@
                         app:layout_constraintTop_toBottomOf="@+id/constraintLayout24">
 
                         <View
-                            android:id="@+id/view8"
                             android:layout_width="fill_parent"
                             android:layout_height="1dp"
                             android:background="@android:color/darker_gray"
@@ -256,7 +255,6 @@
                         app:layout_constraintTop_toBottomOf="@+id/constraintLayout25">
 
                         <View
-                            android:id="@+id/view9"
                             android:layout_width="fill_parent"
                             android:layout_height="1dp"
                             android:background="@android:color/darker_gray"
@@ -264,7 +262,6 @@
                             app:layout_constraintStart_toStartOf="parent" />
 
                         <TextView
-                            android:id="@+id/textView2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
@@ -311,7 +308,6 @@
                             app:srcCompat="@mipmap/ic_tooltip" />
 
                         <View
-                            android:id="@+id/view1"
                             android:layout_width="fill_parent"
                             android:layout_height="1dp"
                             android:background="@android:color/darker_gray"
@@ -437,7 +433,6 @@
                         app:layout_constraintTop_toBottomOf="@+id/crear_evento_seleccionar_fecha">
 
                         <View
-                            android:id="@+id/view2"
                             android:layout_width="fill_parent"
                             android:layout_height="1dp"
                             android:background="@android:color/darker_gray"
@@ -487,7 +482,6 @@
                         app:layout_constraintTop_toBottomOf="@+id/crear_evento_seleccionar_hora">
 
                         <View
-                            android:id="@+id/view3"
                             android:layout_width="fill_parent"
                             android:layout_height="1dp"
                             android:background="@android:color/darker_gray"
@@ -566,7 +560,6 @@
                                 tools:text="C/Joan Baptista Lambert nº33" />
 
                             <View
-                                android:id="@+id/view5"
                                 android:layout_width="fill_parent"
                                 android:layout_height="1dp"
                                 android:background="@android:color/darker_gray"
@@ -627,7 +620,6 @@
                         </android.support.constraint.ConstraintLayout>
 
                         <View
-                            android:id="@+id/view4"
                             android:layout_width="fill_parent"
                             android:layout_height="1dp"
                             android:background="@android:color/darker_gray"

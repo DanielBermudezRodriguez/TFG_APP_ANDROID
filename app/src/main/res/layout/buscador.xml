@@ -23,7 +23,6 @@
     </SearchView>
 
     <android.support.constraint.ConstraintLayout
-        android:id="@+id/constraintLayout5"
         style="?android:buttonBarStyle"
         android:layout_width="0dp"
         android:layout_height="60dp"

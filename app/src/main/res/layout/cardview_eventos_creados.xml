@@ -141,7 +141,6 @@
                 card_view:srcCompat="@mipmap/ic_cancelar_evento" />
 
             <TextView
-                android:id="@+id/textView17"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="4dp"

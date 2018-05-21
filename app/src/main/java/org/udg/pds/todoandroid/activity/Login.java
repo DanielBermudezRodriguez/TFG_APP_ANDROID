@@ -1,22 +1,18 @@
 package org.udg.pds.todoandroid.activity;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.google.firebase.iid.FirebaseInstanceId;
 
@@ -26,7 +22,10 @@ import org.udg.pds.todoandroid.entity.UsuarioActual;
 import org.udg.pds.todoandroid.entity.UsuarioLoginPeticion;
 import org.udg.pds.todoandroid.entity.UsuarioLoginRespuesta;
 import org.udg.pds.todoandroid.service.ApiRest;
+import org.udg.pds.todoandroid.util.CustomTextWatcher;
+import org.udg.pds.todoandroid.util.Global;
 import org.udg.pds.todoandroid.util.InitRetrofit;
+import org.udg.pds.todoandroid.util.SnackbarUtil;
 
 import java.util.Objects;
 
@@ -52,7 +51,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         // Inicializamos el servicio de APIRest de retrofit
         apiRest = InitRetrofit.getInstance().getApiRest();
         // Cargamos layout del formulario de inicio de sesión.
-        setContentView(R.layout.login_constraint_layout);
+        setContentView(R.layout.login_layout);
         // Ponemos el toolbar
         Toolbar toolbar = findViewById(R.id.appbar);
         setSupportActionBar(toolbar);
@@ -113,10 +112,11 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         String correo = Objects.requireNonNull(tilCorreo.getEditText()).getText().toString();
         String password = Objects.requireNonNull(tilPassword.getEditText()).getText().toString();
 
-        if (correo.isEmpty()) tilCorreo.setError("Debe introducir un correo");
+        if (correo.isEmpty()) tilCorreo.setError(getString(R.string.login_correo_obligatorio));
         else tilCorreo.setError(null);
 
-        if (password.isEmpty()) tilPassword.setError("Debe introducir una contrasenya");
+        if (password.isEmpty())
+            tilPassword.setError(getString(R.string.login_contrasenya_obligatoria));
         else tilPassword.setError(null);
 
         return !correo.isEmpty() && !password.isEmpty();
@@ -131,7 +131,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
             peticionRest.enqueue(new Callback<UsuarioLoginRespuesta>() {
                 @Override
                 public void onResponse(Call<UsuarioLoginRespuesta> call, Response<UsuarioLoginRespuesta> response) {
-                    if (response.raw().code() != 500 && response.isSuccessful()) {
+                    if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
 
                         UsuarioLoginRespuesta dadesResposta = response.body();
 
@@ -150,16 +150,9 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                         try {
                             limpiarFormulario();
                             JSONObject jObjError = new JSONObject(Objects.requireNonNull(response.errorBody()).string());
-
-                            Snackbar mSnackBar = Snackbar.make(findViewById(R.id.login_snackbar), jObjError.getString("message"), Snackbar.LENGTH_LONG);
-                            View view = mSnackBar.getView();
-                            view.setBackgroundColor(Color.RED);
-                            TextView mainTextView = (view).findViewById(android.support.design.R.id.snackbar_text);
-                            mainTextView.setTextColor(Color.WHITE);
-                            mSnackBar.show();
-
+                            SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), jObjError.getString(getString(R.string.error_server_message)), Snackbar.LENGTH_LONG, true);
                         } catch (Exception e) {
-                            Log.i("ERROR:", e.getMessage());
+                            Log.e(getString(R.string.log_error), e.getMessage());
                         }
                     }
                 }
@@ -167,7 +160,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                 @Override
                 public void onFailure(Call<UsuarioLoginRespuesta> call, Throwable t) {
                     limpiarFormulario();
-                    Log.i("ERROR:", t.getMessage());
+                    Log.e(getString(R.string.log_error), t.getMessage());
                 }
             });
         }
@@ -181,43 +174,8 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
     // Eliminamos el mensaje de error al introducir texto en un campo vacio
     private void addTextListeners() {
 
-        etCorreo.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                tilCorreo.setError(null);
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-
-
-        });
-
-        etPassword.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                tilPassword.setError(null);
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
+        etCorreo.addTextChangedListener(new CustomTextWatcher(tilCorreo));
+        etPassword.addTextChangedListener(new CustomTextWatcher(tilPassword));
 
     }
-
-
 }

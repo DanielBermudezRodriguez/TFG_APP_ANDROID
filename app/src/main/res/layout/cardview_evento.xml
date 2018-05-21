@@ -27,7 +27,6 @@
             app:layout_constraintTop_toBottomOf="@+id/constraintLayout14">
 
             <View
-                android:id="@+id/view9"
                 android:layout_width="fill_parent"
                 android:layout_height="1dp"
                 android:background="@android:color/darker_gray"
@@ -141,7 +140,6 @@
             app:layout_constraintTop_toBottomOf="@+id/constraintLayout8">
 
             <View
-                android:id="@+id/view2"
                 android:layout_width="fill_parent"
                 android:layout_height="1dp"
                 android:background="@android:color/darker_gray"
@@ -150,7 +148,6 @@
                 app:layout_constraintStart_toStartOf="parent" />
 
             <View
-                android:id="@+id/view3"
                 android:layout_width="fill_parent"
                 android:layout_height="1dp"
                 android:background="@android:color/darker_gray"
@@ -195,7 +192,6 @@
                     tools:text="Lloret de Mar" />
 
                 <View
-                    android:id="@+id/view4"
                     android:layout_width="1dp"
                     android:layout_height="40dp"
                     android:background="@android:color/darker_gray"
@@ -216,7 +212,6 @@
                 app:layout_constraintTop_toTopOf="@+id/constraintLayout12">
 
                 <View
-                    android:id="@+id/view5"
                     android:layout_width="1dp"
                     android:layout_height="40dp"
                     android:background="@android:color/darker_gray"
@@ -340,7 +335,6 @@
                 app:layout_constraintTop_toBottomOf="@+id/cardview_username_administrador" />
 
             <View
-                android:id="@+id/view6"
                 android:layout_width="1dp"
                 android:layout_height="60dp"
                 android:background="@android:color/darker_gray"
