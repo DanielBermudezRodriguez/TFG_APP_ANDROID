@@ -47,6 +47,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
+import com.theartofdev.edmodo.cropper.CropImage;
 import com.tooltip.Tooltip;
 
 import org.json.JSONObject;
@@ -68,8 +69,10 @@ import org.udg.pds.todoandroid.fragment.SeleccionarMunicipioDialog;
 import org.udg.pds.todoandroid.fragment.SeleccionarProvinciasDialog;
 import org.udg.pds.todoandroid.service.ApiRest;
 import org.udg.pds.todoandroid.util.Global;
+import org.udg.pds.todoandroid.util.ImageUtil;
 import org.udg.pds.todoandroid.util.InitRetrofit;
 import org.udg.pds.todoandroid.util.InputFilterMinMax;
+import org.udg.pds.todoandroid.util.SnackbarUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -251,9 +254,9 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
 
                             if (esNuevaImagen) {
                                 try {
-                                    File file = new File(getRealPathFromURIPath(pathImagenPerfil, CrearEvento.this));
-                                    RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
-                                    MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), reqFile);
+                                    File imageFile = ImageUtil.decodeImage(getRealPathFromURIPath(pathImagenPerfil, CrearEvento.this), getApplicationContext());
+                                    RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), imageFile);
+                                    MultipartBody.Part body = MultipartBody.Part.createFormData("file", imageFile.getName(), reqFile);
                                     Call<Imagen> peticionRest = apiRest.subirImagenEvento(body, idEvento.getId());
                                     peticionRest.enqueue(new Callback<Imagen>() {
                                         @Override
@@ -495,9 +498,9 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
 
                 pathImagenPerfil = data.getData();
                 try {
-                    Picasso.with(getApplicationContext()).load(pathImagenPerfil).fit().centerCrop().into(imagenEvento);
-                    esNuevaImagen = true;
-                    Toast.makeText(CrearEvento.this, "Imagen guardada!", Toast.LENGTH_SHORT).show();
+                    CropImage.activity(pathImagenPerfil)
+                            .setAspectRatio(10,10)
+                            .start(this);
                 } catch (Exception e) {
                     Picasso.with(getApplicationContext()).load(Global.BASE_URL + "imagen/evento/0").into(imagenEvento);
                     esNuevaImagen = false;
@@ -510,10 +513,9 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
         } else if (requestCode == Global.REQUEST_CODE_CAMERA) {
             try {
 
-                pathImagenPerfil = data.getData();
-                Picasso.with(getApplicationContext()).load(pathImagenPerfil).fit().centerCrop().into(imagenEvento);
-                esNuevaImagen = true;
-                Toast.makeText(CrearEvento.this, "Imagen guardada!", Toast.LENGTH_SHORT).show();
+                CropImage.activity(pathImagenPerfil)
+                        .setAspectRatio(10,10)
+                        .start(this);
 
             } catch (Exception e) {
                 esNuevaImagen = false;
@@ -553,6 +555,19 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
                 }
 
 
+            }
+        }
+        else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            if (resultCode == RESULT_OK) {
+                pathImagenPerfil = result.getUri();
+                Picasso.with(getApplicationContext()).load(pathImagenPerfil).into(imagenEvento);
+                esNuevaImagen = true;
+                //SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), getString(R.string.imagen_cargada_correctamente), Snackbar.LENGTH_LONG, false);
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                esNuevaImagen = false;
+                Picasso.with(getApplicationContext()).load(Global.BASE_URL + "imagen/evento/0").into(imagenEvento);
+                //SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), getString(R.string.imagen_cargada_error), Snackbar.LENGTH_LONG, true);
             }
         }
     }

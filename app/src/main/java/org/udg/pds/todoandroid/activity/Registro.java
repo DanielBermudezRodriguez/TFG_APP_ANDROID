@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -27,6 +28,8 @@ import android.widget.ProgressBar;
 
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.squareup.picasso.Picasso;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
@@ -44,6 +47,7 @@ import org.udg.pds.todoandroid.fragment.SeleccionarProvinciasDialog;
 import org.udg.pds.todoandroid.service.ApiRest;
 import org.udg.pds.todoandroid.util.CustomTextWatcher;
 import org.udg.pds.todoandroid.util.Global;
+import org.udg.pds.todoandroid.util.ImageUtil;
 import org.udg.pds.todoandroid.util.InitRetrofit;
 import org.udg.pds.todoandroid.util.SnackbarUtil;
 
@@ -204,9 +208,9 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
             if (data != null) {
                 pathImagenPerfil = data.getData();
                 try {
-                    Picasso.with(getApplicationContext()).load(pathImagenPerfil).into(imagenPerfil);
-                    esNuevaImagen = true;
-                    SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), getString(R.string.imagen_cargada_correctamente), Snackbar.LENGTH_LONG, false);
+                    CropImage.activity(pathImagenPerfil)
+                            .setAspectRatio(10,10)
+                            .start(this);
                 } catch (Exception e) {
                     Picasso.with(getApplicationContext()).load(Global.BASE_URL + Global.DEFAULT_IMAGE_USER).into(imagenPerfil);
                     esNuevaImagen = false;
@@ -216,11 +220,23 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
         } else if (requestCode == Global.REQUEST_CODE_CAMERA) {
             try {
                 pathImagenPerfil = data.getData();
+                CropImage.activity(pathImagenPerfil)
+                        .setAspectRatio(10,10)
+                        .start(this);
+            } catch (Exception e) {
+                esNuevaImagen = false;
+                Picasso.with(getApplicationContext()).load(Global.BASE_URL + Global.DEFAULT_IMAGE_USER).into(imagenPerfil);
+                SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), getString(R.string.imagen_cargada_error), Snackbar.LENGTH_LONG, true);
+            }
+        }
+       else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            if (resultCode == RESULT_OK) {
+                pathImagenPerfil = result.getUri();
                 Picasso.with(getApplicationContext()).load(pathImagenPerfil).into(imagenPerfil);
                 esNuevaImagen = true;
                 SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), getString(R.string.imagen_cargada_correctamente), Snackbar.LENGTH_LONG, false);
-
-            } catch (Exception e) {
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 esNuevaImagen = false;
                 Picasso.with(getApplicationContext()).load(Global.BASE_URL + Global.DEFAULT_IMAGE_USER).into(imagenPerfil);
                 SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), getString(R.string.imagen_cargada_error), Snackbar.LENGTH_LONG, true);
@@ -436,6 +452,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
         });
     }
 
+
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.toolbar_crear_cuenta) {
@@ -459,9 +476,9 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
                             if (esNuevaImagen) {
                                 try {
                                     // Obtenemos la imagen del dispositivo
-                                    File file = new File(getRealPathFromURIPath(pathImagenPerfil, Registro.this));
-                                    RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
-                                    MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), reqFile);
+                                    File imageFile = ImageUtil.decodeImage(getRealPathFromURIPath(pathImagenPerfil, Registro.this), getApplicationContext());
+                                    RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), imageFile);
+                                    MultipartBody.Part body = MultipartBody.Part.createFormData("file", imageFile.getName(), reqFile);
                                     Call<Imagen> peticionRest = apiRest.subirImagenUsuario(body);
                                     peticionRest.enqueue(new Callback<Imagen>() {
                                         @Override
