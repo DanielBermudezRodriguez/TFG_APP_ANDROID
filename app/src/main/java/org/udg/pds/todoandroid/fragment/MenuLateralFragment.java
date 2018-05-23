@@ -45,7 +45,7 @@ public class MenuLateralFragment extends Fragment {
     private DrawerLayout menuLateral;
     private ListView listView;
     private View vistaMenuLateral;
-    private int posicionActual = 0;
+    private int posicionActual = -1;
     private boolean mFromSavedInstanceState;
     private boolean usuarioAbrioMenu;
     // Interficie con las llamdas que tiene que utilizar las actividades contenedoras
@@ -193,8 +193,8 @@ public class MenuLateralFragment extends Fragment {
             email.setText(UsuarioActual.getInstance().getMail());
             RequestOptions options = new RequestOptions();
             options.centerCrop();
-            //Picasso.with(getContext()).load(Global.BASE_URL + "imagen/usuario/" + UsuarioActual.getInstance().getId().toString()).fit().into((ImageView) myHeader.findViewById(R.id.circleView));
-            Glide.with(getContext()).load(Global.BASE_URL + "imagen/usuario/" + UsuarioActual.getInstance().getId().toString()).apply(options).into((ImageView) myHeader.findViewById(R.id.circleView));
+            Picasso.with(getContext()).load(Global.BASE_URL + "imagen/usuario/" + UsuarioActual.getInstance().getId().toString()).into((ImageView) myHeader.findViewById(R.id.circleView));
+            //Glide.with(getContext()).load(Global.BASE_URL + "imagen/usuario/" + UsuarioActual.getInstance().getId().toString()).apply(options).into((ImageView) myHeader.findViewById(R.id.circleView));
         }
         listView.addHeaderView(myHeader);
         listView.setAdapter(mNavigationDrawerAdapter);
@@ -254,7 +254,7 @@ public class MenuLateralFragment extends Fragment {
             return true;
         } else if (id == R.id.icono_buscador) {
             mCallbacks.onSearchItemSelected();
-        } else if (id == R.id.ic_crear_evento){
+        } else if (id == R.id.ic_crear_evento) {
             mCallbacks.crearEvento();
         }
 

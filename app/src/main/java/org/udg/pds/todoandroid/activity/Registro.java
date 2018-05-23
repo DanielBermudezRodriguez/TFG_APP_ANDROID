@@ -8,7 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -29,7 +28,6 @@ import android.widget.ProgressBar;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
 
 import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
@@ -209,7 +207,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
                 pathImagenPerfil = data.getData();
                 try {
                     CropImage.activity(pathImagenPerfil)
-                            .setAspectRatio(10,10)
+                            .setAspectRatio(10, 10)
                             .start(this);
                 } catch (Exception e) {
                     Picasso.with(getApplicationContext()).load(Global.BASE_URL + Global.DEFAULT_IMAGE_USER).into(imagenPerfil);
@@ -221,15 +219,14 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
             try {
                 pathImagenPerfil = data.getData();
                 CropImage.activity(pathImagenPerfil)
-                        .setAspectRatio(10,10)
+                        .setAspectRatio(10, 10)
                         .start(this);
             } catch (Exception e) {
                 esNuevaImagen = false;
                 Picasso.with(getApplicationContext()).load(Global.BASE_URL + Global.DEFAULT_IMAGE_USER).into(imagenPerfil);
                 SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), getString(R.string.imagen_cargada_error), Snackbar.LENGTH_LONG, true);
             }
-        }
-       else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+        } else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
                 pathImagenPerfil = result.getUri();

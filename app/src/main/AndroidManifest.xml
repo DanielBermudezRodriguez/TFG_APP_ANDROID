@@ -62,6 +62,10 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden|adjustPan"/>
         <activity
+            android:name=".activity.Imagen"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustPan"/>
+        <activity
             android:name=".activity.EventoDetalle"
             android:label="@string/title_activity_evento_detalle"
             android:theme="@style/AppTheme"

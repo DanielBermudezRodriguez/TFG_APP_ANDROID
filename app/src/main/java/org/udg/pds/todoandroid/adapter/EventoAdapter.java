@@ -150,7 +150,7 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
             @Override
             public void onClick(View v) {
                 if (holder.layoutDescripcion.getVisibility() == View.GONE) {
-                    ExpandAndCollapseViewUtil.expand(holder.layoutDescripcion, 250);// duration ms.
+                    ExpandAndCollapseViewUtil.expand(holder.layoutDescripcion, 100);// duration ms.
                     holder.imagenTitulo.setImageResource(R.mipmap.ic_expand_description);
                     Animation animation = new RotateAnimation(0.0f, -180.0f, Animation.RELATIVE_TO_SELF, 0.5f,
                             Animation.RELATIVE_TO_SELF, 0.5f);
@@ -158,7 +158,7 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
                     animation.setDuration(250);
                     holder.imagenTitulo.startAnimation(animation);
                 } else {
-                    ExpandAndCollapseViewUtil.collapse(holder.layoutDescripcion, 250);
+                    ExpandAndCollapseViewUtil.collapse(holder.layoutDescripcion, 100);
                     holder.imagenTitulo.setImageResource(R.mipmap.ic_collapse_description);
                     Animation animation = new RotateAnimation(0.0f, 180.0f, Animation.RELATIVE_TO_SELF, 0.5f,
                             Animation.RELATIVE_TO_SELF, 0.5f);

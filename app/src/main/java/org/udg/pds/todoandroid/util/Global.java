@@ -5,6 +5,7 @@ public class Global {
 
     public static final String BASE_URL = "http://192.168.42.132:8080/rest/";
     public static final String DEFAULT_IMAGE_USER = "imagen/usuario/0";
+    public static final String IMAGE_USER = "imagen/usuario/";
 
     public static final String TAG_PROVINCIAS_DIALOG = "seleccionarProvincias";
     public static final String TAG_MUNICIPIOS_DIALOG = "seleccionarMunicio";
@@ -23,6 +24,7 @@ public class Global {
     public static final int DEFAULT_PROVINCE = 16;
     public static final int DEFAULT_LOCALITY = 74;
 
+    public static final String URL_IMAGEN = "URL_IMAGEN";
     public static final String KEY_SELECTED_EVENT = "SELECTED_EVENT";
     public static final String KEY_SELECTED_EVENT_IS_ADMIN = "SELECTED_EVENT_IS_ADMIN";
     public static final String PREFIJO_SALA_FORO_EVENTO = "observable-salaevento";
