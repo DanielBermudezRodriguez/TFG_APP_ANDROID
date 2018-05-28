@@ -20,6 +20,7 @@ public class CustomTextWatcher implements TextWatcher {
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
         textInputLayout.setError(null);
+        textInputLayout.setErrorEnabled(false);
     }
 
     @Override

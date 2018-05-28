@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
@@ -17,8 +18,8 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -43,7 +44,6 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
@@ -60,19 +60,16 @@ import org.udg.pds.todoandroid.entity.Municipio;
 import org.udg.pds.todoandroid.entity.Pais;
 import org.udg.pds.todoandroid.entity.Provincia;
 import org.udg.pds.todoandroid.entity.Ubicacion;
-import org.udg.pds.todoandroid.entity.UsuarioActual;
-import org.udg.pds.todoandroid.entity.UsuarioRegistroPeticion;
-import org.udg.pds.todoandroid.entity.UsuarioRegistroRespuesta;
 import org.udg.pds.todoandroid.fragment.DatePickerFragment;
 import org.udg.pds.todoandroid.fragment.SeleccionarDeporteEventoDialog;
 import org.udg.pds.todoandroid.fragment.SeleccionarMunicipioDialog;
 import org.udg.pds.todoandroid.fragment.SeleccionarProvinciasDialog;
 import org.udg.pds.todoandroid.service.ApiRest;
+import org.udg.pds.todoandroid.util.CustomTextWatcher;
 import org.udg.pds.todoandroid.util.Global;
 import org.udg.pds.todoandroid.util.ImageUtil;
 import org.udg.pds.todoandroid.util.InitRetrofit;
 import org.udg.pds.todoandroid.util.InputFilterMinMax;
-import org.udg.pds.todoandroid.util.SnackbarUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -82,6 +79,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -89,14 +87,13 @@ import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import ru.dimorinny.floatingtextbutton.FloatingTextButton;
 
 public class CrearEvento extends AppCompatActivity implements View.OnClickListener, SeleccionarDeporteEventoDialog.SeleccionarDeporteEventoDialogListener, SeleccionarProvinciasDialog.SeleccionarProvinciasDialogListener, SeleccionarMunicipioDialog.SeleccionarMunicipioDialogListener {
 
     private ApiRest apiRest;
 
     // Categoría deportiva
-    private List<Deporte> deportes = new ArrayList<Deporte>();
+    private List<Deporte> deportes = new ArrayList<>();
     private int deporteSeleccionado = -1;
 
     // Fecha evento
@@ -109,11 +106,11 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
     private int minutos = -1;
 
     // Ubicación Evento escojiendo provincia y municipio
-    private List<Pais> paises = new ArrayList<Pais>();
+    private List<Pais> paises = new ArrayList<>();
     private int paisActual = -1;
-    private List<Provincia> provincias = new ArrayList<Provincia>();
+    private List<Provincia> provincias = new ArrayList<>();
     private int provinciaActual = -1;
-    private List<Municipio> municipios = new ArrayList<Municipio>();
+    private List<Municipio> municipios = new ArrayList<>();
     private int municipioActual = -1;
     private boolean esMunicipio = false;
 
@@ -125,17 +122,26 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
     private boolean esUbicacionGPS = false;
 
     // Campos formulario
-    private EditText tituloEvento;
-    private EditText descripcionEvento;
-    private TextView deporteEvento;
-    private TextView deporteEventoText;
-    private EditText participantesEvento;
+    private TextInputLayout tilTitulo;
+    private TextInputLayout tilDescripcion;
+    private TextInputLayout tilDeporte;
+    private TextInputLayout tilParticipantes;
+    private TextInputLayout tilDuracion;
+    private TextInputLayout tilFecha;
+
+    private EditText etTitulo;
+    private EditText etDescripcion;
+    private EditText etDeporte;
+    private EditText etParticipantes;
+    private EditText etDuracion;
+    private EditText etFecha;
+
+    // Tooltips
     private ImageView tooltipParticipantes;
-    private EditText duracionEvento;
-    private Switch privacidadForo;
     private ImageView tooltipPrivacidadForo;
-    private ConstraintLayout seleccionarFecha;
-    private TextView mostrarFecha;
+
+
+    private Switch privacidadForo;
     private ConstraintLayout seleccionarHora;
     private TextView mostrarHora;
     private Button ubicacionEvento;
@@ -147,7 +153,6 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
     private ConstraintLayout seleccionarUbicacion;
     private TextView ubicacion;
     private ImageView imagenEvento;
-    private FloatingActionButton tomarImagenEvento;
     private Uri pathImagenPerfil;
     private boolean esNuevaImagen = false;
 
@@ -155,7 +160,7 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
     protected void onCreate(@Nullable Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.crear_evento);
+        setContentView(R.layout.activity_crear_evento);
 
         // Inicializamos el servicio de APIRest de retrofit
         apiRest = InitRetrofit.getInstance().getApiRest();
@@ -166,24 +171,46 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
         // Ponemos el toolbar
         Toolbar toolbar = findViewById(R.id.appbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
 
         // Ocultar layout ubicación
         findViewById(R.id.crear_evento_seleccionar_ubicacion).setVisibility(View.GONE);
 
         // Obtener campos formulario
-        tituloEvento = findViewById(R.id.crear_evento_titulo);
-        descripcionEvento = findViewById(R.id.crear_evento_descripcion);
-        deporteEvento = findViewById(R.id.crear_evento_deporte);
-        deporteEvento.setOnClickListener(this);
-        deporteEventoText = findViewById(R.id.crear_evento_deporte_texto);
-        participantesEvento = findViewById(R.id.crear_evento_participantes);
-        participantesEvento.setFilters(new InputFilter[]{new InputFilterMinMax("0", "9999")});
+        tilTitulo = findViewById(R.id.crear_evento_til_titulo);
+        tilDescripcion = findViewById(R.id.crear_evento_til_descripcion);
+        tilDeporte = findViewById(R.id.crear_evento_til_deporte);
+        tilParticipantes = findViewById(R.id.crear_evento_til_participantes);
+        tilDuracion = findViewById(R.id.crear_evento_til_duracion);
+        tilFecha = findViewById(R.id.crear_evento_til_dia);
+
+        etTitulo = findViewById(R.id.crear_evento_et_titulo);
+        etDescripcion = findViewById(R.id.crear_evento_et_descripcion);
+        etDeporte = findViewById(R.id.crear_evento_et_deporte);
+        etParticipantes = findViewById(R.id.crear_evento_et_participantes);
+        etParticipantes.setFilters(new InputFilter[]{new InputFilterMinMax("0", "9999")});
+        etDuracion = findViewById(R.id.crear_evento_et_duracion);
+        etDuracion.setFilters(new InputFilter[]{new InputFilterMinMax("0", "9999")});
+        etDeporte.setOnClickListener(this);
+        etFecha = findViewById(R.id.crear_evento_et_dia);
+        etFecha.setOnClickListener(this);
+
+        // tooltips
         tooltipParticipantes = findViewById(R.id.crear_evento_tooltip_participantes);
         tooltipParticipantes.setOnClickListener(this);
-        duracionEvento = findViewById(R.id.crear_evento_duracion);
-        duracionEvento.setFilters(new InputFilter[]{new InputFilterMinMax("0", "9999")});
+        tooltipPrivacidadForo = findViewById(R.id.crear_evento_tooltip_privacidad_foro);
+        tooltipPrivacidadForo.setOnClickListener(this);
+
+        addTextListeners();
+
+        //------------------------------
+
+
+
+
         privacidadForo = findViewById(R.id.crear_evento_privacidad_foro);
         privacidadForo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -192,11 +219,7 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
                 else privacidadForo.setText("Privado");
             }
         });
-        tooltipPrivacidadForo = findViewById(R.id.crear_evento_tooltip_privacidad_foro);
-        tooltipPrivacidadForo.setOnClickListener(this);
-        seleccionarFecha = findViewById(R.id.crear_evento_seleccionar_fecha);
-        seleccionarFecha.setOnClickListener(this);
-        mostrarFecha = findViewById(R.id.crear_evento_fecha);
+
         seleccionarHora = findViewById(R.id.crear_evento_seleccionar_hora);
         seleccionarHora.setOnClickListener(this);
         mostrarHora = findViewById(R.id.crear_evento_hora);
@@ -213,10 +236,92 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
         seleccionarUbicacion = findViewById(R.id.crear_evento_ubicacion_layout);
         ubicacion = findViewById(R.id.crear_evento_ubicacion);
         imagenEvento = findViewById(R.id.crear_evento_imagen_evento);
-        Picasso.with(getApplicationContext()).load(Global.BASE_URL + "imagen/evento/0").fit().centerCrop().into(imagenEvento);
-        tomarImagenEvento = findViewById(R.id.crear_evento_tomar_imagen_evento);
-        tomarImagenEvento.setOnClickListener(this);
+        Picasso.with(getApplicationContext()).load(Global.BASE_URL + Global.DEFAULT_IMAGE_EVENT).fit().centerCrop().into(imagenEvento);
+        imagenEvento.setOnClickListener(this);
+    }
 
+    // Eliminamos el mensaje de error al introducir texto en un campo vacio
+    private void addTextListeners() {
+        etTitulo.addTextChangedListener(new CustomTextWatcher(tilTitulo));
+        etDescripcion.addTextChangedListener(new CustomTextWatcher(tilDescripcion));
+        etDeporte.addTextChangedListener(new CustomTextWatcher(tilDeporte));
+        etParticipantes.addTextChangedListener(new CustomTextWatcher(tilParticipantes));
+        etDuracion.addTextChangedListener(new CustomTextWatcher(tilDuracion));
+        etFecha.addTextChangedListener(new CustomTextWatcher(tilFecha));
+
+    }
+
+    @Override
+    public void onClick(View v) {
+
+        switch (v.getId()) {
+            case R.id.crear_evento_et_deporte:
+                seleccionarDeporte();
+                break;
+            case R.id.crear_evento_tooltip_participantes:
+                Tooltip.Builder tooltipParticipantes = new Tooltip.Builder(v, R.style.Tooltip2)
+                        .setCancelable(true)
+                        .setDismissOnClick(true)
+                        .setCornerRadius(20f)
+                        .setGravity(Gravity.TOP)
+                        .setText(getString(R.string.crear_evento_tooltip_participantes));
+                tooltipParticipantes.show();
+                break;
+            case R.id.crear_evento_tooltip_privacidad_foro:
+                Tooltip.Builder tooltipForo = new Tooltip.Builder(v, R.style.Tooltip2)
+                        .setCancelable(true)
+                        .setDismissOnClick(true)
+                        .setCornerRadius(20f)
+                        .setGravity(Gravity.TOP)
+                        .setText("Seleccione privado para que solamente los usuarios registrados al evento puedan visualizar y participar en el foro. Si selecciona público, cualquier usuario registrado podrá visualizar y participar en el foro.");
+                tooltipForo.show();
+                break;
+            case R.id.crear_evento_et_dia:
+                showDatePickerDialog();
+                break;
+            case R.id.crear_evento_seleccionar_hora:
+                showTimePickerDialog();
+                break;
+            case R.id.crear_evento__boton_municipio:
+                activarBoton(v.getId());
+                desactivarBoton(R.id.crear_evento_boton_ubicacion);
+                findViewById(R.id.crear_evento_seleccionar_ubicacion).setVisibility(View.VISIBLE);
+                seleccionarUbicacion.setVisibility(View.GONE);
+                seleccionarProvincia.setVisibility(View.VISIBLE);
+                seleccionarMunicipio.setVisibility(View.VISIBLE);
+                esUbicacionGPS = false;
+                esMunicipio = true;
+                if (emptyUbicacion()) {
+                    paisActual = Global.DEFAULT_COUNTRY;
+                    provinciaActual = Global.DEFAULT_PROVINCE;
+                    municipioActual = Global.DEFAULT_LOCALITY;
+                    obtenerUbicacion();
+
+                }
+                ubicacion.setText("");
+                break;
+            case R.id.crear_evento_boton_ubicacion:
+                activarBoton(v.getId());
+                desactivarBoton(R.id.crear_evento__boton_municipio);
+                findViewById(R.id.crear_evento_seleccionar_ubicacion).setVisibility(View.VISIBLE);
+                seleccionarUbicacion.setVisibility(View.VISIBLE);
+                seleccionarProvincia.setVisibility(View.GONE);
+                seleccionarMunicipio.setVisibility(View.GONE);
+                if (!emptyUbicacion()) resetUbicacion();
+                esUbicacionGPS = true;
+                esMunicipio = false;
+                showPlacePicker();
+                break;
+            case R.id.crear_evento_seleccionar_provincia:
+                seleccionarProvincia();
+                break;
+            case R.id.crear_evento_seleccionar_municipio:
+                seleccionarMunicipio();
+                break;
+            case R.id.crear_evento_imagen_evento:
+                cargarImagenEvento();
+                break;
+        }
 
     }
 
@@ -230,11 +335,11 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
                 String fechaEvento = dosDigitos(day) + "/" + dosDigitos(month + 1) + "/" + year + " " + dosDigitos(hora) + ":" + dosDigitos(minutos);
                 EventoCrearPeticion datosEvento = new EventoCrearPeticion();
                 if (!esMunicipio) {
-                    datosEvento = new EventoCrearPeticion(tituloEvento.getText().toString(), descripcionEvento.getText().toString(), Integer.parseInt(duracionEvento.getText().toString()),
-                            Integer.parseInt(participantesEvento.getText().toString()), fechaEvento, privacidadForo.isChecked(), null, deportes.get(deporteSeleccionado).getId(), new Ubicacion(latitud, longitud, direccion, municipioDireccion), "tituloForo");
+                    datosEvento = new EventoCrearPeticion(etTitulo.getText().toString(), etDescripcion.getText().toString(), Integer.parseInt(etDuracion.getText().toString()),
+                            Integer.parseInt(etParticipantes.getText().toString()), fechaEvento, privacidadForo.isChecked(), null, deportes.get(deporteSeleccionado).getId(), new Ubicacion(latitud, longitud, direccion, municipioDireccion), "tituloForo");
                 } else {
-                    datosEvento = new EventoCrearPeticion(tituloEvento.getText().toString(), descripcionEvento.getText().toString(), Integer.parseInt(duracionEvento.getText().toString()),
-                            Integer.parseInt(participantesEvento.getText().toString()), fechaEvento, privacidadForo.isChecked(), municipios.get(municipioActual).getId(), deportes.get(deporteSeleccionado).getId(), null, "tituloForo");
+                    datosEvento = new EventoCrearPeticion(etTitulo.getText().toString(), etDescripcion.getText().toString(), Integer.parseInt(etDuracion.getText().toString()),
+                            Integer.parseInt(etParticipantes.getText().toString()), fechaEvento, privacidadForo.isChecked(), municipios.get(municipioActual).getId(), deportes.get(deporteSeleccionado).getId(), null, "tituloForo");
                 }
 
                 Call<GenericId> peticionRest = apiRest.crearEvento(datosEvento);
@@ -319,53 +424,63 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
 
         boolean esCorrecto = true;
 
-        if (tituloEvento == null || tituloEvento.getText().toString().isEmpty()){
-            tituloEvento.setError("Debe introducir un título para el evento");
-            tituloEvento.requestFocus();
-            esCorrecto = false;
-        }
+        String titulo = Objects.requireNonNull(tilTitulo.getEditText()).getText().toString();
+        String descripcion = Objects.requireNonNull(tilDescripcion.getEditText()).getText().toString();
+        String deporte = Objects.requireNonNull(tilDeporte.getEditText()).getText().toString();
+        String participantes = Objects.requireNonNull(tilParticipantes.getEditText()).getText().toString();
+        String duracion = Objects.requireNonNull(tilDuracion.getEditText()).getText().toString();
+        String fecha =  Objects.requireNonNull(tilFecha.getEditText()).getText().toString();
 
-        if (descripcionEvento == null || descripcionEvento.getText().toString().isEmpty()){
-            descripcionEvento.setError("Debe introducir una descripción para el evento");
-            descripcionEvento.requestFocus();
+        // Validar título no vacio
+        if (titulo.isEmpty()) {
             esCorrecto = false;
-        }
+            tilTitulo.setError(getString(R.string.crear_evento_titulo_obligatorio));
+        } else tilTitulo.setError(null);
 
-        if (deporteSeleccionado < 0){
-            deporteEvento.setError("Debe seleccionar una categoría deportiva");
-            deporteEvento.requestFocus();
+        // Validar descripción no vacía
+        if (descripcion.isEmpty()) {
             esCorrecto = false;
-        }
+            tilDescripcion.setError(getString(R.string.crear_evento_descripcion_obligatoria));
+        } else tilDescripcion.setError(null);
 
-        if (  participantesEvento == null || participantesEvento.getText().toString().isEmpty() || Integer.parseInt(participantesEvento.getText().toString()) < 0 || Integer.parseInt(participantesEvento.getText().toString()) > 9999){
-            participantesEvento.setError("Debe introducir el número de participantes");
-            participantesEvento.requestFocus();
+        // Validar categoría deportiva no vacía
+        if (deporte.isEmpty()) {
             esCorrecto = false;
-        }
+            tilDeporte.setError(getString(R.string.crear_evento_deporte_obligatorio));
+        } else tilDeporte.setError(null);
 
-        if (  duracionEvento == null || duracionEvento.getText().toString().isEmpty() || Integer.parseInt(duracionEvento.getText().toString()) < 0 || Integer.parseInt(duracionEvento.getText().toString()) > 9999){
-            duracionEvento.setError("Debe introducir la duración estimada del evento");
-            duracionEvento.requestFocus();
+        // participantes
+        if (participantes.isEmpty()) {
             esCorrecto = false;
-        }
+            tilParticipantes.setError(getString(R.string.crear_evento_participantes_obligatorio));
+        } else tilParticipantes.setError(null);
 
-        if (hora < 0 || minutos < 0 ){
+        // duracion
+        if (duracion.isEmpty()) {
+            esCorrecto = false;
+            tilDuracion.setError(getString(R.string.crear_evento_duracion_obligatoria));
+        } else tilDuracion.setError(null);
+
+        // fecha
+        if (fecha.isEmpty()) {
+            esCorrecto = false;
+            tilFecha.setError(getString(R.string.crear_evento_fecha_obligatoria));
+        } else tilFecha.setError(null);
+
+        /*
+
+
+        if (hora < 0 || minutos < 0) {
             mostrarHora.setError("Debe seleccionar una hora");
             mostrarHora.requestFocus();
             esCorrecto = false;
         }
 
-        if (year < 0 || month < 0 || day < 0){
-            mostrarFecha.setError("Debe seleccionar una fecha");
-            mostrarFecha.requestFocus();
-            esCorrecto = false;
-        }
-
-        if ( (esUbicacionGPS && (ubicacion == null || ubicacion.getText().toString().isEmpty() ))  || (!esUbicacionGPS && !esMunicipio && (ubicacion == null || ubicacion.getText().toString().isEmpty() )) ){
+        if ((esUbicacionGPS && (ubicacion == null || ubicacion.getText().toString().isEmpty())) || (!esUbicacionGPS && !esMunicipio && (ubicacion == null || ubicacion.getText().toString().isEmpty()))) {
             ubicacion.setError("Debe seleccionar una ubicación para el evento");
             ubicacion.requestFocus();
             esCorrecto = false;
-        }
+        }*/
 
 
         return esCorrecto;
@@ -389,86 +504,13 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
         return true;
     }
 
-    @Override
-    public void onClick(View v) {
-
-        switch (v.getId()) {
-            case R.id.crear_evento_deporte:
-                seleccionarDeporte();
-                break;
-            case R.id.crear_evento_tooltip_participantes:
-                Tooltip.Builder tooltipParticipantes = new Tooltip.Builder(v, R.style.Tooltip2)
-                        .setCancelable(true)
-                        .setDismissOnClick(true)
-                        .setCornerRadius(20f)
-                        .setGravity(Gravity.TOP)
-                        .setText("Indique 0 para una cantidad ilimitada de participantes");
-                tooltipParticipantes.show();
-                break;
-            case R.id.crear_evento_tooltip_privacidad_foro:
-                Tooltip.Builder tooltipForo = new Tooltip.Builder(v, R.style.Tooltip2)
-                        .setCancelable(true)
-                        .setDismissOnClick(true)
-                        .setCornerRadius(20f)
-                        .setGravity(Gravity.TOP)
-                        .setText("Seleccione privado para que solamente los usuarios registrados al evento puedan visualizar y participar en el foro. Si selecciona público, cualquier usuario registrado podrá visualizar y participar en el foro.");
-                tooltipForo.show();
-                break;
-            case R.id.crear_evento_seleccionar_fecha:
-                showDatePickerDialog();
-                break;
-            case R.id.crear_evento_seleccionar_hora:
-                showTimePickerDialog();
-                break;
-            case R.id.crear_evento__boton_municipio:
-                activarBoton(v.getId());
-                desactivarBoton(R.id.crear_evento_boton_ubicacion);
-                findViewById(R.id.crear_evento_seleccionar_ubicacion).setVisibility(View.VISIBLE);
-                seleccionarUbicacion.setVisibility(View.GONE);
-                seleccionarProvincia.setVisibility(View.VISIBLE);
-                seleccionarMunicipio.setVisibility(View.VISIBLE);
-                esUbicacionGPS = false;
-                esMunicipio = true;
-                if (emptyUbicacion()) {
-                    paisActual = Global.DEFAULT_COUNTRY;
-                    provinciaActual = Global.DEFAULT_PROVINCE;
-                    municipioActual = Global.DEFAULT_LOCALITY;
-                    obtenerUbicacion();
-
-                }
-                ubicacion.setText("");
-                break;
-            case R.id.crear_evento_boton_ubicacion:
-                activarBoton(v.getId());
-                desactivarBoton(R.id.crear_evento__boton_municipio);
-                findViewById(R.id.crear_evento_seleccionar_ubicacion).setVisibility(View.VISIBLE);
-                seleccionarUbicacion.setVisibility(View.VISIBLE);
-                seleccionarProvincia.setVisibility(View.GONE);
-                seleccionarMunicipio.setVisibility(View.GONE);
-                if (!emptyUbicacion()) resetUbicacion();
-                esUbicacionGPS = true;
-                esMunicipio = false;
-                showPlacePicker();
-                break;
-            case R.id.crear_evento_seleccionar_provincia:
-                seleccionarProvincia();
-                break;
-            case R.id.crear_evento_seleccionar_municipio:
-                seleccionarMunicipio();
-                break;
-            case R.id.crear_evento_tomar_imagen_evento:
-                cargarImagenEvento();
-                break;
-        }
-
-    }
 
     private void cargarImagenEvento() {
         AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
-        pictureDialog.setTitle("Seleccionar opción:");
+        pictureDialog.setTitle(getString(R.string.titulo_seleccionar_foto));
         String[] pictureDialogItems = {
-                "Foto de la galería",
-                "Foto de la cámara"};
+                getString(R.string.titulo_seleccionar_foto_galeria),
+                getString(R.string.titulo_seleccionar_foto_camara)};
         pictureDialog.setItems(pictureDialogItems,
                 new DialogInterface.OnClickListener() {
                     @Override
@@ -499,7 +541,7 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
                 pathImagenPerfil = data.getData();
                 try {
                     CropImage.activity(pathImagenPerfil)
-                            .setAspectRatio(10,10)
+                            .setAspectRatio(10, 10)
                             .start(this);
                 } catch (Exception e) {
                     Picasso.with(getApplicationContext()).load(Global.BASE_URL + "imagen/evento/0").into(imagenEvento);
@@ -514,7 +556,7 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
             try {
 
                 CropImage.activity(pathImagenPerfil)
-                        .setAspectRatio(10,10)
+                        .setAspectRatio(10, 10)
                         .start(this);
 
             } catch (Exception e) {
@@ -556,8 +598,7 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
 
 
             }
-        }
-        else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+        } else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
                 pathImagenPerfil = result.getUri();
@@ -808,7 +849,7 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
                 month = m;
                 day = d;
                 final String selectedDate = dosDigitos(day) + " / " + dosDigitos(month + 1) + " / " + year;
-                mostrarFecha.setText(selectedDate);
+                etFecha.setText(selectedDate);
             }
         });
         newFragment.show(getFragmentManager(), "datePicker");
@@ -828,8 +869,9 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
     public void deporteSeleccionado(int deporteSeleccionado) {
         this.deporteSeleccionado = deporteSeleccionado;
         if (this.deporteSeleccionado >= 0) {
-            deporteEventoText.setText(deportes.get(this.deporteSeleccionado).getDeporte());
+            etDeporte.setText(deportes.get(this.deporteSeleccionado).getDeporte());
         }
+        else etDeporte.getText().clear();
     }
 
 

@@ -52,6 +52,24 @@
     <string name="no_resultados_busqueda_inicial">No se han encontrado resultados que se ajusten a sus preferencias por defecto. Puede modificar dichas preferencias accediendo a su perfil.</string>
     <string name="no_resultados_busqueda">No se han encontrado resultados.</string>
 
+    // Crear evento
+    <string name="crear_evento_titulo_informacion_del_evento">Información del evento</string>
+    <string name="crear_evento_titulo_configuracion_del_evento">Configuración del evento</string>
+    <string name="crear_evento_titulo_ubicacion_del_evento">¿Dónde y cuándo?</string>
+    <string name="crear_evento_titulo_obligatorio">Introduzca el título del evento</string>
+    <string name="crear_evento_descripcion_obligatoria">Introduzca la descripción del evento</string>
+    <string name="crear_evento_deporte_obligatorio">Elija una categoría deportiva</string>
+    <string name="crear_evento_participantes_obligatorio">Participantes obligatorio</string>
+    <string name="crear_evento_duracion_obligatoria">Duración obligatoria</string>
+    <string name="crear_evento_fecha_obligatoria">Introduzca la fecha del evento</string>
+    <string name="crear_evento_titulo">Título</string>
+    <string name="crear_evento_descripcion">Descripción</string>
+    <string name="crear_evento_deporte">Deporte</string>
+    <string name="crear_evento_Dia">Dia</string>
+    <string name="crear_evento_participantes">Participantes</string>
+    <string name="crear_evento_duracion">Duración</string>
+    <string name="crear_evento_tooltip_participantes">Indique 0 para una cantidad ilimitada de participantes</string>
+
 
 
 

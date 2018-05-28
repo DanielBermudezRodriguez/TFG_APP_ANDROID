@@ -6,6 +6,8 @@ public class Global {
     public static final String BASE_URL = "http://192.168.42.132:8080/rest/";
     public static final String DEFAULT_IMAGE_USER = "imagen/usuario/0";
     public static final String IMAGE_USER = "imagen/usuario/";
+    public static final String DEFAULT_IMAGE_EVENT = "imagen/evento/0";
+    public static final String IMAGE_EVENT = "imagen/evento/";
 
     public static final String TAG_PROVINCIAS_DIALOG = "seleccionarProvincias";
     public static final String TAG_MUNICIPIOS_DIALOG = "seleccionarMunicio";
