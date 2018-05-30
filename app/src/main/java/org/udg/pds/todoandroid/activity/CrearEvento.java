@@ -10,12 +10,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
+
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
@@ -38,7 +39,7 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
+
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -70,6 +71,7 @@ import org.udg.pds.todoandroid.util.Global;
 import org.udg.pds.todoandroid.util.ImageUtil;
 import org.udg.pds.todoandroid.util.InitRetrofit;
 import org.udg.pds.todoandroid.util.InputFilterMinMax;
+import org.udg.pds.todoandroid.util.SnackbarUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -91,20 +93,16 @@ import retrofit2.Response;
 public class CrearEvento extends AppCompatActivity implements View.OnClickListener, SeleccionarDeporteEventoDialog.SeleccionarDeporteEventoDialogListener, SeleccionarProvinciasDialog.SeleccionarProvinciasDialogListener, SeleccionarMunicipioDialog.SeleccionarMunicipioDialogListener {
 
     private ApiRest apiRest;
-
     // Categoría deportiva
     private List<Deporte> deportes = new ArrayList<>();
     private int deporteSeleccionado = -1;
-
     // Fecha evento
     private int year = -1;
     private int month = -1;
     private int day = -1;
-
     // Hora evento
     private int hora = -1;
     private int minutos = -1;
-
     // Ubicación Evento escojiendo provincia y municipio
     private List<Pais> paises = new ArrayList<>();
     private int paisActual = -1;
@@ -113,14 +111,12 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
     private List<Municipio> municipios = new ArrayList<>();
     private int municipioActual = -1;
     private boolean esMunicipio = false;
-
     // Ubicación evento seleccionando en el mapa de google
     private double latitud;
     private double longitud;
     private String direccion;
     private String municipioDireccion;
     private boolean esUbicacionGPS = false;
-
     // Campos formulario
     private TextInputLayout tilTitulo;
     private TextInputLayout tilDescripcion;
@@ -128,46 +124,36 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
     private TextInputLayout tilParticipantes;
     private TextInputLayout tilDuracion;
     private TextInputLayout tilFecha;
-
+    private TextInputLayout tilHora;
+    private TextInputLayout tilProvincia;
+    private TextInputLayout tilMunicipio;
     private EditText etTitulo;
     private EditText etDescripcion;
     private EditText etDeporte;
     private EditText etParticipantes;
     private EditText etDuracion;
     private EditText etFecha;
-
-    // Tooltips
-    private ImageView tooltipParticipantes;
-    private ImageView tooltipPrivacidadForo;
-
-
+    private EditText etHora;
+    private EditText etProvincia;
+    private EditText etMunicipio;
+    // Privacidad Foro
     private Switch privacidadForo;
-    private ConstraintLayout seleccionarHora;
-    private TextView mostrarHora;
-    private Button ubicacionEvento;
-    private Button municipioEvento;
-    private ConstraintLayout seleccionarProvincia;
-    private TextView provincia;
-    private ConstraintLayout seleccionarMunicipio;
-    private TextView municipio;
+    // Ubicación evento
     private ConstraintLayout seleccionarUbicacion;
     private TextView ubicacion;
+    // Imagen evento
     private ImageView imagenEvento;
     private Uri pathImagenPerfil;
     private boolean esNuevaImagen = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_crear_evento);
-
+        setContentView(R.layout.crear_evento_layout);
         // Inicializamos el servicio de APIRest de retrofit
         apiRest = InitRetrofit.getInstance().getApiRest();
-
-        //Obtenemos las categorías deportivas disponibles:
+        //Obtenemos las categorías deportivas disponibles
         obtenerDeportes();
-
         // Ponemos el toolbar
         Toolbar toolbar = findViewById(R.id.appbar);
         setSupportActionBar(toolbar);
@@ -175,10 +161,12 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
-
+        // Imagen evento por defecto
+        imagenEvento = findViewById(R.id.crear_evento_imagen_evento);
+        Picasso.with(getApplicationContext()).load(Global.BASE_URL + Global.DEFAULT_IMAGE_EVENT).into(imagenEvento);
+        imagenEvento.setOnClickListener(this);
         // Ocultar layout ubicación
         findViewById(R.id.crear_evento_seleccionar_ubicacion).setVisibility(View.GONE);
-
         // Obtener campos formulario
         tilTitulo = findViewById(R.id.crear_evento_til_titulo);
         tilDescripcion = findViewById(R.id.crear_evento_til_descripcion);
@@ -186,6 +174,9 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
         tilParticipantes = findViewById(R.id.crear_evento_til_participantes);
         tilDuracion = findViewById(R.id.crear_evento_til_duracion);
         tilFecha = findViewById(R.id.crear_evento_til_dia);
+        tilHora = findViewById(R.id.crear_evento_til_hora);
+        tilProvincia = findViewById(R.id.crear_evento_til_provincias);
+        tilMunicipio = findViewById(R.id.crear_evento_til_municipio);
 
         etTitulo = findViewById(R.id.crear_evento_et_titulo);
         etDescripcion = findViewById(R.id.crear_evento_et_descripcion);
@@ -197,47 +188,38 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
         etDeporte.setOnClickListener(this);
         etFecha = findViewById(R.id.crear_evento_et_dia);
         etFecha.setOnClickListener(this);
+        etHora = findViewById(R.id.crear_evento_et_hora);
+        etHora.setOnClickListener(this);
+        etProvincia = findViewById(R.id.crear_evento_et_provincias);
+        etProvincia.setOnClickListener(this);
+        etMunicipio = findViewById(R.id.crear_evento_et_municipio);
+        etMunicipio.setOnClickListener(this);
 
         // tooltips
-        tooltipParticipantes = findViewById(R.id.crear_evento_tooltip_participantes);
+        ImageView tooltipParticipantes = findViewById(R.id.crear_evento_tooltip_participantes);
         tooltipParticipantes.setOnClickListener(this);
-        tooltipPrivacidadForo = findViewById(R.id.crear_evento_tooltip_privacidad_foro);
+        ImageView tooltipPrivacidadForo = findViewById(R.id.crear_evento_tooltip_privacidad_foro);
         tooltipPrivacidadForo.setOnClickListener(this);
-
+        // Listeners para los campos del formulario al setear el error
         addTextListeners();
-
-        //------------------------------
-
-
-
-
+        // Privacidad foro
         privacidadForo = findViewById(R.id.crear_evento_privacidad_foro);
         privacidadForo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (privacidadForo.isChecked()) privacidadForo.setText("Público");
-                else privacidadForo.setText("Privado");
+                if (privacidadForo.isChecked())
+                    privacidadForo.setText(getString(R.string.crear_evento_foro_publico));
+                else privacidadForo.setText(getString(R.string.crear_evento_foro_Privado));
             }
         });
-
-        seleccionarHora = findViewById(R.id.crear_evento_seleccionar_hora);
-        seleccionarHora.setOnClickListener(this);
-        mostrarHora = findViewById(R.id.crear_evento_hora);
-        ubicacionEvento = findViewById(R.id.crear_evento_boton_ubicacion);
+        // Ubicación evento
+        Button ubicacionEvento = findViewById(R.id.crear_evento_boton_ubicacion);
         ubicacionEvento.setOnClickListener(this);
-        municipioEvento = findViewById(R.id.crear_evento__boton_municipio);
+        Button municipioEvento = findViewById(R.id.crear_evento__boton_municipio);
         municipioEvento.setOnClickListener(this);
-        seleccionarProvincia = findViewById(R.id.crear_evento_seleccionar_provincia);
-        seleccionarProvincia.setOnClickListener(this);
-        provincia = findViewById(R.id.crear_evento_provincia);
-        seleccionarMunicipio = findViewById(R.id.crear_evento_seleccionar_municipio);
-        seleccionarMunicipio.setOnClickListener(this);
-        municipio = findViewById(R.id.crear_evento_municipio);
         seleccionarUbicacion = findViewById(R.id.crear_evento_ubicacion_layout);
         ubicacion = findViewById(R.id.crear_evento_ubicacion);
-        imagenEvento = findViewById(R.id.crear_evento_imagen_evento);
-        Picasso.with(getApplicationContext()).load(Global.BASE_URL + Global.DEFAULT_IMAGE_EVENT).fit().centerCrop().into(imagenEvento);
-        imagenEvento.setOnClickListener(this);
+
     }
 
     // Eliminamos el mensaje de error al introducir texto en un campo vacio
@@ -248,12 +230,13 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
         etParticipantes.addTextChangedListener(new CustomTextWatcher(tilParticipantes));
         etDuracion.addTextChangedListener(new CustomTextWatcher(tilDuracion));
         etFecha.addTextChangedListener(new CustomTextWatcher(tilFecha));
+        etHora.addTextChangedListener(new CustomTextWatcher(tilHora));
 
     }
 
+    // Gestión de los eventos 'click' en diferentes partes del formulario
     @Override
     public void onClick(View v) {
-
         switch (v.getId()) {
             case R.id.crear_evento_et_deporte:
                 seleccionarDeporte();
@@ -273,13 +256,13 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
                         .setDismissOnClick(true)
                         .setCornerRadius(20f)
                         .setGravity(Gravity.TOP)
-                        .setText("Seleccione privado para que solamente los usuarios registrados al evento puedan visualizar y participar en el foro. Si selecciona público, cualquier usuario registrado podrá visualizar y participar en el foro.");
+                        .setText(getString(R.string.crear_evento_tooltip_privacidad_foro));
                 tooltipForo.show();
                 break;
             case R.id.crear_evento_et_dia:
                 showDatePickerDialog();
                 break;
-            case R.id.crear_evento_seleccionar_hora:
+            case R.id.crear_evento_et_hora:
                 showTimePickerDialog();
                 break;
             case R.id.crear_evento__boton_municipio:
@@ -287,8 +270,8 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
                 desactivarBoton(R.id.crear_evento_boton_ubicacion);
                 findViewById(R.id.crear_evento_seleccionar_ubicacion).setVisibility(View.VISIBLE);
                 seleccionarUbicacion.setVisibility(View.GONE);
-                seleccionarProvincia.setVisibility(View.VISIBLE);
-                seleccionarMunicipio.setVisibility(View.VISIBLE);
+                tilProvincia.setVisibility(View.VISIBLE);
+                tilMunicipio.setVisibility(View.VISIBLE);
                 esUbicacionGPS = false;
                 esMunicipio = true;
                 if (emptyUbicacion()) {
@@ -296,7 +279,6 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
                     provinciaActual = Global.DEFAULT_PROVINCE;
                     municipioActual = Global.DEFAULT_LOCALITY;
                     obtenerUbicacion();
-
                 }
                 ubicacion.setText("");
                 break;
@@ -305,69 +287,69 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
                 desactivarBoton(R.id.crear_evento__boton_municipio);
                 findViewById(R.id.crear_evento_seleccionar_ubicacion).setVisibility(View.VISIBLE);
                 seleccionarUbicacion.setVisibility(View.VISIBLE);
-                seleccionarProvincia.setVisibility(View.GONE);
-                seleccionarMunicipio.setVisibility(View.GONE);
+                tilProvincia.setVisibility(View.GONE);
+                tilMunicipio.setVisibility(View.GONE);
                 if (!emptyUbicacion()) resetUbicacion();
                 esUbicacionGPS = true;
                 esMunicipio = false;
                 showPlacePicker();
                 break;
-            case R.id.crear_evento_seleccionar_provincia:
+            case R.id.crear_evento_et_provincias:
                 seleccionarProvincia();
                 break;
-            case R.id.crear_evento_seleccionar_municipio:
+            case R.id.crear_evento_et_municipio:
                 seleccionarMunicipio();
                 break;
             case R.id.crear_evento_imagen_evento:
                 cargarImagenEvento();
                 break;
         }
-
     }
 
+    // Comportamiento del botón crear evento
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-
         if (id == R.id.toolbar_crear_evento) {
-            // VALIDAR FORMULARIO
+            // Validar datos del formulario
             if (validarFormulario()) {
                 String fechaEvento = dosDigitos(day) + "/" + dosDigitos(month + 1) + "/" + year + " " + dosDigitos(hora) + ":" + dosDigitos(minutos);
-                EventoCrearPeticion datosEvento = new EventoCrearPeticion();
+                EventoCrearPeticion datosEvento;
+                // creamos el evento con la ubicación seleccionada a través de una provincia y municipio
                 if (!esMunicipio) {
                     datosEvento = new EventoCrearPeticion(etTitulo.getText().toString(), etDescripcion.getText().toString(), Integer.parseInt(etDuracion.getText().toString()),
-                            Integer.parseInt(etParticipantes.getText().toString()), fechaEvento, privacidadForo.isChecked(), null, deportes.get(deporteSeleccionado).getId(), new Ubicacion(latitud, longitud, direccion, municipioDireccion), "tituloForo");
-                } else {
+                            Integer.parseInt(etParticipantes.getText().toString()), fechaEvento, privacidadForo.isChecked(), null, deportes.get(deporteSeleccionado).getId(), new Ubicacion(latitud, longitud, direccion, municipioDireccion), Global.DEFAULT_FORO_NAME);
+                }
+                // Creamos el evento con la ubicación seleccionada en el mapa
+                else {
                     datosEvento = new EventoCrearPeticion(etTitulo.getText().toString(), etDescripcion.getText().toString(), Integer.parseInt(etDuracion.getText().toString()),
-                            Integer.parseInt(etParticipantes.getText().toString()), fechaEvento, privacidadForo.isChecked(), municipios.get(municipioActual).getId(), deportes.get(deporteSeleccionado).getId(), null, "tituloForo");
+                            Integer.parseInt(etParticipantes.getText().toString()), fechaEvento, privacidadForo.isChecked(), municipios.get(municipioActual).getId(), deportes.get(deporteSeleccionado).getId(), null, Global.DEFAULT_FORO_NAME);
                 }
 
                 Call<GenericId> peticionRest = apiRest.crearEvento(datosEvento);
                 peticionRest.enqueue(new Callback<GenericId>() {
                     @Override
                     public void onResponse(Call<GenericId> call, Response<GenericId> response) {
-                        if (response.raw().code() != 500 && response.isSuccessful()) {
-
+                        if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
                             GenericId idEvento = response.body();
-
                             // Creamos el foro en la base de datos de FireBase
-                            DatabaseReference root = FirebaseDatabase.getInstance().getReference().getRoot();
-                            Map<String, Object> map = new HashMap<String, Object>();
-                            map.put(Global.PREFIJO_SALA_FORO_EVENTO + idEvento.getId().toString(), "");
-                            root.updateChildren(map);
-
-
+                            if (idEvento != null) {
+                                DatabaseReference root = FirebaseDatabase.getInstance().getReference().getRoot();
+                                Map<String, Object> map = new HashMap<>();
+                                map.put(Global.PREFIJO_SALA_FORO_EVENTO + idEvento.getId().toString(), "");
+                                root.updateChildren(map);
+                            }
+                            // Si se ha cargado una imagen para el evento
                             if (esNuevaImagen) {
                                 try {
                                     File imageFile = ImageUtil.decodeImage(getRealPathFromURIPath(pathImagenPerfil, CrearEvento.this), getApplicationContext());
-                                    RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), imageFile);
+                                    RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), Objects.requireNonNull(imageFile));
                                     MultipartBody.Part body = MultipartBody.Part.createFormData("file", imageFile.getName(), reqFile);
-                                    Call<Imagen> peticionRest = apiRest.subirImagenEvento(body, idEvento.getId());
+                                    Call<Imagen> peticionRest = apiRest.subirImagenEvento(body, Objects.requireNonNull(idEvento).getId());
                                     peticionRest.enqueue(new Callback<Imagen>() {
                                         @Override
                                         public void onResponse(Call<Imagen> call, Response<Imagen> response) {
-                                            if (response.raw().code() != 500 && response.isSuccessful()) {
-                                                Imagen imagen = response.body();
+                                            if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
                                                 Intent principal = new Intent(getApplicationContext(), Principal.class);
                                                 // Eliminamos de la pila todas las actividades
                                                 principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -375,21 +357,21 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
                                                 finish();
                                             } else {
                                                 try {
-                                                    JSONObject jObjError = new JSONObject(response.errorBody().string());
-                                                    Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                                                    JSONObject jObjError = new JSONObject(Objects.requireNonNull(response.errorBody()).string());
+                                                    SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), jObjError.getString(getString(R.string.error_server_message)), Snackbar.LENGTH_LONG, true);
                                                 } catch (Exception e) {
-                                                    Log.i("ERROR:", e.getMessage());
+                                                    Log.e(getString(R.string.log_error), e.getMessage());
                                                 }
                                             }
                                         }
 
                                         @Override
                                         public void onFailure(Call<Imagen> call, Throwable t) {
-                                            Log.i("ERROR:", t.getMessage());
+                                            Log.e(getString(R.string.log_error), t.getMessage());
                                         }
                                     });
                                 } catch (Exception e) {
-                                    System.out.println(e);
+                                    Log.e(getString(R.string.log_error), e.getMessage());
                                 }
                             } else {
                                 Intent principal = new Intent(getApplicationContext(), Principal.class);
@@ -397,21 +379,19 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
                                 principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                 startActivity(principal);
                             }
-
-
                         } else {
                             try {
-                                JSONObject jObjError = new JSONObject(response.errorBody().string());
-                                Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                                JSONObject jObjError = new JSONObject(Objects.requireNonNull(response.errorBody()).string());
+                                SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), jObjError.getString(getString(R.string.error_server_message)), Snackbar.LENGTH_LONG, true);
                             } catch (Exception e) {
-                                Log.i("ERROR:", e.getMessage());
+                                Log.e(getString(R.string.log_error), e.getMessage());
                             }
                         }
                     }
 
                     @Override
                     public void onFailure(Call<GenericId> call, Throwable t) {
-                        Log.i("ERROR:", t.getMessage());
+                        Log.e(getString(R.string.log_error), t.getMessage());
                     }
                 });
             }
@@ -429,7 +409,8 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
         String deporte = Objects.requireNonNull(tilDeporte.getEditText()).getText().toString();
         String participantes = Objects.requireNonNull(tilParticipantes.getEditText()).getText().toString();
         String duracion = Objects.requireNonNull(tilDuracion.getEditText()).getText().toString();
-        String fecha =  Objects.requireNonNull(tilFecha.getEditText()).getText().toString();
+        String fecha = Objects.requireNonNull(tilFecha.getEditText()).getText().toString();
+        String hora = Objects.requireNonNull(tilHora.getEditText()).getText().toString();
 
         // Validar título no vacio
         if (titulo.isEmpty()) {
@@ -467,28 +448,25 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
             tilFecha.setError(getString(R.string.crear_evento_fecha_obligatoria));
         } else tilFecha.setError(null);
 
-        /*
-
-
-        if (hora < 0 || minutos < 0) {
-            mostrarHora.setError("Debe seleccionar una hora");
-            mostrarHora.requestFocus();
+        // fecha
+        if (hora.isEmpty()) {
             esCorrecto = false;
-        }
+            tilHora.setError(getString(R.string.crear_evento_hora_obligatoria));
+        } else tilHora.setError(null);
 
         if ((esUbicacionGPS && (ubicacion == null || ubicacion.getText().toString().isEmpty())) || (!esUbicacionGPS && !esMunicipio && (ubicacion == null || ubicacion.getText().toString().isEmpty()))) {
-            ubicacion.setError("Debe seleccionar una ubicación para el evento");
-            ubicacion.requestFocus();
+            if (esCorrecto) {
+                SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), "Introduzca la ubicación del evento", Snackbar.LENGTH_LONG, true);
+            }
             esCorrecto = false;
-        }*/
-
+        }
 
         return esCorrecto;
 
     }
 
     private String getRealPathFromURIPath(Uri contentURI, Activity activity) {
-        Cursor cursor = activity.getContentResolver().query(contentURI, null, null, null, null);
+        @SuppressLint("Recycle") Cursor cursor = activity.getContentResolver().query(contentURI, null, null, null, null);
         if (cursor == null) {
             return contentURI.getPath();
         } else {
@@ -528,46 +506,50 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
         pictureDialog.show();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == this.RESULT_CANCELED) {
+        if (resultCode == RESULT_CANCELED) {
             return;
         }
+        // Foto de la galería del dispositivo
         if (requestCode == Global.REQUEST_CODE_GALLERY) {
             if (data != null) {
-
                 pathImagenPerfil = data.getData();
                 try {
+                    // Interfície para recortar la imagen
                     CropImage.activity(pathImagenPerfil)
                             .setAspectRatio(10, 10)
                             .start(this);
                 } catch (Exception e) {
-                    Picasso.with(getApplicationContext()).load(Global.BASE_URL + "imagen/evento/0").into(imagenEvento);
+                    Picasso.with(getApplicationContext()).load(Global.BASE_URL + Global.DEFAULT_IMAGE_EVENT).into(imagenEvento);
                     esNuevaImagen = false;
-                    e.printStackTrace();
-                    Toast.makeText(CrearEvento.this, "Error al guardar imagen!", Toast.LENGTH_SHORT).show();
-
+                    Log.e(getString(R.string.log_error), e.getMessage());
+                    SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), getString(R.string.imagen_cargada_error), Snackbar.LENGTH_LONG, true);
                 }
             }
 
-        } else if (requestCode == Global.REQUEST_CODE_CAMERA) {
+        }
+        // Foto de la cámara del dispositivo
+        else if (requestCode == Global.REQUEST_CODE_CAMERA) {
             try {
-
+                pathImagenPerfil = data.getData();
+                // Interfície para recortar la imagen
                 CropImage.activity(pathImagenPerfil)
                         .setAspectRatio(10, 10)
                         .start(this);
 
             } catch (Exception e) {
                 esNuevaImagen = false;
-                e.printStackTrace();
-                Picasso.with(getApplicationContext()).load(Global.BASE_URL + "imagen/evento/0").into(imagenEvento);
-                Toast.makeText(CrearEvento.this, "Error al guardar imagen!", Toast.LENGTH_SHORT).show();
-
-
+                Picasso.with(getApplicationContext()).load(Global.BASE_URL + Global.DEFAULT_IMAGE_EVENT).into(imagenEvento);
+                SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), getString(R.string.imagen_cargada_error), Snackbar.LENGTH_LONG, true);
+                Log.e(getString(R.string.log_error), e.getMessage());
             }
-        } else if (requestCode == Global.REQUEST_CODE_PLACE_PICKER) {
+        }
+        // Ubicación del mapa seleccionada
+        else if (requestCode == Global.REQUEST_CODE_PLACE_PICKER) {
             if (resultCode == RESULT_OK) {
                 Place place = PlacePicker.getPlace(data, this);
                 if (place != null) {
@@ -583,38 +565,39 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
                             municipioDireccion = datosUbicacion.getLocality();
                             ubicacion.setText(direccion);
                         } else {
-                            Snackbar.make(findViewById(android.R.id.content), "No se ha podido registrar la ubicación", Snackbar.LENGTH_SHORT).show();
+                            SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), getString(R.string.ubicacion_registrada_error), Snackbar.LENGTH_LONG, true);
                             esUbicacionGPS = false;
                         }
                     } catch (IOException e) {
-                        Snackbar.make(findViewById(android.R.id.content), "No se ha podido registrar la ubicación", Snackbar.LENGTH_SHORT).show();
+                        SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), getString(R.string.ubicacion_registrada_error), Snackbar.LENGTH_LONG, true);
+                        Log.e(getString(R.string.log_error), e.getMessage());
                         esUbicacionGPS = false;
-                        e.printStackTrace();
                     }
                 } else {
-                    Snackbar.make(findViewById(android.R.id.content), "No se ha registrado ninguna ubicación", Snackbar.LENGTH_SHORT).show();
+                    SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), getString(R.string.ubicacion_registrada_error), Snackbar.LENGTH_LONG, true);
                     esUbicacionGPS = false;
                 }
-
-
             }
-        } else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+        }
+        // Imagen de galería o cámara recortada
+        else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
                 pathImagenPerfil = result.getUri();
                 Picasso.with(getApplicationContext()).load(pathImagenPerfil).into(imagenEvento);
                 esNuevaImagen = true;
-                //SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), getString(R.string.imagen_cargada_correctamente), Snackbar.LENGTH_LONG, false);
+                SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), getString(R.string.imagen_cargada_correctamente), Snackbar.LENGTH_LONG, false);
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 esNuevaImagen = false;
-                Picasso.with(getApplicationContext()).load(Global.BASE_URL + "imagen/evento/0").into(imagenEvento);
-                //SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), getString(R.string.imagen_cargada_error), Snackbar.LENGTH_LONG, true);
+                Picasso.with(getApplicationContext()).load(Global.BASE_URL + Global.DEFAULT_IMAGE_EVENT).into(imagenEvento);
+                SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), getString(R.string.imagen_cargada_error), Snackbar.LENGTH_LONG, true);
             }
         }
     }
 
+    // Pedir permisos al usuario para utilizar la cámara del dispositivo o acceder a las imagenes de la galería
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == Global.REQUEST_CODE_CAMERA) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -655,24 +638,22 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
     }
 
     private void showPlacePicker() {
-
         PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
-
         try {
             startActivityForResult(builder.build(this), Global.REQUEST_CODE_PLACE_PICKER);
         } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
-            e.printStackTrace();
+            Log.e(getString(R.string.log_error), e.getMessage());
         }
     }
 
     private void seleccionarMunicipio() {
         SeleccionarMunicipioDialog seleccionarMunicipio = new SeleccionarMunicipioDialog(municipios, municipioActual);
-        seleccionarMunicipio.show(CrearEvento.this.getFragmentManager(), "seleccionarMunicio");
+        seleccionarMunicipio.show(CrearEvento.this.getFragmentManager(), Global.TAG_MUNICIPIOS_DIALOG);
     }
 
     private void seleccionarProvincia() {
         SeleccionarProvinciasDialog seleccionarProvincias = new SeleccionarProvinciasDialog(provincias, provinciaActual);
-        seleccionarProvincias.show(CrearEvento.this.getFragmentManager(), "seleccionarProvincias");
+        seleccionarProvincias.show(CrearEvento.this.getFragmentManager(), Global.TAG_PROVINCIAS_DIALOG);
     }
 
     @SuppressLint("SetTextI18n")
@@ -681,7 +662,7 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
         // Comparar provincia actual con la seleccionada
         if (provinciaActual != provinciaSeleccionada) {
             provinciaActual = provinciaSeleccionada;
-            provincia.setText(provincias.get(provinciaActual).getProvincia());
+            etProvincia.setText(provincias.get(provinciaActual).getProvincia());
             municipioActual = 0;
             obtenerMunicipios();
         }
@@ -693,36 +674,34 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
         // Comparar provincia actual con la seleccionada
         if (municipioActual != municipioSeleccionado) {
             municipioActual = municipioSeleccionado;
-            municipio.setText(municipios.get(municipioActual).getMunicipio());
+            etMunicipio.setText(municipios.get(municipioActual).getMunicipio());
             obtenerMunicipios();
         }
     }
 
     private void obtenerUbicacion() {
         Call<List<Pais>> peticionRestPaises = apiRest.paises();
-
         peticionRestPaises.enqueue(new Callback<List<Pais>>() {
             @SuppressLint("SetTextI18n")
             @Override
             public void onResponse(Call<List<Pais>> call, Response<List<Pais>> response) {
-                if (response.raw().code() != 500 && response.isSuccessful()) {
+                if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
                     paises = response.body();
                     paisActual = Global.DEFAULT_COUNTRY;
                     obtenerProvincias();
-
                 } else {
                     try {
-                        JSONObject jObjError = new JSONObject(response.errorBody().string());
-                        Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                        JSONObject jObjError = new JSONObject(Objects.requireNonNull(response.errorBody()).string());
+                        SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), jObjError.getString(getString(R.string.error_server_message)), Snackbar.LENGTH_LONG, true);
                     } catch (Exception e) {
-                        Log.i("ERROR:", e.getMessage());
+                        Log.e(getString(R.string.log_error), e.getMessage());
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<List<Pais>> call, Throwable t) {
-                Log.i("ERROR:", t.getMessage());
+                Log.e(getString(R.string.log_error), t.getMessage());
             }
         });
     }
@@ -735,23 +714,24 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
             @SuppressLint("SetTextI18n")
             @Override
             public void onResponse(Call<List<Provincia>> call, Response<List<Provincia>> response) {
-                if (response.raw().code() != 500 && response.isSuccessful()) {
+                if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
                     provincias = response.body();
-                    provincia.setText(provincias.get(provinciaActual).getProvincia());
+                    if (provincias != null && !provincias.isEmpty())
+                        etProvincia.setText(provincias.get(provinciaActual).getProvincia());
                     obtenerMunicipios();
                 } else {
                     try {
-                        JSONObject jObjError = new JSONObject(response.errorBody().string());
-                        Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                        JSONObject jObjError = new JSONObject(Objects.requireNonNull(response.errorBody()).string());
+                        SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), jObjError.getString(getString(R.string.error_server_message)), Snackbar.LENGTH_LONG, true);
                     } catch (Exception e) {
-                        Log.i("ERROR:", e.getMessage());
+                        Log.e(getString(R.string.log_error), e.getMessage());
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<List<Provincia>> call, Throwable t) {
-                Log.i("ERROR:", t.getMessage());
+                Log.e(getString(R.string.log_error), t.getMessage());
             }
         });
     }
@@ -764,22 +744,23 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
             @SuppressLint("SetTextI18n")
             @Override
             public void onResponse(Call<List<Municipio>> call, Response<List<Municipio>> response) {
-                if (response.raw().code() != 500 && response.isSuccessful()) {
+                if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
                     municipios = response.body();
-                    municipio.setText(municipios.get(municipioActual).getMunicipio());
+                    if (municipios != null && !municipios.isEmpty())
+                        etMunicipio.setText(municipios.get(municipioActual).getMunicipio());
                 } else {
                     try {
-                        JSONObject jObjError = new JSONObject(response.errorBody().string());
-                        Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                        JSONObject jObjError = new JSONObject(Objects.requireNonNull(response.errorBody()).string());
+                        SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), jObjError.getString(getString(R.string.error_server_message)), Snackbar.LENGTH_LONG, true);
                     } catch (Exception e) {
-                        Log.i("ERROR:", e.getMessage());
+                        Log.e(getString(R.string.log_error), e.getMessage());
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<List<Municipio>> call, Throwable t) {
-                Log.i("ERROR:", t.getMessage());
+                Log.e(getString(R.string.log_error), t.getMessage());
             }
         });
     }
@@ -819,22 +800,19 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
     }
 
     private void showTimePickerDialog() {
-
         // Get Current Time
         final Calendar c = Calendar.getInstance();
         int horaActual = c.get(Calendar.HOUR_OF_DAY);
         int minutoActual = c.get(Calendar.MINUTE);
-
         // Launch Time Picker Dialog
         TimePickerDialog timePickerDialog = new TimePickerDialog(this,
                 new TimePickerDialog.OnTimeSetListener() {
-
                     @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay,
-                                          int minute) {
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                         hora = hourOfDay;
                         minutos = minute;
-                        mostrarHora.setText(dosDigitos(hora) + ":" + dosDigitos(minutos) + " h");
+                        String h = dosDigitos(hora) + ":" + dosDigitos(minutos) + " h";
+                        etHora.setText(h);
                     }
                 }, horaActual, minutoActual, true);
         timePickerDialog.show();
@@ -852,7 +830,7 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
                 etFecha.setText(selectedDate);
             }
         });
-        newFragment.show(getFragmentManager(), "datePicker");
+        newFragment.show(getFragmentManager(), Global.TAG_DATE_PICKER);
     }
 
     private String dosDigitos(int n) {
@@ -861,7 +839,7 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
 
     private void seleccionarDeporte() {
         SeleccionarDeporteEventoDialog seleccionarDeporte = new SeleccionarDeporteEventoDialog(deportes, deporteSeleccionado);
-        seleccionarDeporte.show(CrearEvento.this.getFragmentManager(), "seleccionarDeporte");
+        seleccionarDeporte.show(CrearEvento.this.getFragmentManager(), Global.TAG_DEPORTES_DIALOG);
     }
 
 
@@ -870,8 +848,7 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
         this.deporteSeleccionado = deporteSeleccionado;
         if (this.deporteSeleccionado >= 0) {
             etDeporte.setText(deportes.get(this.deporteSeleccionado).getDeporte());
-        }
-        else etDeporte.getText().clear();
+        } else etDeporte.getText().clear();
     }
 
 
@@ -881,21 +858,21 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
         peticionRestDeportes.enqueue(new Callback<List<Deporte>>() {
             @Override
             public void onResponse(Call<List<Deporte>> call, Response<List<Deporte>> response) {
-                if (response.raw().code() != 500 && response.isSuccessful()) {
+                if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
                     deportes = response.body();
                 } else {
                     try {
-                        JSONObject jObjError = new JSONObject(response.errorBody().string());
-                        Toast.makeText(getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                        JSONObject jObjError = new JSONObject(Objects.requireNonNull(response.errorBody()).string());
+                        SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), jObjError.getString(getString(R.string.error_server_message)), Snackbar.LENGTH_LONG, true);
                     } catch (Exception e) {
-                        Log.i("ERROR:", e.getMessage());
+                        Log.e(getString(R.string.log_error), e.getMessage());
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<List<Deporte>> call, Throwable t) {
-                Log.i("ERROR:", t.getMessage());
+                Log.e(getString(R.string.log_error), t.getMessage());
             }
         });
     }

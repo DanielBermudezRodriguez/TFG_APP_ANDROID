@@ -71,7 +71,6 @@ public class EventoDetalle extends AppCompatActivity {
         eventoActual = (Evento) getIntent().getExtras().getSerializable(Global.KEY_SELECTED_EVENT);
         esAdministradorEvento = getIntent().getExtras().getBoolean(Global.KEY_SELECTED_EVENT_IS_ADMIN);
         posicionEventoAdapter = getIntent().getExtras().getInt(Global.KEY_SELECTED_EVENT_POSITION);
-        Log.d("INFO", "MEK:  " + posicionEventoAdapter);
 
 
         desapuntarParticipanteEvento = findViewById(R.id.eliminar_participante_evento);

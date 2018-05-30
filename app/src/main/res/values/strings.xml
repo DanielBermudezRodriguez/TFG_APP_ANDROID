@@ -18,6 +18,7 @@
     // SnackBar messages
     <string name="imagen_cargada_correctamente">Imagen guardada</string>
     <string name="imagen_cargada_error">Error al cargar la imagen</string>
+    <string name="ubicacion_registrada_error">Error al registrar la ubicación</string>
 
     // Login
     <string name="login_correo">Correo</string>
@@ -62,13 +63,23 @@
     <string name="crear_evento_participantes_obligatorio">Participantes obligatorio</string>
     <string name="crear_evento_duracion_obligatoria">Duración obligatoria</string>
     <string name="crear_evento_fecha_obligatoria">Introduzca la fecha del evento</string>
+    <string name="crear_evento_hora_obligatoria">Introduzca la hora del evento</string>
     <string name="crear_evento_titulo">Título</string>
     <string name="crear_evento_descripcion">Descripción</string>
     <string name="crear_evento_deporte">Deporte</string>
     <string name="crear_evento_Dia">Dia</string>
+    <string name="crear_evento_Hora">Hora</string>
     <string name="crear_evento_participantes">Participantes</string>
     <string name="crear_evento_duracion">Duración</string>
     <string name="crear_evento_tooltip_participantes">Indique 0 para una cantidad ilimitada de participantes</string>
+    <string name="crear_evento_tooltip_privacidad_foro">Seleccione <b>público</b> para que cualquier usuario registrado en la aplicación pueda participar y visualizar el contenido del foro. Seleccione <b>privado</b> para que solo los usuarios que participen en el evento puedan participar y visualizar el contenido del foro</string>
+    <string name="crear_evento_foro_publico">Público</string>
+    <string name="crear_evento_foro_Privado">Privado</string>
+    <string name="crear_evento_privacidad_foro">Privacidad foro</string>
+    <string name="crear_evento_ubicacion">Ubicación</string>
+    <string name="crear_evento_municipio">Municipio</string>
+
+
 
 
 

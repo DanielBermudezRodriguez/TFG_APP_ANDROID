@@ -24,6 +24,10 @@ public class PerfilUsuario extends AppCompatActivity {
         // Ponemos el toolbar
         Toolbar toolbar = findViewById(R.id.appbar);
         setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
         // Inicializamos el servicio de APIRest de retrofit
         apiRest = InitRetrofit.getInstance().getApiRest();
 
@@ -32,9 +36,7 @@ public class PerfilUsuario extends AppCompatActivity {
         email.setText("hola");
         nick.setText("adios");
 
-        // Mostrar botón "atras" en toolbar
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
 
     }
 
@@ -47,7 +49,6 @@ public class PerfilUsuario extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.editar_usuario, menu);
         return true;
     }

@@ -206,6 +206,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
             if (data != null) {
                 pathImagenPerfil = data.getData();
                 try {
+                    // Interfície para recortar la imagen
                     CropImage.activity(pathImagenPerfil)
                             .setAspectRatio(10, 10)
                             .start(this);
@@ -218,6 +219,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
         } else if (requestCode == Global.REQUEST_CODE_CAMERA) {
             try {
                 pathImagenPerfil = data.getData();
+                // Interfície para recortar la imagen
                 CropImage.activity(pathImagenPerfil)
                         .setAspectRatio(10, 10)
                         .start(this);
@@ -474,7 +476,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
                                 try {
                                     // Obtenemos la imagen del dispositivo
                                     File imageFile = ImageUtil.decodeImage(getRealPathFromURIPath(pathImagenPerfil, Registro.this), getApplicationContext());
-                                    RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), imageFile);
+                                    RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), Objects.requireNonNull(imageFile));
                                     MultipartBody.Part body = MultipartBody.Part.createFormData("file", imageFile.getName(), reqFile);
                                     Call<Imagen> peticionRest = apiRest.subirImagenUsuario(body);
                                     peticionRest.enqueue(new Callback<Imagen>() {

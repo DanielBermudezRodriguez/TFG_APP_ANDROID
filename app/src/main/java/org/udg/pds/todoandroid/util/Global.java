@@ -9,9 +9,12 @@ public class Global {
     public static final String DEFAULT_IMAGE_EVENT = "imagen/evento/0";
     public static final String IMAGE_EVENT = "imagen/evento/";
 
+    public static final String DEFAULT_FORO_NAME = "default";
+
     public static final String TAG_PROVINCIAS_DIALOG = "seleccionarProvincias";
     public static final String TAG_MUNICIPIOS_DIALOG = "seleccionarMunicio";
     public static final String TAG_DEPORTES_DIALOG = "seleccionarDeportes";
+    public static final String TAG_DATE_PICKER = "datePicker";
 
     public static final int REQUEST_CODE_GPS_LOCATION = 1000; // Código para peticiones GPS
     public static final int REQUEST_CODE_BUSCADOR = 2000; // Código para peticion buscador
