@@ -51,4 +51,7 @@ public class Global {
 
     public static final int CODE_ERROR_RESPONSE_SERVER = 500;
 
+    // Límite petición servidor eventos
+    public static final int LIMITE_EVENTOS_REQUEST = 5;
+
 }

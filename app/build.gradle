@@ -75,6 +75,7 @@ dependencies {
     implementation 'com.github.dimorinny:floating-text-button:0.0.4'
     implementation 'com.github.vihtarb:tooltip:0.1.9'
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.7.0'
+    implementation 'com.github.ybq:Android-SpinKit:1.1.0'
 }
 
 apply plugin: 'com.google.gms.google-services'

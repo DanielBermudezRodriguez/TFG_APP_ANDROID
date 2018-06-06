@@ -6,14 +6,12 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
-import android.os.Parcelable;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -30,7 +28,6 @@ import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.entity.Deporte;
 
-import org.udg.pds.todoandroid.entity.Evento;
 import org.udg.pds.todoandroid.entity.Municipio;
 import org.udg.pds.todoandroid.entity.Pais;
 import org.udg.pds.todoandroid.entity.Provincia;
@@ -50,7 +47,6 @@ import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -62,23 +58,18 @@ import retrofit2.Response;
 public class Buscador extends AppCompatActivity implements View.OnClickListener, SeleccionarDeporteDialog.SeleccionarDeporteDialogListener, SeleccionarProvinciasDialog.SeleccionarProvinciasDialogListener, SeleccionarMunicipioDialog.SeleccionarMunicipioDialogListener {
 
     private ApiRest apiRest;
-
     private SearchView tituloBuscador;
-
-    private List<Deporte> deportes = new ArrayList<Deporte>();
-    private List<Long> deportesSeleccionados = new ArrayList<Long>();
-
+    private List<Deporte> deportes = new ArrayList<>();
+    private List<Long> deportesSeleccionados = new ArrayList<>();
     private TextView deporte;
-
     private EditText fechaEvento;
-
-    private List<Pais> paises = new ArrayList<Pais>();
+    private List<Pais> paises = new ArrayList<>();
     private int paisActual = -1;
     private TextView provincia;
-    private List<Provincia> provincias = new ArrayList<Provincia>();
+    private List<Provincia> provincias = new ArrayList<>();
     private int provinciaActual = -1;
     private TextView municipio;
-    private List<Municipio> municipios = new ArrayList<Municipio>();
+    private List<Municipio> municipios = new ArrayList<>();
     private int municipioActual = -1;
     private TextView mostrarDistancia;
     private SeekBar seekBarDistancia;
@@ -93,10 +84,19 @@ public class Buscador extends AppCompatActivity implements View.OnClickListener,
         super.onCreate(savedInstanceState);
 
 
-        setContentView(R.layout.buscador);
+        setContentView(R.layout.buscador_layout);
 
         // Inicializamos el servicio de APIRest de retrofit
         apiRest = InitRetrofit.getInstance().getApiRest();
+
+        // Ponemos el toolbar
+        Toolbar toolbar = findViewById(R.id.appbar);
+        setSupportActionBar(toolbar);
+        // Mostrar botón "atras" en action bar
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
 
         tituloBuscador = findViewById(R.id.buscador_titulo);
         tituloBuscador.setOnClickListener(this);
@@ -171,7 +171,7 @@ public class Buscador extends AppCompatActivity implements View.OnClickListener,
 
         switch (v.getId()) {
             case R.id.boton_buscador_aplicar_filtros:
-                String url = Global.BASE_URL + "evento?";
+                String url = Global.BASE_URL + "evento?limite="+String.valueOf(Global.LIMITE_EVENTOS_REQUEST)+"&";
                 if (tituloBuscador != null && tituloBuscador.getQuery() != null && !tituloBuscador.getQuery().toString().isEmpty()) {
                     try {
                         url += "titulo=" + URLEncoder.encode(tituloBuscador.getQuery().toString(), "UTF-8") + "&";
@@ -202,7 +202,11 @@ public class Buscador extends AppCompatActivity implements View.OnClickListener,
                     url += "municipio=" + municipios.get(municipioActual).getId().toString() + "&";
                 }
                 url = url.substring(0, url.length() - 1);
-                aplicarFiltrosBusquedaEventos(url);
+
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra(Global.PARAMETER_RESULTADOS_BUSCADOR, url);
+                setResult(Activity.RESULT_OK, returnIntent);
+                finish();
                 System.out.println(url);
 
                 break;
@@ -282,38 +286,6 @@ public class Buscador extends AppCompatActivity implements View.OnClickListener,
 
     }
 
-    private void aplicarFiltrosBusquedaEventos(String url) {
-
-        Call<List<Evento>> peticionEventos = apiRest.buscadorEventos(url);
-        peticionEventos.enqueue(new Callback<List<Evento>>() {
-            @Override
-            public void onResponse(Call<List<Evento>> call, Response<List<Evento>> response) {
-                if (response.raw().code() != 500 && response.isSuccessful()) {
-                    List<Evento> eventos = response.body();
-                    Intent returnIntent = new Intent();
-                    returnIntent.putExtra(Global.PARAMETER_RESULTADOS_BUSCADOR, (Serializable) eventos);
-                    setResult(Activity.RESULT_OK, returnIntent);
-                    finish();
-
-                } else {
-                    Toast.makeText(getApplicationContext(), "Error al buscar eventos", Toast.LENGTH_SHORT).show();
-                    Intent returnIntent = new Intent();
-                    setResult(Activity.RESULT_CANCELED, returnIntent);
-                    finish();
-                }
-
-            }
-
-            @Override
-            public void onFailure(Call<List<Evento>> call, Throwable t) {
-                Log.e("ERROR", t.getMessage(), t);
-                Toast.makeText(getApplicationContext(), "Error al buscar eventos", Toast.LENGTH_SHORT).show();
-                Intent returnIntent = new Intent();
-                setResult(Activity.RESULT_CANCELED, returnIntent);
-                finish();
-            }
-        });
-    }
 
     private void seleccionarMunicipio() {
         SeleccionarMunicipioDialog seleccionarMunicipio = new SeleccionarMunicipioDialog(municipios, municipioActual);
@@ -532,6 +504,13 @@ public class Buscador extends AppCompatActivity implements View.OnClickListener,
             deporte.setText(deportesFavoritos);
             this.deportesSeleccionados = new ArrayList<Long>();
         }
+    }
+
+    // Función que define comportamiento del botón "Atras"
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return false;
     }
 
 

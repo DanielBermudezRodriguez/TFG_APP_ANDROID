@@ -19,6 +19,8 @@
     <string name="imagen_cargada_correctamente">Imagen guardada</string>
     <string name="imagen_cargada_error">Error al cargar la imagen</string>
     <string name="ubicacion_registrada_error">Error al registrar la ubicación</string>
+    <string name="registrar_participante_evento">Registrado correctamente</string>
+    <string name="desapuntar_participante_evento">Desapuntado correctamente</string>
 
     // Login
     <string name="login_correo">Correo</string>

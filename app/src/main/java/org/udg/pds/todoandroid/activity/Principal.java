@@ -13,14 +13,15 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.TextView;
-
 
 import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
@@ -50,10 +51,31 @@ import retrofit2.Response;
 public class Principal extends AppCompatActivity implements MenuLateralFragment.NavigationDrawerCallbacks {
 
     private ApiRest apiRest;
+    // Lista de eventos
     private RecyclerView recycler;
+    // Linear layout manager del recyclerview
+    private LinearLayoutManager lManager;
+    // Adaptador de eventos
     private EventoAdapter adapter;
-    private TextView noResultadosPorDefecto;
+    // Lista de eventos actuales
     private List<Evento> eventos = new ArrayList<>();
+    // Variable que controla si se hace scroll en la lista de eventos
+    private Boolean isScrolling = false;
+    // Variables de control de la lista de eventos i el scroll en la lista
+    private int currentItems, totalItems, scrollOutItems;
+    // variable de control desde la posición a obtener los siguientes eventos del servidor al hacer scroll
+    private int offset = 0;
+    // URL de búsqueda de eventos actual
+    private String url = "";
+    // Texto al no obtener resultados de la búsqueda por defecto o personalizada a través del buscador
+    private TextView noResultadosPorDefecto;
+    // Indica si se está realizando una petición al servidor
+    private Boolean requestServer = false;
+    // Variable de control busqueda por defecto o a través del buscador
+    private Boolean esBusquedaPorDefecto = true;
+    // Refrescar recyclerview scroll hacia arriba
+    private SwipeRefreshLayout swipeRefreshLayout;
+
 
 
     @Override
@@ -91,12 +113,56 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
 
         // Obtener el Recycler
         recycler = findViewById(R.id.reciclador);
-        recycler.setHasFixedSize(true);
-        recycler.setItemViewCacheSize(20);
-        recycler.setDrawingCacheEnabled(true);
-        recycler.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
-        LinearLayoutManager lManager = new LinearLayoutManager(this);
+        lManager = new LinearLayoutManager(this);
         recycler.setLayoutManager(lManager);
+        // creamos adaptador con el evento click
+        adapter = new EventoAdapter(getApplicationContext(), eventos, new EventoAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Evento e, int position) {
+                Intent i = new Intent(getApplicationContext(), EventoDetalle.class);
+                i.putExtra(Global.KEY_SELECTED_EVENT, e);
+                i.putExtra(Global.KEY_SELECTED_EVENT_IS_ADMIN, e.getAdministrador().getId().equals(UsuarioActual.getInstance().getId()));
+                i.putExtra(Global.KEY_SELECTED_EVENT_POSITION, position);
+                startActivityForResult(i, Global.REQUEST_CODE_EVENTO_DETALLE);
+            }
+        });
+        recycler.setAdapter(adapter);
+        // Scroll de la lista de eventos segun el valor de la variable offset
+        recycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL){
+                    isScrolling = true;
+                }
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                currentItems = lManager.getChildCount();
+                totalItems = lManager.getItemCount();
+                scrollOutItems = lManager.findFirstVisibleItemPosition();
+
+                if (isScrolling && dy > 0 && !requestServer &&(currentItems + scrollOutItems == totalItems) ){
+                    isScrolling = false;
+                    requestServer = true;
+                    // Obtener siguiente eventos
+                    obtenerEventos();
+                }
+            }
+        });
+
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeLayout);
+        swipeRefreshLayout.setOnRefreshListener(
+                new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        eventos.removeAll(eventos);
+                        offset = 0;
+                        obtenerEventos();
+                    }
+                });
 
         // Busqueda inicial de eventos segun preferencias del usuario por defecto
         busquedaInicialEventos();
@@ -119,17 +185,12 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
         if (requestCode == Global.REQUEST_CODE_BUSCADOR) {
             if (resultCode == RESULT_OK) {
                 if (data.getExtras() != null) {
-                    eventos = (List<Evento>) data.getExtras().getSerializable(Global.PARAMETER_RESULTADOS_BUSCADOR);
+                    eventos.clear();
+                    url = data.getStringExtra(Global.PARAMETER_RESULTADOS_BUSCADOR);
+                    offset = 0;
+                    esBusquedaPorDefecto = false;
+                    obtenerEventos();
                 }
-                if (eventos == null || eventos.isEmpty()) {
-                    inicializarAdaptador(eventos);
-                    noResultadosPorDefecto.setText(getString(R.string.no_resultados_busqueda));
-                    noResultadosPorDefecto.setVisibility(View.VISIBLE);
-                } else {
-                    noResultadosPorDefecto.setVisibility(View.GONE);
-                    inicializarAdaptador(eventos);
-                }
-
             }
         }
         // Evento al visualizar su detalle
@@ -144,20 +205,6 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
         }
     }
 
-    // Inicializamos la lista de eventos asignandoles el evento onClick para acceder a su detalle
-    private void inicializarAdaptador(List<Evento> eventos) {
-        adapter = new EventoAdapter(getApplicationContext(), eventos, new EventoAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(Evento e, int position) {
-                Intent i = new Intent(getApplicationContext(), EventoDetalle.class);
-                i.putExtra(Global.KEY_SELECTED_EVENT, e);
-                i.putExtra(Global.KEY_SELECTED_EVENT_IS_ADMIN, e.getAdministrador().getId().equals(UsuarioActual.getInstance().getId()));
-                i.putExtra(Global.KEY_SELECTED_EVENT_POSITION, position);
-                startActivityForResult(i, Global.REQUEST_CODE_EVENTO_DETALLE);
-            }
-        });
-        recycler.setAdapter(adapter);
-    }
 
     // LOCALIZACIÓN GPS -------------------------------------------------------------------------------------------------------------
 
@@ -260,40 +307,12 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
             public void onResponse(Call<Usuario> call, Response<Usuario> response) {
                 if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
                     Usuario usuario = response.body();
-                    StringBuilder url = new StringBuilder(Global.BASE_URL + "evento?distancia=100");
+                    StringBuilder auxURL = new StringBuilder(Global.BASE_URL + "evento?limite="+String.valueOf(Global.LIMITE_EVENTOS_REQUEST));
                     for (Deporte d : Objects.requireNonNull(usuario).getDeportesFavoritos()) {
-                        url.append("&deportes=").append(d.getId());
+                        auxURL.append("&deportes=").append(d.getId());
                     }
-                    Call<List<Evento>> peticionEventos = apiRest.buscadorEventos(url.toString());
-                    peticionEventos.enqueue(new Callback<List<Evento>>() {
-                        @Override
-                        public void onResponse(Call<List<Evento>> call, Response<List<Evento>> response) {
-                            if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
-                                eventos = response.body();
-                                if (eventos == null || eventos.isEmpty()) {
-                                    inicializarAdaptador(eventos);
-                                    noResultadosPorDefecto.setText(R.string.no_resultados_busqueda_inicial);
-                                    noResultadosPorDefecto.setVisibility(View.VISIBLE);
-                                } else {
-                                    noResultadosPorDefecto.setVisibility(View.GONE);
-                                    // Cargamos los eventos resultantes en el adaptador del recyclerview
-                                    inicializarAdaptador(eventos);
-                                }
-                            } else
-                                // Obtenemos mensaje de error del servidor
-                                try {
-                                    JSONObject jObjError = new JSONObject(Objects.requireNonNull(response.errorBody()).string());
-                                    Log.e(getString(R.string.log_error), jObjError.getString(getString(R.string.error_server_message)));
-                                } catch (Exception e) {
-                                    Log.e(getString(R.string.log_error), e.getMessage());
-                                }
-                        }
-
-                        @Override
-                        public void onFailure(Call<List<Evento>> call, Throwable t) {
-                            Log.e(getString(R.string.log_error), t.getMessage());
-                        }
-                    });
+                    url = auxURL.toString();
+                    obtenerEventos();
                 }
             }
 
@@ -304,6 +323,60 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
         });
     }
 
+    private void obtenerEventos(){
+        if (offset == -1)return;
+        String urlOffset = url + "&offset="+String.valueOf(offset);
+        Call<List<Evento>> peticionEventos = apiRest.buscadorEventos(urlOffset);
+        peticionEventos.enqueue(new Callback<List<Evento>>() {
+            @Override
+            public void onResponse(Call<List<Evento>> call, Response<List<Evento>> response) {
+                if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
+                    List<Evento> eventosRespuesta = response.body();
+                    // Búsqueda inicial de eventos vacia
+                    if ((eventosRespuesta == null || eventosRespuesta.isEmpty()) && (offset == 0)) {
+                        if (esBusquedaPorDefecto){
+                            noResultadosPorDefecto.setText(R.string.no_resultados_busqueda_inicial);
+                        }
+                        else noResultadosPorDefecto.setText(getString(R.string.no_resultados_busqueda));
+                        noResultadosPorDefecto.setVisibility(View.VISIBLE);
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                    // No hay mas eventos a devolver del servidor
+                    else if ((eventosRespuesta == null || eventosRespuesta.isEmpty()) && (offset > 0)){
+                        offset = -1;
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                    // Hay resultados de eventos en la búsqueda por defecto
+                    else if (eventosRespuesta != null) {
+                        // offset + limite
+                        offset += Global.LIMITE_EVENTOS_REQUEST;
+                        noResultadosPorDefecto.setVisibility(View.GONE);
+                        // Cargamos los eventos resultantes en el adaptador del recyclerview
+                        eventos.addAll(eventosRespuesta);
+                        adapter.notifyDataSetChanged();
+                        swipeRefreshLayout.setRefreshing(false);
+                        //inicializarAdaptador(eventos);
+                    }
+                    requestServer = false;
+                } else{
+                    swipeRefreshLayout.setRefreshing(false);
+                    // Obtenemos mensaje de error del servidor
+                    requestServer = false;
+                    try {
+                        JSONObject jObjError = new JSONObject(Objects.requireNonNull(response.errorBody()).string());
+                        Log.e(getString(R.string.log_error), jObjError.getString(getString(R.string.error_server_message)));
+                    } catch (Exception e) {
+                        Log.e(getString(R.string.log_error), e.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Evento>> call, Throwable t) {
+                Log.e(getString(R.string.log_error), t.getMessage());
+            }
+        });
+    }
 
     // MENÚ LATERAL ----------------------------------------------------------------------------------------------------------------------------
 

@@ -5,6 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <include
+        android:id="@+id/appbar"
+        layout="@layout/toolbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <SearchView
         android:id="@+id/buscador_titulo"
         android:layout_width="0dp"
@@ -18,7 +25,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/appbar">
 
     </SearchView>
 
@@ -122,38 +129,6 @@
             android:maxLines="1" />
     </android.support.design.widget.TextInputLayout>
 
-    <Button
-        android:id="@+id/buscador_boton_cerca_de_mi"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/border_button"
-        android:drawableTop="@mipmap/ic_cerca_de_mi_no_select"
-        android:padding="2dp"
-        android:text="@string/buscador_cerca_de_mi"
-        android:textSize="10sp"
-        app:layout_constraintEnd_toStartOf="@+id/buscador_boton_ubicacion"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tilPlannedDate"
-        tools:ignore="SmallSp" />
-
-    <Button
-        android:id="@+id/buscador_boton_ubicacion"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/border_button"
-        android:drawableTop="@mipmap/ic_ubicacion_no_select"
-        android:padding="2dp"
-        android:text="@string/buscador_unicacion"
-        android:textSize="10sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/buscador_boton_cerca_de_mi"
-        app:layout_constraintTop_toBottomOf="@+id/tilPlannedDate"
-        tools:ignore="SmallSp" />
-
     <android.support.constraint.ConstraintLayout
         android:id="@+id/constraintLayout2"
         android:layout_width="match_parent"
@@ -229,6 +204,38 @@
 
 
     </android.support.constraint.ConstraintLayout>
+
+    <Button
+        android:id="@+id/buscador_boton_ubicacion"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/border_button"
+        android:drawableTop="@mipmap/ic_ubicacion_no_select"
+        android:padding="2dp"
+        android:text="@string/buscador_unicacion"
+        android:textSize="10sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/buscador_boton_cerca_de_mi"
+        app:layout_constraintTop_toBottomOf="@+id/tilPlannedDate"
+        tools:ignore="SmallSp" />
+
+    <Button
+        android:id="@+id/buscador_boton_cerca_de_mi"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/border_button"
+        android:drawableTop="@mipmap/ic_cerca_de_mi_no_select"
+        android:padding="2dp"
+        android:text="@string/buscador_cerca_de_mi"
+        android:textSize="10sp"
+        app:layout_constraintEnd_toStartOf="@+id/buscador_boton_ubicacion"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tilPlannedDate"
+        tools:ignore="SmallSp" />
 
 
 </android.support.constraint.ConstraintLayout>

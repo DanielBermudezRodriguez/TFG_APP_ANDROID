@@ -5,8 +5,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +31,6 @@ import org.udg.pds.todoandroid.util.Global;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Random;
 
 
 @SuppressLint("ValidFragment")
@@ -41,6 +40,7 @@ public class TabEventoForo extends Fragment {
     private String username;
     private String nombreSala;
     private DatabaseReference salaForo;
+    private TextInputLayout tilMensaje;
     private EditText editText;
     private MensajeForoAdapter mensajeAdapter;
     private ListView listaMensajes;
@@ -51,11 +51,10 @@ public class TabEventoForo extends Fragment {
 
     public void update(Boolean esParticipante) {
 
-        if (!evento.getForo().getEsPublico() && !esParticipante){
+        if (!evento.getForo().getEsPublico() && !esParticipante) {
             layoutForo.setVisibility(View.GONE);
             foroPrivado.setVisibility(View.VISIBLE);
-        }
-        else {
+        } else {
             layoutForo.setVisibility(View.VISIBLE);
             foroPrivado.setVisibility(View.GONE);
         }
@@ -76,11 +75,10 @@ public class TabEventoForo extends Fragment {
         layoutForo = rootView.findViewById(R.id.layout_foro);
         foroPrivado = rootView.findViewById(R.id.tab_foro_evento_privado);
 
-        if (!evento.getForo().getEsPublico() && !((EventoDetalle) getActivity()).esParticipante()){
+        if (!evento.getForo().getEsPublico() && !((EventoDetalle) getActivity()).esParticipante()) {
             layoutForo.setVisibility(View.GONE);
             foroPrivado.setVisibility(View.VISIBLE);
-        }
-        else {
+        } else {
             layoutForo.setVisibility(View.VISIBLE);
             foroPrivado.setVisibility(View.GONE);
         }
@@ -96,28 +94,32 @@ public class TabEventoForo extends Fragment {
         // Nombre de la sala
         nombreSala = Global.PREFIJO_SALA_FORO_EVENTO + evento.getId().toString();
 
-
+        tilMensaje = rootView.findViewById(R.id.tab_foro_evento_til_mensaje);
         editText = (EditText) rootView.findViewById(R.id.editText);
         botonEnviar = rootView.findViewById(R.id.boton_enviar_mensaje_foro);
         botonEnviar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendMessage(v);
+                String message = editText.getText().toString();
+                tilMensaje.getEditText().setText("");
+                sendMessage(v, message);
             }
         });
 
         // Accedemos a la sala
         salaForo = FirebaseDatabase.getInstance().getReference().child(nombreSala);
 
-        if (childEventListener != null){ salaForo.removeEventListener(childEventListener);}
-         childEventListener = salaForo.addChildEventListener(new ChildEventListener() {
+        if (childEventListener != null) {
+            salaForo.removeEventListener(childEventListener);
+        }
+        childEventListener = salaForo.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
                 Iterator i = dataSnapshot.getChildren().iterator();
 
                 while (i.hasNext()) {
-                    Long idUsuario = Long.parseLong( ((DataSnapshot) i.next()).getValue().toString() );
+                    Long idUsuario = Long.parseLong(((DataSnapshot) i.next()).getValue().toString());
                     String mensajeUsuario = ((DataSnapshot) i.next()).getValue().toString();
                     String nombreUsuario = ((DataSnapshot) i.next()).getValue().toString();
 
@@ -142,7 +144,7 @@ public class TabEventoForo extends Fragment {
                 Iterator i = dataSnapshot.getChildren().iterator();
 
                 while (i.hasNext()) {
-                    Long idUsuario = Long.parseLong( ((DataSnapshot) i.next()).getValue().toString() );
+                    Long idUsuario = Long.parseLong(((DataSnapshot) i.next()).getValue().toString());
                     String mensajeUsuario = ((DataSnapshot) i.next()).getValue().toString();
                     String nombreUsuario = ((DataSnapshot) i.next()).getValue().toString();
 
@@ -186,8 +188,7 @@ public class TabEventoForo extends Fragment {
         salaForo.removeEventListener(childEventListener);
     }
 
-    public void sendMessage(View view) {
-        String message = editText.getText().toString();
+    public void sendMessage(View view, String message) {
         if (message.length() > 0) {
             // Al hacer click botón enviar mensaje
             Map<String, Object> mapa = new HashMap<String, Object>();
@@ -197,14 +198,14 @@ public class TabEventoForo extends Fragment {
             DatabaseReference mensajeSala = salaForo.child(tempKey);
             Map<String, Object> mapa2 = new HashMap<String, Object>();
             mapa2.put("name", username);
-            mapa2.put("msg", editText.getText().toString());
+            mapa2.put("msg", message);
             mapa2.put("id", UsuarioActual.getInstance().getId().toString());
             mensajeSala.updateChildren(mapa2);
 
-            editText.getText().clear();
+            tilMensaje.getEditText().setText("");
         }
+        tilMensaje.getEditText().setText("");
     }
-
 
 
 }

@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.squareup.picasso.Picasso;
 
 import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.activity.Registro;
@@ -118,14 +119,20 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
         RequestOptions options = new RequestOptions();
         options.centerCrop();
 
-        if (holder.imagenAdmin.getDrawable() == null) {
+        if (eventos.get(position).getId() != null) {
             //Picasso.with(context).load(Global.BASE_URL + "imagen/usuario/" + eventos.get(position).getAdministrador().getId().toString()).fit().into(holder.imagenAdmin);
             Glide.with(context).load(Global.BASE_URL + "imagen/usuario/" + eventoActual.getAdministrador().getId().toString()).apply(options).into(holder.imagenAdmin);
 
         }
-        if (holder.imagenEvento.getDrawable() == null) {
-            //Picasso.with(context).load(Global.BASE_URL + "imagen/usuario/" + eventos.get(position).getAdministrador().getId().toString()).fit().into(holder.imagenEvento);
+        else {
+            holder.imagenAdmin.setImageDrawable(null);
+        }
+        if (eventos.get(position).getId() != null) {
+            //Picasso.with(context).load(Global.BASE_URL + "imagen/evento/" + eventoActual.getId().toString()).fit().into(holder.imagenEvento);
             Glide.with(context).load(Global.BASE_URL + "imagen/evento/" + eventoActual.getId().toString()).apply(options).into(holder.imagenEvento);
+        }
+        else {
+            holder.imagenEvento.setImageDrawable(null);
         }
 
         holder.usernameAdmin.setText(eventoActual.getAdministrador().getUsername());
@@ -187,6 +194,15 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
         super.onAttachedToRecyclerView(recyclerView);
     }
 
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
 
 
 

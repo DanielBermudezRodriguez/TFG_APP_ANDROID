@@ -17,4 +17,12 @@
         <item name="cornerRadius">10dp</item>
     </style>
 
+    <style name="MyTabLayout" parent="Base.Widget.Design.TabLayout">
+        <item name="tabTextAppearance">@style/MyTabTextAppearance</item>
+    </style>
+
+    <style name="MyTabTextAppearance" parent="TextAppearance.AppCompat.Button">
+        <item name="android:singleLine">true</item>
+    </style>
+
 </resources>
