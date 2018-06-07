@@ -374,10 +374,10 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
                                     Log.e(getString(R.string.log_error), e.getMessage());
                                 }
                             } else {
-                                Intent principal = new Intent(getApplicationContext(), Principal.class);
-                                // Eliminamos de la pila todas las actividades
-                                principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                startActivity(principal);
+                                //Intent principal = new Intent(getApplicationContext(), Principal.class);
+                                //startActivity(principal);
+                                finish();
+                                onSupportNavigateUp();
                             }
                         } else {
                             try {

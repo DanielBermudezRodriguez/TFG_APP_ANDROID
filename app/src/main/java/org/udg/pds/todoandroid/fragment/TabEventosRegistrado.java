@@ -43,7 +43,7 @@ public class TabEventosRegistrado extends Fragment {
     private ApiRest apiRest;
     private RecyclerView recyclerView;
     private StaggeredGridLayoutManager staggeredGridLayoutManager;
-    private List<Evento> eventosRegistrado = new ArrayList<Evento>();
+    private List<Evento> eventosRegistrado = new ArrayList<>();
     private EventosRegistradoAdapter eventosRegistradoAdapter;
 
     private TabLayout.Tab tabActual;
@@ -69,6 +69,23 @@ public class TabEventosRegistrado extends Fragment {
         recyclerView.setHasFixedSize(true);
         staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, 1);
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
+        eventosRegistradoAdapter = new EventosRegistradoAdapter(getActivity().getApplicationContext(), eventosRegistrado, new EventosRegistradoAdapter.OnItemClickListener() {
+
+            @Override
+            public void visualizardetalleEvento(Evento e) {
+                Intent i = new Intent(getContext(), EventoDetalle.class);
+                i.putExtra(Global.KEY_SELECTED_EVENT, (Serializable) e);
+                i.putExtra(Global.KEY_SELECTED_EVENT_IS_ADMIN, e.getAdministrador().getId().equals(UsuarioActual.getInstance().getId()));
+                startActivity(i);
+            }
+
+            @Override
+            public void desapuntarDelEvento(Evento e, int position) {
+                desapuntarUsuarioEvento(e.getId(),position);
+            }
+
+        });
+        recyclerView.setAdapter(eventosRegistradoAdapter);
 
         return rootView;
     }
@@ -79,27 +96,11 @@ public class TabEventosRegistrado extends Fragment {
             @Override
             public void onResponse(Call<List<Evento>> call, Response<List<Evento>> response) {
                 if (response.raw().code() != 500 && response.isSuccessful()) {
-                    eventosRegistrado = response.body();
-
+                    List<Evento> eventos = response.body();
+                    eventosRegistrado.clear();
+                    eventosRegistrado.addAll(eventos);
                     updateTabTitle(eventosRegistrado.size());
-
-                    eventosRegistradoAdapter = new EventosRegistradoAdapter(getActivity().getApplicationContext(), eventosRegistrado, new EventosRegistradoAdapter.OnItemClickListener() {
-
-                        @Override
-                        public void visualizardetalleEvento(Evento e) {
-                            Intent i = new Intent(getContext(), EventoDetalle.class);
-                            i.putExtra(Global.KEY_SELECTED_EVENT, (Serializable) e);
-                            i.putExtra(Global.KEY_SELECTED_EVENT_IS_ADMIN, e.getAdministrador().getId().equals(UsuarioActual.getInstance().getId()));
-                            startActivity(i);
-                        }
-
-                        @Override
-                        public void desapuntarDelEvento(Evento e, int position) {
-                            desapuntarUsuarioEvento(e.getId(),position);
-                        }
-
-                    });
-                    recyclerView.setAdapter(eventosRegistradoAdapter);
+                    eventosRegistradoAdapter.notifyDataSetChanged();
                     if (recargarVista) {
                         FragmentTransaction ft = getFragmentManager().beginTransaction();
                         ft.detach(TabEventosRegistrado.this).attach(TabEventosRegistrado.this).commit();

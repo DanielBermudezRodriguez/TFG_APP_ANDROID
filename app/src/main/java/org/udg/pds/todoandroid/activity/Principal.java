@@ -165,15 +165,8 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
                 });
 
         // Busqueda inicial de eventos segun preferencias del usuario por defecto
-        busquedaInicialEventos();
-    }
-
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (adapter != null)
-            adapter.notifyDataSetChanged();
+        if (esBusquedaPorDefecto)
+            busquedaInicialEventos();
     }
 
 

@@ -115,8 +115,16 @@ public class TabEventoInformacion extends Fragment {
                     descripcionEvento.setText(evento.getDescripcion());
                     deporteEvento.setText(evento.getDeporte().getDeporte());
                     municipioEvento.setText(evento.getMunicipio().getMunicipio());
-                    participantesEvento.setText(String.valueOf(evento.getParticipantesRegistrados()) + "/" + evento.getNumeroParticipantes() + " " + evento.getEstado().getEstado() );
-                    duracionEvento.setText(String.valueOf(evento.getDuracion()) + " minutos");
+                    // Número de participantes ilimitados
+                    if (evento.getNumeroParticipantes() == 0){
+                        participantesEvento.setText(String.valueOf(evento.getParticipantesRegistrados()) + " " + evento.getEstado().getEstado() );
+                    }
+                    else participantesEvento.setText(String.valueOf(evento.getParticipantesRegistrados()) + "/" + evento.getNumeroParticipantes() + " " + evento.getEstado().getEstado() );
+                    // Duración evento ilimitada
+                    if (evento.getDuracion() == 0){
+                        duracionEvento.setText("ilimitada");
+                    }
+                    else duracionEvento.setText(String.valueOf(evento.getDuracion()) + " minutos");
                     fechaEvento.setText(DateUtil.parseData(evento.getFechaEvento()));
 
                 } else {
