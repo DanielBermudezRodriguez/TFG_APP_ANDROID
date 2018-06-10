@@ -15,30 +15,30 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
 import org.udg.pds.todoandroid.R;
-import org.udg.pds.todoandroid.entity.Evento;
 import org.udg.pds.todoandroid.entity.ParticipanteEvento;
 import org.udg.pds.todoandroid.entity.UsuarioActual;
 import org.udg.pds.todoandroid.util.Global;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ParticipanteEventoAdapter extends RecyclerView.Adapter<ParticipanteEventoAdapter.ParticipanteEventoViewHolder> {
 
-    private List<ParticipanteEvento> participanteEventos = new ArrayList<ParticipanteEvento>();
+    private List<ParticipanteEvento> participanteEventos;
     private Context context;
     private Boolean esAdministradorEvento;
     private ParticipanteEventoAdapter.OnItemClickListener mOnItemClickListener;
+    private Long administrador;
 
     public interface OnItemClickListener {
-        public void desapuntarDelEvento(ParticipanteEvento p,int position);
+        void desapuntarDelEvento(ParticipanteEvento p, int position);
     }
 
-    public ParticipanteEventoAdapter (Context context, List<ParticipanteEvento> participantes, Boolean esAdministradorEvento, ParticipanteEventoAdapter.OnItemClickListener onItemClickListener){
+    public ParticipanteEventoAdapter(Context context, Long administrador ,List<ParticipanteEvento> participantes, Boolean esAdministradorEvento, ParticipanteEventoAdapter.OnItemClickListener onItemClickListener) {
         this.participanteEventos = participantes;
         this.context = context;
         this.esAdministradorEvento = esAdministradorEvento;
         this.mOnItemClickListener = onItemClickListener;
+        this.administrador = administrador;
     }
 
 
@@ -58,27 +58,39 @@ public class ParticipanteEventoAdapter extends RecyclerView.Adapter<Participante
         options.centerCrop();
 
         // Si el usuario actual no es el administrador del evento no se le permite desapuntar participantes del evento
-        if (!esAdministradorEvento){
+        if (!esAdministradorEvento) {
             holder.eliminarParticipante.setVisibility(View.GONE);
         }
         // Usuario actual es el administrador del evento
         else {
             // No dar de baja al propio administrador, para darse de baja de un evento tiene que cancelar el evento
-            if (UsuarioActual.getInstance().getId().equals(participanteEventoActual.getId()))
+            if (UsuarioActual.getInstance().getId().equals(participanteEventoActual.getId())) {
                 holder.eliminarParticipante.setVisibility(View.GONE);
-            else{ // Activar la posibilidad al administrador del evento de dar de baja a los participantes
+            } else { // Activar la posibilidad al administrador del evento de dar de baja a los participantes
                 holder.eliminarParticipante.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        mOnItemClickListener.desapuntarDelEvento(participanteEventoActual,position);
+                        mOnItemClickListener.desapuntarDelEvento(participanteEventoActual, position);
                     }
                 });
             }
 
         }
+        if (participanteEventoActual.getId().equals(administrador)){
+            // Mostrar icono administrador del evento
+            holder.administradorEvento.setVisibility(View.VISIBLE);
+        }
+        else {
+            holder.administradorEvento.setVisibility(View.GONE);
+        }
 
-        Glide.with(context).load(Global.BASE_URL + "imagen/usuario/" + participanteEventoActual.getId().toString()).apply(options).into(holder.imagenParticipante);
-
+        // cargar imagen participante
+        if (participanteEventos.get(position).getId() != null) {
+            Glide.with(context).load(Global.BASE_URL + Global.IMAGE_USER + participanteEventoActual.getId().toString()).apply(options).into(holder.imagenParticipante);
+        }
+        else {
+            holder.imagenParticipante.setImageDrawable(null);
+        }
         holder.municipioParticipante.setText(participanteEventoActual.getMunicipio());
         holder.usernameParticipante.setText(participanteEventoActual.getUsername());
     }
@@ -95,6 +107,7 @@ public class ParticipanteEventoAdapter extends RecyclerView.Adapter<Participante
         TextView usernameParticipante;
         TextView municipioParticipante;
         ImageButton eliminarParticipante;
+        ImageView administradorEvento;
 
         public ParticipanteEventoViewHolder(View itemView) {
             super(itemView);
@@ -103,6 +116,7 @@ public class ParticipanteEventoAdapter extends RecyclerView.Adapter<Participante
             usernameParticipante = itemView.findViewById(R.id.cardview_participante_username);
             municipioParticipante = itemView.findViewById(R.id.cardview_participante_municipio);
             eliminarParticipante = itemView.findViewById(R.id.cardview_participante_eliminar);
+            administradorEvento = itemView.findViewById(R.id.cardview_imagen_participante_administrador);
         }
     }
 }

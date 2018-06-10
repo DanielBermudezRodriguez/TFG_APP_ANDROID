@@ -81,7 +81,21 @@
     <string name="crear_evento_ubicacion">Ubicación</string>
     <string name="crear_evento_municipio">Municipio</string>
 
+    // Información evento
+    <string name="informacion_evento_duracion_ilimitada">ilimitada</string>
+    <string name="informacion_evento_duracion_minutos">minutos</string>
+    <string name="informacion_evento_error">Error al obtener la información del evento</string>
+    <string name="informacion_evento_descripción">Descripción</string>
+    <string name="informacion_evento_titulo">Título</string>
+    <string name="informacion_evento_municipio">Municipio</string>
+    <string name="informacion_evento_deporte">Deporte</string>
+    <string name="informacion_evento_fecha">Fecha</string>
+    <string name="informacion_evento_participantes">Participantes</string>
+    <string name="informacion_evento_duracion">Duración</string>
 
+    // Tab participantes evento
+    <string name="participantes_evento_error_eliminar">Error al eliminar el participante</string>
+    <string name="participantes_evento_eliminar_participante">Participante eliminado</string>
 
 
 

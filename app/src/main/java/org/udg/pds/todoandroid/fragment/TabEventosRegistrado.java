@@ -3,10 +3,10 @@ package org.udg.pds.todoandroid.fragment;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
@@ -20,7 +20,6 @@ import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.activity.EventoDetalle;
 import org.udg.pds.todoandroid.activity.MisEventos;
-import org.udg.pds.todoandroid.adapter.EventosCreadosAdapter;
 import org.udg.pds.todoandroid.adapter.EventosRegistradoAdapter;
 import org.udg.pds.todoandroid.entity.Evento;
 import org.udg.pds.todoandroid.entity.GenericId;
@@ -60,7 +59,7 @@ public class TabEventosRegistrado extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.tab_eventos_registrado, container, false);
 
         // Inicializamos el servicio de APIRest de retrofit
@@ -90,7 +89,7 @@ public class TabEventosRegistrado extends Fragment {
         return rootView;
     }
 
-    private void obtenerEventosRegistrado(final boolean recargarVista) {
+    private void obtenerEventosRegistrado() {
         final Call<List<Evento>> eventos = apiRest.eventosUsuario(Global.CODE_EVENTOS_REGISTRADO);
         eventos.enqueue(new Callback<List<Evento>>() {
             @Override
@@ -98,14 +97,10 @@ public class TabEventosRegistrado extends Fragment {
                 if (response.raw().code() != 500 && response.isSuccessful()) {
                     List<Evento> eventos = response.body();
                     eventosRegistrado.clear();
-                    eventosRegistrado.addAll(eventos);
+                    if (eventos != null)
+                        eventosRegistrado.addAll(eventos);
                     updateTabTitle(eventosRegistrado.size());
                     eventosRegistradoAdapter.notifyDataSetChanged();
-                    if (recargarVista) {
-                        FragmentTransaction ft = getFragmentManager().beginTransaction();
-                        ft.detach(TabEventosRegistrado.this).attach(TabEventosRegistrado.this).commit();
-                    }
-
 
                 } else
                     try {
@@ -168,7 +163,7 @@ public class TabEventosRegistrado extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        obtenerEventosRegistrado(false);
+        obtenerEventosRegistrado();
     }
 
 }

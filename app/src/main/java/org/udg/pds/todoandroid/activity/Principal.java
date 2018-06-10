@@ -158,7 +158,8 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
                 new SwipeRefreshLayout.OnRefreshListener() {
                     @Override
                     public void onRefresh() {
-                        eventos.removeAll(eventos);
+                        if (eventos != null)
+                            eventos.removeAll(eventos);
                         offset = 0;
                         obtenerEventos();
                     }

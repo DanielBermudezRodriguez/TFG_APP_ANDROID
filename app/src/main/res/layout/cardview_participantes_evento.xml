@@ -16,8 +16,8 @@
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:background="@drawable/border_cardview_participantes_evento"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@drawable/border_cardview_participantes_evento">
 
         <ImageView
             android:id="@+id/cardview_imagen_participante_evento"
@@ -30,6 +30,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             card_view:srcCompat="@mipmap/ic_duracion_evento" />
+
 
         <TextView
             android:id="@+id/cardview_participante_username"
@@ -70,6 +71,20 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             card_view:srcCompat="@mipmap/ic_desapuntar_participante" />
+
+        <ImageView
+            android:id="@+id/cardview_imagen_participante_administrador"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            card_view:srcCompat="@mipmap/ic_administrador_evento" />
+
 
     </android.support.constraint.ConstraintLayout>
 
