@@ -386,6 +386,7 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
         // Ver información perfil
         if (position == 1) {
             Intent perfilUsuario = new Intent(getApplicationContext(), PerfilUsuario.class);
+            perfilUsuario.putExtra(Global.ID_USUARIO_PERFIL, UsuarioActual.getInstance().getId());
             startActivity(perfilUsuario);
         }
         // Modificar perfil

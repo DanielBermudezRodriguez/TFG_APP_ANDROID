@@ -29,6 +29,8 @@ public class Global {
     public static final int DEFAULT_PROVINCE = 16;
     public static final int DEFAULT_LOCALITY = 74;
 
+    public static final String ID_USUARIO_PERFIL = "ID_USUARIO_PERFIL";
+
     public static final String URL_IMAGEN = "URL_IMAGEN";
     public static final String KEY_SELECTED_EVENT = "SELECTED_EVENT";
     public static final String KEY_SELECTED_EVENT_IS_ADMIN = "SELECTED_EVENT_IS_ADMIN";
