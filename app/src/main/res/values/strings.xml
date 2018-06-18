@@ -97,7 +97,15 @@
     <string name="participantes_evento_error_eliminar">Error al eliminar el participante</string>
     <string name="participantes_evento_eliminar_participante">Participante eliminado</string>
 
+    // Perfil usuario
+    <string name="perfil_usuario_eventos_creados">Eventos creados</string>
+    <string name="perfil_usuario_username">Username</string>
+    <string name="perfil_usuario_email">Email</string>
+    <string name="perfil_usuario_ubicacion">Ubicación</string>
+    <string name="perfil_usuario_deportes">Deportes</string>
 
+    // Modificar perfil usuario
+    <string name="menu_modificar_perfil">Guardar</string>
 
 
 

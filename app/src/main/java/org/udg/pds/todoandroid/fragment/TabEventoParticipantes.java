@@ -2,6 +2,7 @@ package org.udg.pds.todoandroid.fragment;
 
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,9 +18,12 @@ import android.view.ViewGroup;
 import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.activity.EventoDetalle;
+import org.udg.pds.todoandroid.activity.PerfilUsuario;
 import org.udg.pds.todoandroid.adapter.ParticipanteEventoAdapter;
+import org.udg.pds.todoandroid.entity.Evento;
 import org.udg.pds.todoandroid.entity.GenericId;
 import org.udg.pds.todoandroid.entity.ParticipanteEvento;
+import org.udg.pds.todoandroid.entity.UsuarioActual;
 import org.udg.pds.todoandroid.service.ApiRest;
 import org.udg.pds.todoandroid.util.Global;
 import org.udg.pds.todoandroid.util.InitRetrofit;
@@ -88,6 +92,13 @@ public class TabEventoParticipantes extends Fragment {
             @Override
             public void desapuntarDelEvento(ParticipanteEvento p, int position) {
                 desapuntarUsuarioEvento(idEventoActual, p.getId(), position);
+            }
+
+            @Override
+            public void onItemClick(Long idUsuario) {
+                Intent perfilUsuario = new Intent(getActivity().getApplicationContext(), PerfilUsuario.class);
+                perfilUsuario.putExtra(Global.ID_USUARIO_PERFIL, idUsuario);
+                startActivity(perfilUsuario);
             }
 
         });

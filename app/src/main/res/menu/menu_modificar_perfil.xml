@@ -5,8 +5,7 @@
         android:id="@+id/toolbar_modificar_perfil"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:icon="@android:drawable/ic_menu_edit"
-        android:title="@string/toolbar_editar_perfil"
+        android:title="@string/menu_modificar_perfil"
         app:showAsAction="ifRoom|withText" />
 
 </menu>

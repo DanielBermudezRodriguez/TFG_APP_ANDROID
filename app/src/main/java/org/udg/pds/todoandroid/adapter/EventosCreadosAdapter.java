@@ -21,6 +21,7 @@ import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.activity.Registro;
 import org.udg.pds.todoandroid.entity.Evento;
 import org.udg.pds.todoandroid.entity.ParticipanteEvento;
+import org.udg.pds.todoandroid.entity.UsuarioActual;
 import org.udg.pds.todoandroid.util.DateUtil;
 import org.udg.pds.todoandroid.util.Global;
 
@@ -71,15 +72,16 @@ public class EventosCreadosAdapter extends RecyclerView.Adapter<EventosCreadosAd
         RequestOptions options = new RequestOptions();
         options.centerCrop();
 
-        // Evento abierto o completo (No está en un estado final)
-        if (eventoActual.getEstado().getId().equals(Global.EVENTO_ABIERTO) || eventoActual.getEstado().getId().equals(Global.EVENTO_COMPLETO)) {
+        // Evento abierto o completo (No está en un estado final) i el usuario actual es administrador del evento
+        if ((eventoActual.getEstado().getId().equals(Global.EVENTO_ABIERTO) || eventoActual.getEstado().getId().equals(Global.EVENTO_COMPLETO)) && eventoActual.getAdministrador().getId().equals(UsuarioActual.getInstance().getId())) {
+            holder.cancelarEvento.setVisibility(View.VISIBLE);
             holder.cancelarEvento.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     mOnItemClickListener.cancelarEvento(eventoActual,position);
                 }
             });
-        } else if (eventoActual.getEstado().getId().equals(Global.EVENTO_FINALIZADO) || eventoActual.getEstado().getId().equals(Global.EVENTO_SUSPENDIDO)) {
+        } else  {
             holder.cancelarEvento.setVisibility(View.GONE);
         }
 

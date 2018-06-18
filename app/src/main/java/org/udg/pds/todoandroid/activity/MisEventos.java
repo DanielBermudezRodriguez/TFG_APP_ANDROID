@@ -30,14 +30,14 @@ public class MisEventos extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mis_eventos);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-        tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout = findViewById(R.id.tabs);
 
-        mViewPager = (ViewPager) findViewById(R.id.container);
+        mViewPager = findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
@@ -90,9 +90,9 @@ public class MisEventos extends AppCompatActivity {
 
         public View getTabView(int total, String titulo) {
             View v = LayoutInflater.from(getApplicationContext()).inflate(R.layout.custom_tab_eventos, null);
-            TextView tv = (TextView) v.findViewById(R.id.tab_eventos_creados_total);
+            TextView tv = v.findViewById(R.id.tab_eventos_creados_total);
             tv.setText(String.valueOf(total));
-            TextView m = (TextView) v.findViewById(R.id.tab_eventos_creados);
+            TextView m = v.findViewById(R.id.tab_eventos_creados);
             m.setText(titulo);
 
             return v;

@@ -1,8 +1,8 @@
 package org.udg.pds.todoandroid.fragment;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -23,8 +23,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.squareup.picasso.Picasso;
 
 import org.udg.pds.todoandroid.R;
@@ -52,6 +50,8 @@ public class MenuLateralFragment extends Fragment {
     private NavigationDrawerCallbacks mCallbacks;
     // Adapter menú lateral
     private NavigationDrawerAdapter mNavigationDrawerAdapter;
+    private TextView username;
+    private ImageView imagenPerfil;
 
     // Interficie con las llamdas que tiene que utilizar las actividades contenedoras
     public interface NavigationDrawerCallbacks {
@@ -124,13 +124,17 @@ public class MenuLateralFragment extends Fragment {
                 }
 
                 if (!usuarioAbrioMenu) {
+
                     // El usuario abrió manualmente el cajón; almacene esta bandera para evitar que se muestre automáticamente automáticamente el cajón de navegación en el futuro.
                     usuarioAbrioMenu = true;
                     SharedPreferences sp = PreferenceManager
                             .getDefaultSharedPreferences(getActivity());
                     sp.edit().putBoolean(PREF_USER_LEARNED_DRAWER, true).apply();
-                }
 
+                }
+                // Actualizar datos cabecera del menú lateral
+                username.setText(UsuarioActual.getInstance().getUsername());
+                Picasso.with(getContext()).load(Global.BASE_URL + Global.IMAGE_USER + UsuarioActual.getInstance().getId().toString()).into(imagenPerfil);
                 getActivity().invalidateOptionsMenu();
             }
         };
@@ -187,14 +191,13 @@ public class MenuLateralFragment extends Fragment {
         View myHeader = inflater.inflate(R.layout.cabecera_menu_lateral, container, false);
         // Obtenemos información del usuario actual logeado
         if (UsuarioActual.getInstance().getId() != -1L) {
-            TextView username = myHeader.findViewById(R.id.username_menu_lateral);
+            username = myHeader.findViewById(R.id.username_menu_lateral);
             TextView email = myHeader.findViewById(R.id.email_menu_lateral);
             username.setText(UsuarioActual.getInstance().getUsername());
             email.setText(UsuarioActual.getInstance().getMail());
-            RequestOptions options = new RequestOptions();
-            options.centerCrop();
-            Picasso.with(getContext()).load(Global.BASE_URL + "imagen/usuario/" + UsuarioActual.getInstance().getId().toString()).into((ImageView) myHeader.findViewById(R.id.circleView));
-            //Glide.with(getContext()).load(Global.BASE_URL + "imagen/usuario/" + UsuarioActual.getInstance().getId().toString()).apply(options).into((ImageView) myHeader.findViewById(R.id.circleView));
+            imagenPerfil = myHeader.findViewById(R.id.circleView);
+            Picasso.with(getContext()).load(Global.BASE_URL + Global.IMAGE_USER + UsuarioActual.getInstance().getId().toString()).into(imagenPerfil);
+
         }
         listView.addHeaderView(myHeader);
         listView.setAdapter(mNavigationDrawerAdapter);

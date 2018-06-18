@@ -3,12 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/cardview"
+    android:id="@+id/cardview_participante"
     style="@style/CardView.Light"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginEnd="0dp"
-
     android:layout_marginStart="0dp"
     android:layout_marginTop="0dp"
     app:cardCornerRadius="0dp"

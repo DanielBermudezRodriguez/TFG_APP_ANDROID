@@ -14,6 +14,7 @@ import org.udg.pds.todoandroid.entity.Ubicacion;
 import org.udg.pds.todoandroid.entity.Usuario;
 import org.udg.pds.todoandroid.entity.UsuarioLoginPeticion;
 import org.udg.pds.todoandroid.entity.UsuarioLoginRespuesta;
+import org.udg.pds.todoandroid.entity.UsuarioModificarPerfil;
 import org.udg.pds.todoandroid.entity.UsuarioRegistroPeticion;
 import org.udg.pds.todoandroid.entity.UsuarioRegistroRespuesta;
 
@@ -27,6 +28,7 @@ import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Url;
@@ -38,6 +40,9 @@ public interface ApiRest {
 
     @POST("usuario")
     Call<UsuarioRegistroRespuesta> registrar(@Body UsuarioRegistroPeticion datosRegistro);
+
+    @PUT("usuario/{idUsuario}")
+    Call<GenericId> modificarPerfil(@Body UsuarioModificarPerfil datosModificarPerfil, @Path("idUsuario") Long idUsuario);
 
     @POST("evento")
     Call<GenericId> crearEvento (@Body EventoCrearPeticion datosEvento);
@@ -89,8 +94,8 @@ public interface ApiRest {
     @DELETE("usuario/logout/{id}")
     Call<GenericId> logout(@Path("id") Long id);
 
-    @GET("usuario/evento/{tipoEventos}")
-    Call<List<Evento>> eventosUsuario(@Path("tipoEventos") int tipoEventos);
+    @GET("usuario/evento/{idUsuario}/{tipoEventos}")
+    Call<List<Evento>> eventosUsuario(@Path("idUsuario") Long idUsuario,@Path("tipoEventos") int tipoEventos);
 
     @DELETE("evento/{idEvento}")
     Call<GenericId> suspenderEvento(@Path("idEvento") Long idEvento);

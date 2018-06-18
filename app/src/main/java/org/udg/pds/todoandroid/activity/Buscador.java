@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -502,16 +503,15 @@ public class Buscador extends AppCompatActivity implements View.OnClickListener,
         } else {
             String deportesFavoritos = "Todos los deportes";
             deporte.setText(deportesFavoritos);
-            this.deportesSeleccionados = new ArrayList<Long>();
+            this.deportesSeleccionados = new ArrayList<>();
         }
     }
 
     // Función que define comportamiento del botón "Atras"
     @Override
     public boolean onSupportNavigateUp() {
-        onBackPressed();
+        super.onBackPressed();
         return false;
     }
-
 
 }

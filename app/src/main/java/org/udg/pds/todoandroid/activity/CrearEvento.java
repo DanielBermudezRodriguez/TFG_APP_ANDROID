@@ -350,11 +350,13 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
                                         @Override
                                         public void onResponse(Call<Imagen> call, Response<Imagen> response) {
                                             if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
-                                                Intent principal = new Intent(getApplicationContext(), Principal.class);
+                                                /*Intent principal = new Intent(getApplicationContext(), Principal.class);
                                                 // Eliminamos de la pila todas las actividades
                                                 principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                                 startActivity(principal);
+                                                finish();*/
                                                 finish();
+                                                onSupportNavigateUp();
                                             } else {
                                                 try {
                                                     JSONObject jObjError = new JSONObject(Objects.requireNonNull(response.errorBody()).string());

@@ -1,8 +1,9 @@
 package org.udg.pds.todoandroid.entity;
 
 
+import java.io.Serializable;
 
-public class Provincia {
+public class Provincia implements Serializable {
 
     private Long id;
 

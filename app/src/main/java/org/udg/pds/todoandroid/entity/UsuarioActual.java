@@ -1,6 +1,8 @@
 package org.udg.pds.todoandroid.entity;
 
 
+import java.util.List;
+
 public class UsuarioActual {
 
     private static UsuarioActual mInstancia = null;
@@ -10,6 +12,8 @@ public class UsuarioActual {
     private String username;
 
     private String mail;
+
+
 
     private UsuarioActual(){
         id = -1L;
@@ -48,4 +52,5 @@ public class UsuarioActual {
     public void setMail(String mail) {
         this.mail = mail;
     }
+
 }

@@ -2,10 +2,11 @@ package org.udg.pds.todoandroid.entity;
 
 import android.widget.ProgressBar;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-public class Usuario {
+public class Usuario implements Serializable {
 
     private Long id;
 

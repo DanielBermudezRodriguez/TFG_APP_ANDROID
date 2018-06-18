@@ -1,7 +1,9 @@
 package org.udg.pds.todoandroid.entity;
 
 
-public class Pais {
+import java.io.Serializable;
+
+public class Pais implements Serializable {
 
     private Long id;
 

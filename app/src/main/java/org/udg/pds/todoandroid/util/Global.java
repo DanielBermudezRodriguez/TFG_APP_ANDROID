@@ -38,6 +38,8 @@ public class Global {
     public static final String KEY_SELECTED_EVENT_POSITION = "SELECTED_EVENT_POSITION";
     public static final int REQUEST_CODE_EVENTO_DETALLE = 4000;
 
+    public static final String KEY_ACTUAL_USER = "ACTUAL_USER";
+
     public static final int CODE_EVENTOS_CREADOS = 0;
     public static final int CODE_EVENTOS_REGISTRADO = 1;
 

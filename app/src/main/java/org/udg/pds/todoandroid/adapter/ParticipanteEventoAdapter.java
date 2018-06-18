@@ -3,6 +3,7 @@ package org.udg.pds.todoandroid.adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,9 +32,11 @@ public class ParticipanteEventoAdapter extends RecyclerView.Adapter<Participante
 
     public interface OnItemClickListener {
         void desapuntarDelEvento(ParticipanteEvento p, int position);
+
+        void onItemClick(Long id);
     }
 
-    public ParticipanteEventoAdapter(Context context, Long administrador ,List<ParticipanteEvento> participantes, Boolean esAdministradorEvento, ParticipanteEventoAdapter.OnItemClickListener onItemClickListener) {
+    public ParticipanteEventoAdapter(Context context, Long administrador, List<ParticipanteEvento> participantes, Boolean esAdministradorEvento, ParticipanteEventoAdapter.OnItemClickListener onItemClickListener) {
         this.participanteEventos = participantes;
         this.context = context;
         this.esAdministradorEvento = esAdministradorEvento;
@@ -76,23 +79,28 @@ public class ParticipanteEventoAdapter extends RecyclerView.Adapter<Participante
             }
 
         }
-        if (participanteEventoActual.getId().equals(administrador)){
+        if (participanteEventoActual.getId().equals(administrador)) {
             // Mostrar icono administrador del evento
             holder.administradorEvento.setVisibility(View.VISIBLE);
-        }
-        else {
+        } else {
             holder.administradorEvento.setVisibility(View.GONE);
         }
 
         // cargar imagen participante
         if (participanteEventos.get(position).getId() != null) {
             Glide.with(context).load(Global.BASE_URL + Global.IMAGE_USER + participanteEventoActual.getId().toString()).apply(options).into(holder.imagenParticipante);
-        }
-        else {
+        } else {
             holder.imagenParticipante.setImageDrawable(null);
         }
         holder.municipioParticipante.setText(participanteEventoActual.getMunicipio());
         holder.usernameParticipante.setText(participanteEventoActual.getUsername());
+
+        holder.participante.setOnClickListener( new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                mOnItemClickListener.onItemClick(participanteEventoActual.getId());
+            }
+        });
     }
 
 
@@ -108,6 +116,7 @@ public class ParticipanteEventoAdapter extends RecyclerView.Adapter<Participante
         TextView municipioParticipante;
         ImageButton eliminarParticipante;
         ImageView administradorEvento;
+        CardView participante;
 
         public ParticipanteEventoViewHolder(View itemView) {
             super(itemView);
@@ -117,6 +126,7 @@ public class ParticipanteEventoAdapter extends RecyclerView.Adapter<Participante
             municipioParticipante = itemView.findViewById(R.id.cardview_participante_municipio);
             eliminarParticipante = itemView.findViewById(R.id.cardview_participante_eliminar);
             administradorEvento = itemView.findViewById(R.id.cardview_imagen_participante_administrador);
+            participante = itemView.findViewById(R.id.cardview_participante);
         }
     }
 }

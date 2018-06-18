@@ -328,6 +328,7 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
                     List<Evento> eventosRespuesta = response.body();
                     // Búsqueda inicial de eventos vacia
                     if ((eventosRespuesta == null || eventosRespuesta.isEmpty()) && (offset == 0)) {
+                        adapter.notifyDataSetChanged();
                         if (esBusquedaPorDefecto){
                             noResultadosPorDefecto.setText(R.string.no_resultados_busqueda_inicial);
                         }

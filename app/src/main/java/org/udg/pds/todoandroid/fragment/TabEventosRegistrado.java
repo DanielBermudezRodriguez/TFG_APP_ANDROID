@@ -90,7 +90,7 @@ public class TabEventosRegistrado extends Fragment {
     }
 
     private void obtenerEventosRegistrado() {
-        final Call<List<Evento>> eventos = apiRest.eventosUsuario(Global.CODE_EVENTOS_REGISTRADO);
+        final Call<List<Evento>> eventos = apiRest.eventosUsuario(UsuarioActual.getInstance().getId(),Global.CODE_EVENTOS_REGISTRADO);
         eventos.enqueue(new Callback<List<Evento>>() {
             @Override
             public void onResponse(Call<List<Evento>> call, Response<List<Evento>> response) {
