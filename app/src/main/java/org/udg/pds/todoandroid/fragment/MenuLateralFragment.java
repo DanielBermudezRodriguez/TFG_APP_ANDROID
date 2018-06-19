@@ -12,6 +12,7 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,12 +24,20 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.squareup.picasso.Picasso;
 
 import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.adapter.NavigationDrawerAdapter;
 import org.udg.pds.todoandroid.entity.UsuarioActual;
+import org.udg.pds.todoandroid.service.ApiRest;
 import org.udg.pds.todoandroid.util.Global;
+import org.udg.pds.todoandroid.util.InitRetrofit;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 // Fragment que controla los comportamientos, interacciones y vista del menú lateral
@@ -52,6 +61,8 @@ public class MenuLateralFragment extends Fragment {
     private NavigationDrawerAdapter mNavigationDrawerAdapter;
     private TextView username;
     private ImageView imagenPerfil;
+    // Interficie de llamadas a la APIRest gestionada por Retrofit
+    private ApiRest apiRest;
 
     // Interficie con las llamdas que tiene que utilizar las actividades contenedoras
     public interface NavigationDrawerCallbacks {
@@ -70,6 +81,8 @@ public class MenuLateralFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Inicializamos el servicio de APIRest de retrofit
+        apiRest = InitRetrofit.getInstance().getApiRest();
 
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         usuarioAbrioMenu = sp.getBoolean(PREF_USER_LEARNED_DRAWER, false);
@@ -134,7 +147,23 @@ public class MenuLateralFragment extends Fragment {
                 }
                 // Actualizar datos cabecera del menú lateral
                 username.setText(UsuarioActual.getInstance().getUsername());
-                Picasso.with(getContext()).load(Global.BASE_URL + Global.IMAGE_USER + UsuarioActual.getInstance().getId().toString()).into(imagenPerfil);
+                // Obtener nombre imagen usuario actual para completar la URL
+                final Call<String> nombreImagen = apiRest.nombreImagenUsuario(UsuarioActual.getInstance().getId());
+                nombreImagen.enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(Call<String> call, Response<String> response) {
+                        if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
+                            String imagenNombre = response.body();
+                            RequestOptions options = new RequestOptions().centerCrop();
+                            Glide.with(getContext()).load(Global.BASE_URL + Global.IMAGE_USER + UsuarioActual.getInstance().getId().toString() + "/" + imagenNombre).apply(options).into(imagenPerfil);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<String> call, Throwable t) {
+                        Log.e(getString(R.string.log_error), t.getMessage());
+                    }
+                });
                 getActivity().invalidateOptionsMenu();
             }
         };
@@ -196,7 +225,22 @@ public class MenuLateralFragment extends Fragment {
             username.setText(UsuarioActual.getInstance().getUsername());
             email.setText(UsuarioActual.getInstance().getMail());
             imagenPerfil = myHeader.findViewById(R.id.circleView);
-            Picasso.with(getContext()).load(Global.BASE_URL + Global.IMAGE_USER + UsuarioActual.getInstance().getId().toString()).into(imagenPerfil);
+            final Call<String> nombreImagen = apiRest.nombreImagenUsuario(UsuarioActual.getInstance().getId());
+            nombreImagen.enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
+                        String imagenNombre = response.body();
+                        RequestOptions options = new RequestOptions().centerCrop();
+                        Glide.with(getContext()).load(Global.BASE_URL + Global.IMAGE_USER + UsuarioActual.getInstance().getId().toString() + "/" + imagenNombre).apply(options).into(imagenPerfil);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    Log.e(getString(R.string.log_error), t.getMessage());
+                }
+            });
 
         }
         listView.addHeaderView(myHeader);

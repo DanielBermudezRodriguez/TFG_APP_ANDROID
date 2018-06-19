@@ -99,4 +99,10 @@ public interface ApiRest {
 
     @DELETE("evento/{idEvento}")
     Call<GenericId> suspenderEvento(@Path("idEvento") Long idEvento);
+
+    @GET("imagen/usuario/nombre/{idUsuario}")
+    Call<String> nombreImagenUsuario(@Path("idUsuario") Long idUsuario);
+
+    @GET("imagen/evento/nombre/{idEvento}")
+    Call<String> nombreImagenEvento(@Path("idEvento") Long idEvento);
 }

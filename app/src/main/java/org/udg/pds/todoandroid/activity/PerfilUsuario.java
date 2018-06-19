@@ -17,7 +17,6 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.squareup.picasso.Picasso;
 
 import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
@@ -148,10 +147,24 @@ public class PerfilUsuario extends AppCompatActivity implements View.OnClickList
                 if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
                     usuario = response.body();
                     if (usuario != null) {
-                        /*RequestOptions options = new RequestOptions();
-                        options.centerCrop();
-                        Glide.with(getApplicationContext()).load(Global.BASE_URL + Global.IMAGE_USER + usuario.getId()).apply(options).into(imagenPerfilUsuario);*/
-                        Picasso.with(getApplicationContext()).load(Global.BASE_URL + Global.IMAGE_USER + usuario.getId()).into(imagenPerfilUsuario);
+                        // Obtener nombre imagen usuario actual para completar la URL
+                        final Call<String> nombreImagen = apiRest.nombreImagenUsuario(usuario.getId());
+                        nombreImagen.enqueue(new Callback<String>() {
+                            @Override
+                            public void onResponse(Call<String> call, Response<String> response) {
+                                if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
+                                    String imagenNombre = response.body();
+                                    RequestOptions options = new RequestOptions().centerCrop();
+                                    Glide.with(getApplicationContext()).load(Global.BASE_URL + Global.IMAGE_USER + usuario.getId() + "/" + imagenNombre).apply(options).into(imagenPerfilUsuario);
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<String> call, Throwable t) {
+                                Log.e(getString(R.string.log_error), t.getMessage());
+                            }
+                        });
+
                         nombrePerfilUsuario.setText(usuario.getNombre());
                         apellidosPerfilUsuario.setText(usuario.getApellidos());
                         usernamePerfilUsuario.setText(usuario.getUsername());

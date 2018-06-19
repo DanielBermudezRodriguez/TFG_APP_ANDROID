@@ -23,6 +23,9 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+
 import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.adapter.EventoAdapter;
@@ -380,9 +383,23 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
     public void onNavigationDrawerItemSelected(int position) {
         // visualizar en pantalla completa imagen perfil usuario actual
         if (position == 0) {
-            Intent imagenIntent = new Intent(this, Imagen.class);
-            imagenIntent.putExtra(Global.URL_IMAGEN, Global.BASE_URL + Global.IMAGE_USER + UsuarioActual.getInstance().getId().toString());
-            startActivity(imagenIntent);
+            final Call<String> nombreImagen = apiRest.nombreImagenUsuario(UsuarioActual.getInstance().getId());
+            nombreImagen.enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
+                        String imagenNombre = response.body();
+                        Intent imagenIntent = new Intent(getApplicationContext(), Imagen.class);
+                        imagenIntent.putExtra(Global.URL_IMAGEN, Global.BASE_URL + Global.IMAGE_USER + UsuarioActual.getInstance().getId().toString() + "/" + imagenNombre);
+                        startActivity(imagenIntent);
+                    }
+                }
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    Log.e(getString(R.string.log_error), t.getMessage());
+                }
+            });
+
         }
         // Ver información perfil
         if (position == 1) {
