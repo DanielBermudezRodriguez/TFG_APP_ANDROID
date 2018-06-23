@@ -2,6 +2,7 @@ package org.udg.pds.todoandroid.adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,10 +15,16 @@ import com.bumptech.glide.request.RequestOptions;
 
 import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.entity.MensajeForo;
+import org.udg.pds.todoandroid.service.ApiRest;
 import org.udg.pds.todoandroid.util.Global;
+import org.udg.pds.todoandroid.util.InitRetrofit;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class MensajeForoAdapter extends BaseAdapter {
@@ -25,8 +32,11 @@ public class MensajeForoAdapter extends BaseAdapter {
 
     List<MensajeForo> messages = new ArrayList<MensajeForo>();
     Context context;
+    private ApiRest apiRest;
 
     public MensajeForoAdapter(Context context) {
+        // Inicializamos el servicio de APIRest de retrofit
+        apiRest = InitRetrofit.getInstance().getApiRest();
         this.context = context;
     }
 
@@ -53,13 +63,13 @@ public class MensajeForoAdapter extends BaseAdapter {
 
     @Override
     public View getView(int i, View convertView, ViewGroup viewGroup) {
-        MessageViewHolder holder = new MessageViewHolder();
+        final MessageViewHolder holder = new MessageViewHolder();
         LayoutInflater messageInflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
-        MensajeForo message = messages.get(i);
+        final MensajeForo message = messages.get(i);
 
         if (message.isBelongsToCurrentUser()) {
             convertView = messageInflater.inflate(R.layout.tab_foro_evento_mensaje_propio, null);
-            holder.messageBody =  convertView.findViewById(R.id.message_body);
+            holder.messageBody = convertView.findViewById(R.id.message_body);
             convertView.setTag(holder);
             holder.messageBody.setText(message.getText());
         } else {
@@ -72,17 +82,35 @@ public class MensajeForoAdapter extends BaseAdapter {
 
             holder.name.setText(message.getData().getName());
             holder.messageBody.setText(message.getText());
-            Glide.with(context).load(Global.BASE_URL + "imagen/usuario/" + message.getData().getId().toString()).apply(new RequestOptions().circleCrop()).into(holder.avatarForo);
+            // Obtener nombre imagen usuario actual para completar la URL
+            final Call<String> nombreImagen = apiRest.nombreImagenUsuario(message.getData().getId());
+            nombreImagen.enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
+                        String imagenNombre = response.body();
+                        RequestOptions options = new RequestOptions().centerCrop();
+                        Glide.with(context).load(Global.BASE_URL + Global.IMAGE_USER + message.getData().getId().toString() + "/" + imagenNombre).apply(options).into(holder.avatarForo);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    Log.e("ERROR: ", t.getMessage());
+                }
+            });
         }
 
         return convertView;
     }
 
+    class MessageViewHolder {
+        public ImageView avatarForo;
+        public TextView name;
+        public TextView messageBody;
+    }
+
 }
 
-class MessageViewHolder {
-    public ImageView avatarForo;
-    public TextView name;
-    public TextView messageBody;
-}
+
 

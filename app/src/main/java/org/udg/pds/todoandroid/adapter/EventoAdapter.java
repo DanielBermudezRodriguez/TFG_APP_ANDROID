@@ -2,12 +2,12 @@ package org.udg.pds.todoandroid.adapter;
 
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,34 +15,36 @@ import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.squareup.picasso.Picasso;
 
 import org.udg.pds.todoandroid.R;
-import org.udg.pds.todoandroid.activity.Registro;
 import org.udg.pds.todoandroid.entity.Evento;
-import org.udg.pds.todoandroid.fragment.SeleccionarDeporteDialog;
+import org.udg.pds.todoandroid.service.ApiRest;
 import org.udg.pds.todoandroid.util.DateUtil;
 import org.udg.pds.todoandroid.util.ExpandAndCollapseViewUtil;
 import org.udg.pds.todoandroid.util.Global;
-import org.w3c.dom.Text;
+import org.udg.pds.todoandroid.util.InitRetrofit;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoViewHoler>  {
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoViewHoler> {
 
     private List<Evento> eventos;
     private Context context;
     private OnItemClickListener mOnItemClickListener;
+    private ApiRest apiRest;
 
     public void setItem(int position, Evento evento) {
 
-        eventos.set( position, evento);
+        eventos.set(position, evento);
     }
 
     public interface OnItemClickListener {
@@ -53,8 +55,9 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
         this.context = context;
         this.eventos = eventos;
         this.mOnItemClickListener = onItemClickListener;
+        // Inicializamos el servicio de APIRest de retrofit
+        apiRest = InitRetrofit.getInstance().getApiRest();
     }
-
 
 
     public static class EventoViewHoler extends RecyclerView.ViewHolder {
@@ -116,22 +119,49 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
 
 
         final Evento eventoActual = eventos.get(position);
-        RequestOptions options = new RequestOptions();
-        options.centerCrop();
 
         if (eventos.get(position).getId() != null) {
-            //Picasso.with(context).load(Global.BASE_URL + "imagen/usuario/" + eventos.get(position).getAdministrador().getId().toString()).fit().into(holder.imagenAdmin);
-            Glide.with(context).load(Global.BASE_URL + "imagen/usuario/" + eventoActual.getAdministrador().getId().toString()).apply(options).into(holder.imagenAdmin);
+            // Obtener nombre imagen usuario actual para completar la URL
+            final Call<String> nombreImagen = apiRest.nombreImagenUsuario(eventoActual.getAdministrador().getId());
+            nombreImagen.enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
+                        String imagenNombre = response.body();
+                        RequestOptions options = new RequestOptions().centerCrop();
+                        Glide.with(context).load(Global.BASE_URL + Global.IMAGE_USER + eventoActual.getAdministrador().getId().toString() + "/" + imagenNombre).apply(options).into(holder.imagenAdmin);
+                    }
+                }
 
-        }
-        else {
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    Log.e("ERROR: ", t.getMessage());
+                }
+            });
+
+        } else {
             holder.imagenAdmin.setImageDrawable(null);
         }
         if (eventos.get(position).getId() != null) {
-            //Picasso.with(context).load(Global.BASE_URL + "imagen/evento/" + eventoActual.getId().toString()).fit().into(holder.imagenEvento);
-            Glide.with(context).load(Global.BASE_URL + "imagen/evento/" + eventoActual.getId().toString()).apply(options).into(holder.imagenEvento);
-        }
-        else {
+
+            // Obtener nombre imagen evento actual para completar la URL
+            final Call<String> nombreImagen = apiRest.nombreImagenEvento(eventoActual.getId());
+            nombreImagen.enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
+                        String imagenNombre = response.body();
+                        RequestOptions options = new RequestOptions().centerCrop();
+                        Glide.with(context).load(Global.BASE_URL + Global.IMAGE_EVENT + eventoActual.getId().toString() + "/" + imagenNombre).apply(options).into(holder.imagenEvento);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    Log.e("ERROR: ", t.getMessage());
+                }
+            });
+        } else {
             holder.imagenEvento.setImageDrawable(null);
         }
 
@@ -139,16 +169,16 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
         holder.emailAdmin.setText(eventoActual.getAdministrador().getEmail());
         holder.deporteEvento.setText(eventoActual.getDeporte().getDeporte());
         // Participantes ilimitados
-        if (eventoActual.getNumeroParticipantes() == 0){
+        if (eventoActual.getNumeroParticipantes() == 0) {
             holder.participantesEvento.setText(String.valueOf(eventoActual.getParticipantesRegistrados()));
-        }
-        else holder.participantesEvento.setText(String.valueOf(eventoActual.getParticipantesRegistrados()) + " / " + String.valueOf(eventoActual.getNumeroParticipantes()));
+        } else
+            holder.participantesEvento.setText(String.valueOf(eventoActual.getParticipantesRegistrados()) + " / " + String.valueOf(eventoActual.getNumeroParticipantes()));
         holder.municipioEvento.setText(eventoActual.getMunicipio().getMunicipio());
         // Duración ilimitada
-        if (eventoActual.getDuracion() == 0){
+        if (eventoActual.getDuracion() == 0) {
             holder.duracionEvento.setText("ilimitada");
-        }
-        else holder.duracionEvento.setText(String.valueOf(eventoActual.getDuracion()) + " minutos");
+        } else
+            holder.duracionEvento.setText(String.valueOf(eventoActual.getDuracion()) + " minutos");
         holder.tituloEvento.setText(eventoActual.getTitulo());
         holder.descripcionEvento.setText(eventoActual.getDescripcion());
 
@@ -184,10 +214,10 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
             }
         });
 
-        holder.cardView.setOnClickListener( new View.OnClickListener(){
+        holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mOnItemClickListener.onItemClick(eventoActual,position);
+                mOnItemClickListener.onItemClick(eventoActual, position);
             }
         });
     }
@@ -211,7 +241,6 @@ public class EventoAdapter extends RecyclerView.Adapter<EventoAdapter.EventoView
     public int getItemViewType(int position) {
         return position;
     }
-
 
 
 }

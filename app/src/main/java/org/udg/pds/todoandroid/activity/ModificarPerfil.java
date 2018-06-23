@@ -25,6 +25,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 
@@ -131,8 +133,23 @@ public class ModificarPerfil extends AppCompatActivity implements View.OnClickLi
         }
 
         imagenPerfil = findViewById(R.id.registro_imagen_perfil);
-        // Cargar imagen de perfil del usuario actual
-        Picasso.with(getApplicationContext()).load(Global.BASE_URL + Global.IMAGE_USER + usuario.getId().toString()).into(imagenPerfil);
+        // Obtener nombre imagen usuario actual para completar la URL
+        final Call<String> nombreImagen = apiRest.nombreImagenUsuario(usuario.getId());
+        nombreImagen.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
+                    String imagenNombre = response.body();
+                    RequestOptions options = new RequestOptions().centerCrop();
+                    Glide.with(getApplicationContext()).load(Global.BASE_URL + Global.IMAGE_USER + usuario.getId().toString() + "/" + imagenNombre).apply(options).into(imagenPerfil);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                Log.e(getString(R.string.log_error), t.getMessage());
+            }
+        });
         imagenPerfil.setOnClickListener(this);
 
 

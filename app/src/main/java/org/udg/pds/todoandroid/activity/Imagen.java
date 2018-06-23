@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
 import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.util.Global;
@@ -19,6 +19,6 @@ public class Imagen extends AppCompatActivity {
         setContentView(R.layout.imagen_layout);
         String urlImagen = Objects.requireNonNull(getIntent().getExtras()).getString(Global.URL_IMAGEN);
         ImageView imagen = findViewById(R.id.imagen_full_screen);
-        Picasso.with(getApplicationContext()).load(urlImagen).into(imagen);
+        Glide.with(getApplicationContext()).load(urlImagen).into(imagen);
     }
 }

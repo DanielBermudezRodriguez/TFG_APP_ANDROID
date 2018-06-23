@@ -163,7 +163,7 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
         }
         // Imagen evento por defecto
         imagenEvento = findViewById(R.id.crear_evento_imagen_evento);
-        Picasso.with(getApplicationContext()).load(Global.BASE_URL + Global.DEFAULT_IMAGE_EVENT).into(imagenEvento);
+        Picasso.with(getApplicationContext()).load(Global.BASE_URL + Global.DEFAULT_IMAGE_EVENT + "/" + Global.NO_IMAGEN_PERFIL).into(imagenEvento);
         imagenEvento.setOnClickListener(this);
         // Ocultar layout ubicación
         findViewById(R.id.crear_evento_seleccionar_ubicacion).setVisibility(View.GONE);

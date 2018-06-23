@@ -1,10 +1,12 @@
 package org.udg.pds.todoandroid.adapter;
 
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,9 +20,15 @@ import com.bumptech.glide.request.RequestOptions;
 import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.entity.ParticipanteEvento;
 import org.udg.pds.todoandroid.entity.UsuarioActual;
+import org.udg.pds.todoandroid.service.ApiRest;
 import org.udg.pds.todoandroid.util.Global;
+import org.udg.pds.todoandroid.util.InitRetrofit;
 
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ParticipanteEventoAdapter extends RecyclerView.Adapter<ParticipanteEventoAdapter.ParticipanteEventoViewHolder> {
 
@@ -29,6 +37,7 @@ public class ParticipanteEventoAdapter extends RecyclerView.Adapter<Participante
     private Boolean esAdministradorEvento;
     private ParticipanteEventoAdapter.OnItemClickListener mOnItemClickListener;
     private Long administrador;
+    private ApiRest apiRest;
 
     public interface OnItemClickListener {
         void desapuntarDelEvento(ParticipanteEvento p, int position);
@@ -42,6 +51,8 @@ public class ParticipanteEventoAdapter extends RecyclerView.Adapter<Participante
         this.esAdministradorEvento = esAdministradorEvento;
         this.mOnItemClickListener = onItemClickListener;
         this.administrador = administrador;
+        // Inicializamos el servicio de APIRest de retrofit
+        apiRest = InitRetrofit.getInstance().getApiRest();
     }
 
 
@@ -54,11 +65,10 @@ public class ParticipanteEventoAdapter extends RecyclerView.Adapter<Participante
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ParticipanteEventoViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final ParticipanteEventoViewHolder holder, @SuppressLint("RecyclerView") final int position) {
 
         final ParticipanteEvento participanteEventoActual = participanteEventos.get(position);
-        RequestOptions options = new RequestOptions();
-        options.centerCrop();
+        RequestOptions options = new RequestOptions().centerCrop();
 
         // Si el usuario actual no es el administrador del evento no se le permite desapuntar participantes del evento
         if (!esAdministradorEvento) {
@@ -88,14 +98,31 @@ public class ParticipanteEventoAdapter extends RecyclerView.Adapter<Participante
 
         // cargar imagen participante
         if (participanteEventos.get(position).getId() != null) {
-            Glide.with(context).load(Global.BASE_URL + Global.IMAGE_USER + participanteEventoActual.getId().toString()).apply(options).into(holder.imagenParticipante);
+            // Obtener nombre imagen usuario actual para completar la URL
+            final Call<String> nombreImagen = apiRest.nombreImagenUsuario(participanteEventoActual.getId());
+            nombreImagen.enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
+                        String imagenNombre = response.body();
+                        RequestOptions options = new RequestOptions().centerCrop();
+                        Glide.with(context).load(Global.BASE_URL + Global.IMAGE_USER + participanteEventoActual.getId().toString() + "/" + imagenNombre).apply(options).into(holder.imagenParticipante);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    Log.e("ERROR: ", t.getMessage());
+                }
+            });
+
         } else {
             holder.imagenParticipante.setImageDrawable(null);
         }
         holder.municipioParticipante.setText(participanteEventoActual.getMunicipio());
         holder.usernameParticipante.setText(participanteEventoActual.getUsername());
 
-        holder.participante.setOnClickListener( new View.OnClickListener(){
+        holder.participante.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mOnItemClickListener.onItemClick(participanteEventoActual.getId());

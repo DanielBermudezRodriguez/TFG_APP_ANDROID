@@ -130,9 +130,24 @@ public class PerfilUsuario extends AppCompatActivity implements View.OnClickList
             // Mostrar imagen perfil usuario
             case R.id.perfil_usuario_imagen:
                 if (getApplicationContext() != null && idUsuarioPerfil != null) {
-                    Intent imagenIntent = new Intent(getApplicationContext(), Imagen.class);
-                    imagenIntent.putExtra(Global.URL_IMAGEN, Global.BASE_URL + Global.IMAGE_USER + idUsuarioPerfil);
-                    startActivity(imagenIntent);
+                    // Obtener nombre imagen usuario actual para completar la URL
+                    final Call<String> nombreImagen = apiRest.nombreImagenUsuario(usuario.getId());
+                    nombreImagen.enqueue(new Callback<String>() {
+                        @Override
+                        public void onResponse(Call<String> call, Response<String> response) {
+                            if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
+                                String imagenNombre = response.body();
+                                Intent imagenIntent = new Intent(getApplicationContext(), Imagen.class);
+                                imagenIntent.putExtra(Global.URL_IMAGEN, Global.BASE_URL + Global.IMAGE_USER + idUsuarioPerfil + "/" + imagenNombre);
+                                startActivity(imagenIntent);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<String> call, Throwable t) {
+                            Log.e(getString(R.string.log_error), t.getMessage());
+                        }
+                    });
                 }
                 break;
         }

@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,29 +17,37 @@ import com.bumptech.glide.request.RequestOptions;
 
 import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.entity.Evento;
+import org.udg.pds.todoandroid.service.ApiRest;
 import org.udg.pds.todoandroid.util.DateUtil;
 import org.udg.pds.todoandroid.util.Global;
+import org.udg.pds.todoandroid.util.InitRetrofit;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class EventosRegistradoAdapter extends RecyclerView.Adapter<EventosRegistradoAdapter.EventoRegistradoViewHolder> {
 
-    private List<Evento> eventos = new ArrayList<Evento>();
+    private List<Evento> eventos;
     private Context context;
     private EventosRegistradoAdapter.OnItemClickListener mOnItemClickListener;
+    private ApiRest apiRest;
 
     public interface OnItemClickListener {
         public void visualizardetalleEvento(Evento e);
 
-        public void desapuntarDelEvento(Evento e,int position);
+        public void desapuntarDelEvento(Evento e, int position);
     }
 
     public EventosRegistradoAdapter(Context context, List<Evento> eventos, EventosRegistradoAdapter.OnItemClickListener onItemClickListener) {
         this.eventos = eventos;
         this.context = context;
         this.mOnItemClickListener = onItemClickListener;
+        // Inicializamos el servicio de APIRest de retrofit
+        apiRest = InitRetrofit.getInstance().getApiRest();
     }
 
     @NonNull
@@ -50,21 +59,40 @@ public class EventosRegistradoAdapter extends RecyclerView.Adapter<EventosRegist
     }
 
     @Override
-    public void onBindViewHolder(@NonNull EventosRegistradoAdapter.EventoRegistradoViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final EventosRegistradoAdapter.EventoRegistradoViewHolder holder, final int position) {
 
         final Evento eventoActual = eventos.get(position);
-        RequestOptions options = new RequestOptions();
-        options.centerCrop();
-
 
         holder.desapuntarEvento.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mOnItemClickListener.desapuntarDelEvento(eventoActual,position);
+                mOnItemClickListener.desapuntarDelEvento(eventoActual, position);
             }
         });
 
-        Glide.with(context).load(Global.BASE_URL + "imagen/evento/" + eventoActual.getId().toString()).apply(options).into(holder.imagenEvento);
+        if (eventos.get(position).getId() != null) {
+
+            // Obtener nombre imagen evento actual para completar la URL
+            final Call<String> nombreImagen = apiRest.nombreImagenEvento(eventoActual.getId());
+            nombreImagen.enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
+                        String imagenNombre = response.body();
+                        RequestOptions options = new RequestOptions().centerCrop();
+                        Glide.with(context).load(Global.BASE_URL + Global.IMAGE_EVENT + eventoActual.getId().toString() + "/" + imagenNombre).apply(options).into(holder.imagenEvento);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    Log.e("ERROR: ", t.getMessage());
+                }
+            });
+        } else {
+            holder.imagenEvento.setImageDrawable(null);
+        }
+
         holder.deporteEvento.setText(eventoActual.getDeporte().getDeporte());
         holder.fechavento.setText(DateUtil.parseData(eventoActual.getFechaEvento()));
         holder.estadoEvento.setText(eventoActual.getEstado().getEstado());

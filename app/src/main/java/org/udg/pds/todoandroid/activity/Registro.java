@@ -121,7 +121,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
 
         imagenPerfil = findViewById(R.id.registro_imagen_perfil);
         // Cargar imagen de perfil por defecto
-        Picasso.with(getApplicationContext()).load(Global.BASE_URL + Global.DEFAULT_IMAGE_USER).into(imagenPerfil);
+        Picasso.with(getApplicationContext()).load(Global.BASE_URL + Global.DEFAULT_IMAGE_USER + "/" + Global.NO_IMAGEN_PERFIL).into(imagenPerfil);
         imagenPerfil.setOnClickListener(this);
 
         progressBar = findViewById(R.id.progressBar);

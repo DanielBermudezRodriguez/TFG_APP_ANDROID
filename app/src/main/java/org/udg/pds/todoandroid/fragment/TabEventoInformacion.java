@@ -105,9 +105,26 @@ public class TabEventoInformacion extends Fragment implements View.OnClickListen
             // Mostrar imagen evento
             case R.id.tab_evento_informacion_imagen_evento:
                 if (getActivity() != null && evento != null) {
-                    Intent imagenIntent = new Intent(getActivity().getApplicationContext(), Imagen.class);
-                    imagenIntent.putExtra(Global.URL_IMAGEN, Global.BASE_URL + Global.IMAGE_EVENT + evento.getId().toString());
-                    startActivity(imagenIntent);
+
+                    // Obtener nombre imagen evento actual para completar la URL
+                    final Call<String> nombreImagen = apiRest.nombreImagenEvento(evento.getId());
+                    nombreImagen.enqueue(new Callback<String>() {
+                        @Override
+                        public void onResponse(Call<String> call, Response<String> response) {
+                            if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
+                                String imagenNombre = response.body();
+                                Intent imagenIntent = new Intent(getActivity().getApplicationContext(), Imagen.class);
+                                imagenIntent.putExtra(Global.URL_IMAGEN, Global.BASE_URL + Global.IMAGE_EVENT + evento.getId().toString() + "/" + imagenNombre);
+                                startActivity(imagenIntent);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<String> call, Throwable t) {
+                            Log.e("ERROR: ", t.getMessage());
+                        }
+                    });
+
                 }
                 break;
         }
@@ -124,12 +141,25 @@ public class TabEventoInformacion extends Fragment implements View.OnClickListen
                 if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
                     evento = response.body();
 
-                    RequestOptions options = new RequestOptions();
-                    options.centerCrop();
-
                     if (evento != null) {
                         if (getActivity() != null) {
-                            Glide.with(getActivity().getApplicationContext()).load(Global.BASE_URL + Global.IMAGE_EVENT + evento.getId()).apply(options).into(imagenEvento);
+                            // Obtener nombre imagen evento actual para completar la URL
+                            final Call<String> nombreImagen = apiRest.nombreImagenEvento(evento.getId());
+                            nombreImagen.enqueue(new Callback<String>() {
+                                @Override
+                                public void onResponse(Call<String> call, Response<String> response) {
+                                    if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
+                                        String imagenNombre = response.body();
+                                        RequestOptions options = new RequestOptions().centerCrop();
+                                        Glide.with(getActivity().getApplicationContext()).load(Global.BASE_URL + Global.IMAGE_EVENT + evento.getId().toString() + "/" + imagenNombre).apply(options).into(imagenEvento);
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<String> call, Throwable t) {
+                                    Log.e("ERROR: ", t.getMessage());
+                                }
+                            });
                         }
 
                         tituloEvento.setText(evento.getTitulo());

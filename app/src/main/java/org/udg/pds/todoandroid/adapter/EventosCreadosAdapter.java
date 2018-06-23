@@ -2,44 +2,46 @@ package org.udg.pds.todoandroid.adapter;
 
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
 import org.udg.pds.todoandroid.R;
-import org.udg.pds.todoandroid.activity.Registro;
 import org.udg.pds.todoandroid.entity.Evento;
-import org.udg.pds.todoandroid.entity.ParticipanteEvento;
 import org.udg.pds.todoandroid.entity.UsuarioActual;
+import org.udg.pds.todoandroid.service.ApiRest;
 import org.udg.pds.todoandroid.util.DateUtil;
 import org.udg.pds.todoandroid.util.Global;
+import org.udg.pds.todoandroid.util.InitRetrofit;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class EventosCreadosAdapter extends RecyclerView.Adapter<EventosCreadosAdapter.EventoCreadoViewHolder> {
 
     private List<Evento> eventos = new ArrayList<Evento>();
     private Context context;
     private EventosCreadosAdapter.OnItemClickListener mOnItemClickListener;
+    private ApiRest apiRest;
 
     public void actualizarEventos(List<Evento> eventosCreados) {
-        if(eventos == null || eventos.size()==0)
+        if (eventos == null || eventos.size() == 0)
             return;
-        if (eventos != null && eventos.size()>0)
+        if (eventos != null && eventos.size() > 0)
             eventos.clear();
         eventos.addAll(eventosCreados);
         notifyDataSetChanged();
@@ -55,6 +57,8 @@ public class EventosCreadosAdapter extends RecyclerView.Adapter<EventosCreadosAd
         this.eventos = eventos;
         this.context = context;
         this.mOnItemClickListener = onItemClickListener;
+        // Inicializamos el servicio de APIRest de retrofit
+        apiRest = InitRetrofit.getInstance().getApiRest();
     }
 
     @NonNull
@@ -66,11 +70,9 @@ public class EventosCreadosAdapter extends RecyclerView.Adapter<EventosCreadosAd
     }
 
     @Override
-    public void onBindViewHolder(@NonNull EventosCreadosAdapter.EventoCreadoViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final EventosCreadosAdapter.EventoCreadoViewHolder holder, final int position) {
 
         final Evento eventoActual = eventos.get(position);
-        RequestOptions options = new RequestOptions();
-        options.centerCrop();
 
         // Evento abierto o completo (No está en un estado final) i el usuario actual es administrador del evento
         if ((eventoActual.getEstado().getId().equals(Global.EVENTO_ABIERTO) || eventoActual.getEstado().getId().equals(Global.EVENTO_COMPLETO)) && eventoActual.getAdministrador().getId().equals(UsuarioActual.getInstance().getId())) {
@@ -78,14 +80,36 @@ public class EventosCreadosAdapter extends RecyclerView.Adapter<EventosCreadosAd
             holder.cancelarEvento.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mOnItemClickListener.cancelarEvento(eventoActual,position);
+                    mOnItemClickListener.cancelarEvento(eventoActual, position);
                 }
             });
-        } else  {
+        } else {
             holder.cancelarEvento.setVisibility(View.GONE);
         }
 
-        Glide.with(context).load(Global.BASE_URL + "imagen/evento/" + eventoActual.getId().toString()).apply(options).into(holder.imagenEvento);
+        if (eventos.get(position).getId() != null) {
+
+            // Obtener nombre imagen evento actual para completar la URL
+            final Call<String> nombreImagen = apiRest.nombreImagenEvento(eventoActual.getId());
+            nombreImagen.enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
+                        String imagenNombre = response.body();
+                        RequestOptions options = new RequestOptions().centerCrop();
+                        Glide.with(context).load(Global.BASE_URL + Global.IMAGE_EVENT + eventoActual.getId().toString() + "/" + imagenNombre).apply(options).into(holder.imagenEvento);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    Log.e("ERROR: ", t.getMessage());
+                }
+            });
+        } else {
+            holder.imagenEvento.setImageDrawable(null);
+        }
+
         holder.deporteEvento.setText(eventoActual.getDeporte().getDeporte());
         holder.fechavento.setText(DateUtil.parseData(eventoActual.getFechaEvento()));
         holder.estadoEvento.setText(eventoActual.getEstado().getEstado());

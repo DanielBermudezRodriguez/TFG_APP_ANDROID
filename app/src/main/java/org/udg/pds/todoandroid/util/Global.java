@@ -8,7 +8,7 @@ public class Global {
     public static final String IMAGE_USER = "imagen/usuario/";
     public static final String DEFAULT_IMAGE_EVENT = "imagen/evento/0";
     public static final String IMAGE_EVENT = "imagen/evento/";
-
+    public static final String NO_IMAGEN_PERFIL = "no-image.png";
     public static final String DEFAULT_FORO_NAME = "default";
 
     public static final String TAG_PROVINCIAS_DIALOG = "seleccionarProvincias";
