@@ -27,12 +27,16 @@ public class Evento implements Serializable {
 
     private Municipio municipio;
 
+    private Provincia provincia;
+
     private Foro foro;
+
+    private Ubicacion ubicacion;
 
     public Evento() {
     }
 
-    public Evento(Long id, String titulo, String descripcion, int duracion, int numeroParticipantes, Date fechaEvento, Deporte deporte, Estado estado, int participantesRegistrados, Administrador administrador, Municipio municipio, Foro foro) {
+    public Evento(Long id, String titulo, String descripcion, int duracion, int numeroParticipantes, Date fechaEvento, Deporte deporte, Estado estado, int participantesRegistrados, Administrador administrador, Municipio municipio, Foro foro, Ubicacion u) {
         this.id = id;
         this.titulo = titulo;
         this.descripcion = descripcion;
@@ -45,6 +49,7 @@ public class Evento implements Serializable {
         this.administrador = administrador;
         this.municipio = municipio;
         this.foro = foro;
+        this.ubicacion = u;
     }
 
     public Long getId() {
@@ -141,5 +146,21 @@ public class Evento implements Serializable {
 
     public void setForo(Foro foro) {
         this.foro = foro;
+    }
+
+    public Ubicacion getUbicacion() {
+        return ubicacion;
+    }
+
+    public void setUbicacion(Ubicacion ubicacion) {
+        this.ubicacion = ubicacion;
+    }
+
+    public Provincia getProvincia() {
+        return provincia;
+    }
+
+    public void setProvincia(Provincia provincia) {
+        this.provincia = provincia;
     }
 }

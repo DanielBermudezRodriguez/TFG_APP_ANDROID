@@ -1,7 +1,9 @@
 package org.udg.pds.todoandroid.entity;
 
 
-public class Ubicacion {
+import java.io.Serializable;
+
+public class Ubicacion implements Serializable {
 
     private double latitud;
 

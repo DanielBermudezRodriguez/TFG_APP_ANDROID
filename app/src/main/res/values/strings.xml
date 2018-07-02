@@ -107,7 +107,22 @@
     // Modificar perfil usuario
     <string name="menu_modificar_perfil">Guardar</string>
 
+    // Notificaciones
+    <string name="notificacion_titulo_eventos_creados">Eventos creados</string>
+    <string name="notificacion_usuario_nuevo_titulo">Alta nuevo usuario</string>
+    <string name="notificacion_usuario_nuevo_descripcion">Recibir notificación cuando un nuevo usuario se registre en un evento</string>
+    <string name="notificacion_titulo_baja_usuario">Baja usuario registrado</string>
+    <string name="notificacion_descripcion_baja_usuario">Recibir una notificación cuando un usuario registrado en el evento se da de baja</string>
+    <string name="notificacion_titulo_evento_registrado">Eventos registrado</string>
+    <string name="notificacion_titulo_evento_cancelado">Evento cancelado</string>
+    <string name="notificacion_descripcion_evento_cancelado">Recibir una notificación al cancelarse un evento registrado</string>
+    <string name="notificacion_datos_evento_modificados">Datos evento modificados</string>
+    <string name="notificacion_descripcion_evento_modificado">Recibir una notificación al modificarse los datos de un evento registrado</string>
+    <string name="notificacion_titulo_evento_desapuntado">Eliminado evento</string>
+    <string name="notificacion_descripcion_evento_desapuntado">Recibir una notificación al ser desapuntado de un evento registrado</string>
 
+    // Modificar perfil usuario
+    <string name="menu_modificar_evento">Guardar</string>
 
 
 

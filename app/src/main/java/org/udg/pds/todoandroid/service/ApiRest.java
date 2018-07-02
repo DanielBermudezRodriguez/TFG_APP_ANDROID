@@ -7,6 +7,7 @@ import org.udg.pds.todoandroid.entity.EventoCrearPeticion;
 import org.udg.pds.todoandroid.entity.GenericId;
 import org.udg.pds.todoandroid.entity.Imagen;
 import org.udg.pds.todoandroid.entity.Municipio;
+import org.udg.pds.todoandroid.entity.Notificaciones;
 import org.udg.pds.todoandroid.entity.Pais;
 import org.udg.pds.todoandroid.entity.ParticipanteEvento;
 import org.udg.pds.todoandroid.entity.Provincia;
@@ -21,7 +22,6 @@ import org.udg.pds.todoandroid.entity.UsuarioRegistroRespuesta;
 import java.util.List;
 
 import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -46,6 +46,9 @@ public interface ApiRest {
 
     @POST("evento")
     Call<GenericId> crearEvento (@Body EventoCrearPeticion datosEvento);
+
+    @PUT("evento/{idUsuario}/{idEvento}")
+    Call<GenericId> modificarEvento (@Body EventoCrearPeticion datosEvento,@Path("idUsuario") Long idUsuario,@Path("idEvento") Long idEvento);
 
     @GET("pais")
     Call<List<Pais>> paises();
@@ -105,4 +108,10 @@ public interface ApiRest {
 
     @GET("imagen/evento/nombre/{idEvento}")
     Call<String> nombreImagenEvento(@Path("idEvento") Long idEvento);
+
+    @GET("notificacion")
+    Call<Notificaciones> obtenerConfiguracionNotificaciones();
+
+    @PUT("notificacion")
+    Call<Notificaciones> guardarConfiguracionNotificaciones(@Body Notificaciones configuracionNotificaciones);
 }

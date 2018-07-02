@@ -27,7 +27,7 @@ public class NavigationDrawerAdapter extends BaseAdapter {
 
     public NavigationDrawerAdapter(Context context) {
         this.mContext = context;
-        String[] secciones = {"Perfil", "Modificar perfil", "Cerrar sesión", "Mis eventos"};
+        String[] secciones = {"Perfil", "Modificar perfil", "Cerrar sesión", "Mis eventos", "Notificaciones"};
         seccionesMenuLateral = Arrays.asList(secciones);
     }
 
@@ -57,6 +57,8 @@ public class NavigationDrawerAdapter extends BaseAdapter {
                 return R.mipmap.ic_cerrar_sesion;
             case 3:
                 return R.mipmap.ic_eventos_creados;
+            case 4:
+                return R.mipmap.ic_notificaciones;
         }
     }
 

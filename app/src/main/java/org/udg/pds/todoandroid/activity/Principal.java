@@ -409,7 +409,22 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
         }
         // Modificar perfil
         if (position == 2) {
-        System.out.print("");
+            Call<Usuario> call = apiRest.perfilUsuario(UsuarioActual.getInstance().getId());
+            call.enqueue(new Callback<Usuario>() {
+                @Override
+                public void onResponse(Call<Usuario> call, Response<Usuario> response) {
+                    if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
+                        Usuario usuario = response.body();
+                        Intent modificarPerfil = new Intent(getApplicationContext(), ModificarPerfil.class);
+                        modificarPerfil.putExtra(Global.KEY_ACTUAL_USER, usuario);
+                        startActivity(modificarPerfil);
+                    }
+                }
+                @Override
+                public void onFailure(Call<Usuario> call, Throwable t) {
+                    Log.e(getString(R.string.log_error), t.getMessage());
+                }
+            });
         }
         // Cerrar Sesión
         if (position == 3) {
@@ -418,6 +433,11 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
         // Eventos creados y apuntados del usuario actual
         if (position == 4) {
             Intent i = new Intent(getApplicationContext(), MisEventos.class);
+            startActivity(i);
+        }
+        // Notificaciones usuario
+        if (position == 5){
+            Intent i = new Intent(getApplicationContext(), Notificacion.class);
             startActivity(i);
         }
 

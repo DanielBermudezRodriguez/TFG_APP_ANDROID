@@ -10,14 +10,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
@@ -40,13 +38,12 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
-
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.tooltip.Tooltip;
@@ -54,6 +51,7 @@ import com.tooltip.Tooltip;
 import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.entity.Deporte;
+import org.udg.pds.todoandroid.entity.Evento;
 import org.udg.pds.todoandroid.entity.EventoCrearPeticion;
 import org.udg.pds.todoandroid.entity.GenericId;
 import org.udg.pds.todoandroid.entity.Imagen;
@@ -61,6 +59,7 @@ import org.udg.pds.todoandroid.entity.Municipio;
 import org.udg.pds.todoandroid.entity.Pais;
 import org.udg.pds.todoandroid.entity.Provincia;
 import org.udg.pds.todoandroid.entity.Ubicacion;
+import org.udg.pds.todoandroid.entity.UsuarioActual;
 import org.udg.pds.todoandroid.fragment.DatePickerFragment;
 import org.udg.pds.todoandroid.fragment.SeleccionarDeporteEventoDialog;
 import org.udg.pds.todoandroid.fragment.SeleccionarMunicipioDialog;
@@ -77,10 +76,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 
 import okhttp3.MediaType;
@@ -90,12 +87,22 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class CrearEvento extends AppCompatActivity implements View.OnClickListener, SeleccionarDeporteEventoDialog.SeleccionarDeporteEventoDialogListener, SeleccionarProvinciasDialog.SeleccionarProvinciasDialogListener, SeleccionarMunicipioDialog.SeleccionarMunicipioDialogListener {
+public class ModificarEvento extends AppCompatActivity implements View.OnClickListener, SeleccionarDeporteEventoDialog.SeleccionarDeporteEventoDialogListener, SeleccionarProvinciasDialog.SeleccionarProvinciasDialogListener, SeleccionarMunicipioDialog.SeleccionarMunicipioDialogListener {
 
+    // Interficie de llamadas a la APIRest gestionada por Retrofit
     private ApiRest apiRest;
+    // Evento actual
+    private Evento evento;
+
+    // Imagen evento
+    private ImageView imagenEvento;
+    private Uri pathImagenPerfil;
+    private boolean esNuevaImagen = false;
+
     // Categoría deportiva
     private List<Deporte> deportes = new ArrayList<>();
     private int deporteSeleccionado = -1;
+
     // Fecha evento
     private int year = -1;
     private int month = -1;
@@ -103,105 +110,202 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
     // Hora evento
     private int hora = -1;
     private int minutos = -1;
+
     // Ubicación Evento escojiendo provincia y municipio
     private List<Pais> paises = new ArrayList<>();
-    private int paisActual = Global.DEFAULT_COUNTRY;
+    private int paisActual = -1;
     private List<Provincia> provincias = new ArrayList<>();
-    private int provinciaActual;
+    private int provinciaActual = -1;
     private List<Municipio> municipios = new ArrayList<>();
-    private int municipioActual = 0;
+    private int municipioActual = -1;
     private boolean esMunicipio = false;
+    // Determina si se ha seleccionado una nueva ubicación para el usuario
+    private boolean nuevoMunicipio = false;
+    private TextInputLayout tilProvincia;
+    private TextInputLayout tilMunicipio;
+    private EditText etProvincia;
+    private EditText etMunicipio;
     // Ubicación evento seleccionando en el mapa de google
     private double latitud;
     private double longitud;
     private String direccion;
     private String municipioDireccion;
     private boolean esUbicacionGPS = false;
-    // Campos formulario
+    private TextView ubicacion;
+    private ConstraintLayout seleccionarUbicacion;
+
     private TextInputLayout tilTitulo;
     private TextInputLayout tilDescripcion;
-    private TextInputLayout tilDeporte;
     private TextInputLayout tilParticipantes;
     private TextInputLayout tilDuracion;
     private TextInputLayout tilFecha;
     private TextInputLayout tilHora;
-    private TextInputLayout tilProvincia;
-    private TextInputLayout tilMunicipio;
+    private TextInputLayout tilDeporte;
+
     private EditText etTitulo;
     private EditText etDescripcion;
-    private EditText etDeporte;
     private EditText etParticipantes;
     private EditText etDuracion;
     private EditText etFecha;
     private EditText etHora;
-    private EditText etProvincia;
-    private EditText etMunicipio;
+    private EditText etDeporte;
+
     // Privacidad Foro
     private Switch privacidadForo;
-    // Ubicación evento
-    private ConstraintLayout seleccionarUbicacion;
-    private TextView ubicacion;
-    // Imagen evento
-    private ImageView imagenEvento;
-    private Uri pathImagenPerfil;
-    private boolean esNuevaImagen = false;
 
+    @SuppressLint("SetTextI18n")
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.crear_evento_layout);
+
+        // Obtenemos los datos del evento a modificar datos
+        if (getIntent().getExtras() != null) {
+            evento = (Evento) getIntent().getExtras().getSerializable(Global.KEY_ACTUAL_EVENT);
+        }
+
         // Inicializamos el servicio de APIRest de retrofit
         apiRest = InitRetrofit.getInstance().getApiRest();
         //Obtenemos las categorías deportivas disponibles
         obtenerDeportes();
+        //Cargamos layout formulario de registro
+        setContentView(R.layout.crear_evento_layout);
         // Ponemos el toolbar
         Toolbar toolbar = findViewById(R.id.appbar);
         setSupportActionBar(toolbar);
+        // Mostrar botón "atras" en action bar
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
-        // Imagen evento por defecto
-        imagenEvento = findViewById(R.id.crear_evento_imagen_evento);
-        Picasso.with(getApplicationContext()).load(Global.BASE_URL + Global.DEFAULT_IMAGE_EVENT + "/" + Global.NO_IMAGEN_PERFIL).into(imagenEvento);
-        imagenEvento.setOnClickListener(this);
-        // Ocultar layout ubicación
-        findViewById(R.id.crear_evento_seleccionar_ubicacion).setVisibility(View.GONE);
-        // Obtener campos formulario
-        tilTitulo = findViewById(R.id.crear_evento_til_titulo);
-        tilDescripcion = findViewById(R.id.crear_evento_til_descripcion);
-        tilDeporte = findViewById(R.id.crear_evento_til_deporte);
-        tilParticipantes = findViewById(R.id.crear_evento_til_participantes);
-        tilDuracion = findViewById(R.id.crear_evento_til_duracion);
-        tilFecha = findViewById(R.id.crear_evento_til_dia);
-        tilHora = findViewById(R.id.crear_evento_til_hora);
-        tilProvincia = findViewById(R.id.crear_evento_til_provincias);
-        tilMunicipio = findViewById(R.id.crear_evento_til_municipio);
 
+        imagenEvento = findViewById(R.id.crear_evento_imagen_evento);
+        // Obtener nombre imagen evento actual para completar la URL
+        Call<String> nombreImagen = apiRest.nombreImagenEvento(evento.getId());
+        nombreImagen.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
+                    String imagenNombre = response.body();
+                    RequestOptions options = new RequestOptions().centerCrop();
+                    Glide.with(getApplicationContext()).load(Global.BASE_URL + Global.IMAGE_EVENT + evento.getId().toString() + "/" + imagenNombre).apply(options).into(imagenEvento);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                Log.e(getString(R.string.log_error), t.getMessage());
+            }
+        });
+        imagenEvento.setOnClickListener(this);
+
+        // Título evento
+        tilTitulo = findViewById(R.id.crear_evento_til_titulo);
         etTitulo = findViewById(R.id.crear_evento_et_titulo);
+        etTitulo.setText(evento.getTitulo());
+
+        // Descripción evento
+        tilDescripcion = findViewById(R.id.crear_evento_til_descripcion);
         etDescripcion = findViewById(R.id.crear_evento_et_descripcion);
-        etDeporte = findViewById(R.id.crear_evento_et_deporte);
+        etDescripcion.setText(evento.getDescripcion());
+
+        // Participantes evento
+        tilParticipantes = findViewById(R.id.crear_evento_til_participantes);
         etParticipantes = findViewById(R.id.crear_evento_et_participantes);
+        etParticipantes.setText(String.valueOf(evento.getNumeroParticipantes()));
         etParticipantes.setFilters(new InputFilter[]{new InputFilterMinMax("0", "9999")});
+
+
+        // Duración evento
+        tilDuracion = findViewById(R.id.crear_evento_til_duracion);
         etDuracion = findViewById(R.id.crear_evento_et_duracion);
+        etDuracion.setText(String.valueOf(evento.getDuracion()));
         etDuracion.setFilters(new InputFilter[]{new InputFilterMinMax("0", "9999")});
-        etDeporte.setOnClickListener(this);
+
+        // Fecha evento
+        tilFecha = findViewById(R.id.crear_evento_til_dia);
         etFecha = findViewById(R.id.crear_evento_et_dia);
         etFecha.setOnClickListener(this);
+        Calendar c = Calendar.getInstance();
+        c.setTime(evento.getFechaEvento());
+        year = c.get(Calendar.YEAR);
+        month = c.get(Calendar.MONTH);
+        day = c.get(Calendar.DAY_OF_MONTH);
+        etFecha.setText(dosDigitos(day) + " / " + dosDigitos(month + 1) + " / " + year);
+
+        // Hora evento
+        tilHora = findViewById(R.id.crear_evento_til_hora);
         etHora = findViewById(R.id.crear_evento_et_hora);
         etHora.setOnClickListener(this);
-        etProvincia = findViewById(R.id.crear_evento_et_provincias);
-        etProvincia.setOnClickListener(this);
-        etMunicipio = findViewById(R.id.crear_evento_et_municipio);
-        etMunicipio.setOnClickListener(this);
+        hora = c.get(Calendar.HOUR_OF_DAY);
+        minutos = c.get(Calendar.MINUTE);
+        etHora.setText(dosDigitos(hora) + ":" + dosDigitos(minutos) + " h");
+
+        // Deporte
+        tilDeporte = findViewById(R.id.crear_evento_til_deporte);
+        etDeporte = findViewById(R.id.crear_evento_et_deporte);
+        etDeporte.setOnClickListener(this);
+        deporteSeleccionado = evento.getDeporte().getId().intValue() - 1;
+        etDeporte.setText(evento.getDeporte().getDeporte());
 
         // tooltips
         ImageView tooltipParticipantes = findViewById(R.id.crear_evento_tooltip_participantes);
         tooltipParticipantes.setOnClickListener(this);
         ImageView tooltipPrivacidadForo = findViewById(R.id.crear_evento_tooltip_privacidad_foro);
         tooltipPrivacidadForo.setOnClickListener(this);
+
+        // Ocultar layout ubicación
+        findViewById(R.id.crear_evento_seleccionar_ubicacion).setVisibility(View.GONE);
+        Button ubicacionEvento = findViewById(R.id.crear_evento_boton_ubicacion);
+        ubicacionEvento.setOnClickListener(this);
+        Button municipioEvento = findViewById(R.id.crear_evento__boton_municipio);
+        municipioEvento.setOnClickListener(this);
+        seleccionarUbicacion = findViewById(R.id.crear_evento_ubicacion_layout);
+        ubicacion = findViewById(R.id.crear_evento_ubicacion);
+        tilProvincia = findViewById(R.id.crear_evento_til_provincias);
+        tilMunicipio = findViewById(R.id.crear_evento_til_municipio);
+        etProvincia = findViewById(R.id.crear_evento_et_provincias);
+        etProvincia.setOnClickListener(this);
+        etMunicipio = findViewById(R.id.crear_evento_et_municipio);
+        etMunicipio.setOnClickListener(this);
+        // Ubicación seleccionada por GPS
+        if (evento.getUbicacion() != null) {
+            esUbicacionGPS = true;
+            esMunicipio = false;
+            direccion = evento.getUbicacion().getDireccion();
+            municipioDireccion = evento.getMunicipio().getMunicipio();
+            latitud = evento.getUbicacion().getLatitud();
+            longitud = evento.getUbicacion().getLongitud();
+            activarBoton(R.id.crear_evento_boton_ubicacion);
+            desactivarBoton(R.id.crear_evento__boton_municipio);
+            findViewById(R.id.crear_evento_seleccionar_ubicacion).setVisibility(View.VISIBLE);
+            seleccionarUbicacion.setVisibility(View.VISIBLE);
+            tilProvincia.setVisibility(View.GONE);
+            tilMunicipio.setVisibility(View.GONE);
+            if (!emptyUbicacion()) resetUbicacion();
+            ubicacion.setText(direccion);
+
+
+        }
+        // Ubicación seleccionada por selectores de provincia i municipio
+        else {
+            esUbicacionGPS = false;
+            esMunicipio = true;
+            activarBoton(R.id.crear_evento__boton_municipio);
+            desactivarBoton(R.id.crear_evento_boton_ubicacion);
+            findViewById(R.id.crear_evento_seleccionar_ubicacion).setVisibility(View.VISIBLE);
+            seleccionarUbicacion.setVisibility(View.GONE);
+            ubicacion.setText("");
+            tilProvincia.setVisibility(View.VISIBLE);
+            tilMunicipio.setVisibility(View.VISIBLE);
+            provinciaActual = evento.getProvincia().getId().intValue() - 1;
+            etProvincia.setText(evento.getProvincia().getProvincia());
+            obtenerUbicacion();
+
+        }
+
         // Listeners para los campos del formulario al setear el error
         addTextListeners();
+
         // Privacidad foro
         privacidadForo = findViewById(R.id.crear_evento_privacidad_foro);
         privacidadForo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -212,13 +316,7 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
                 else privacidadForo.setText(getString(R.string.crear_evento_foro_Privado));
             }
         });
-        // Ubicación evento
-        Button ubicacionEvento = findViewById(R.id.crear_evento_boton_ubicacion);
-        ubicacionEvento.setOnClickListener(this);
-        Button municipioEvento = findViewById(R.id.crear_evento__boton_municipio);
-        municipioEvento.setOnClickListener(this);
-        seleccionarUbicacion = findViewById(R.id.crear_evento_ubicacion_layout);
-        ubicacion = findViewById(R.id.crear_evento_ubicacion);
+        privacidadForo.setChecked(evento.getForo().getEsPublico());
 
     }
 
@@ -226,123 +324,59 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
     private void addTextListeners() {
         etTitulo.addTextChangedListener(new CustomTextWatcher(tilTitulo));
         etDescripcion.addTextChangedListener(new CustomTextWatcher(tilDescripcion));
-        etDeporte.addTextChangedListener(new CustomTextWatcher(tilDeporte));
         etParticipantes.addTextChangedListener(new CustomTextWatcher(tilParticipantes));
         etDuracion.addTextChangedListener(new CustomTextWatcher(tilDuracion));
         etFecha.addTextChangedListener(new CustomTextWatcher(tilFecha));
         etHora.addTextChangedListener(new CustomTextWatcher(tilHora));
-
+        etDeporte.addTextChangedListener(new CustomTextWatcher(tilDeporte));
     }
 
-    // Gestión de los eventos 'click' en diferentes partes del formulario
     @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.crear_evento_et_deporte:
-                seleccionarDeporte();
-                break;
-            case R.id.crear_evento_tooltip_participantes:
-                Tooltip.Builder tooltipParticipantes = new Tooltip.Builder(v, R.style.Tooltip2)
-                        .setCancelable(true)
-                        .setDismissOnClick(true)
-                        .setCornerRadius(20f)
-                        .setGravity(Gravity.TOP)
-                        .setText(getString(R.string.crear_evento_tooltip_participantes));
-                tooltipParticipantes.show();
-                break;
-            case R.id.crear_evento_tooltip_privacidad_foro:
-                Tooltip.Builder tooltipForo = new Tooltip.Builder(v, R.style.Tooltip2)
-                        .setCancelable(true)
-                        .setDismissOnClick(true)
-                        .setCornerRadius(20f)
-                        .setGravity(Gravity.TOP)
-                        .setText(getString(R.string.crear_evento_tooltip_privacidad_foro));
-                tooltipForo.show();
-                break;
-            case R.id.crear_evento_et_dia:
-                showDatePickerDialog();
-                break;
-            case R.id.crear_evento_et_hora:
-                showTimePickerDialog();
-                break;
-            case R.id.crear_evento__boton_municipio:
-                activarBoton(v.getId());
-                desactivarBoton(R.id.crear_evento_boton_ubicacion);
-                findViewById(R.id.crear_evento_seleccionar_ubicacion).setVisibility(View.VISIBLE);
-                seleccionarUbicacion.setVisibility(View.GONE);
-                tilProvincia.setVisibility(View.VISIBLE);
-                tilMunicipio.setVisibility(View.VISIBLE);
-                esUbicacionGPS = false;
-                esMunicipio = true;
-                if (emptyUbicacion()) {
-                    paisActual = Global.DEFAULT_COUNTRY;
-                    provinciaActual = Global.DEFAULT_PROVINCE;
-                    municipioActual = Global.DEFAULT_LOCALITY;
-                    obtenerUbicacion();
-                }
-                ubicacion.setText("");
-                break;
-            case R.id.crear_evento_boton_ubicacion:
-                activarBoton(v.getId());
-                desactivarBoton(R.id.crear_evento__boton_municipio);
-                findViewById(R.id.crear_evento_seleccionar_ubicacion).setVisibility(View.VISIBLE);
-                seleccionarUbicacion.setVisibility(View.VISIBLE);
-                tilProvincia.setVisibility(View.GONE);
-                tilMunicipio.setVisibility(View.GONE);
-                if (!emptyUbicacion()) resetUbicacion();
-                esUbicacionGPS = true;
-                esMunicipio = false;
-                showPlacePicker();
-                break;
-            case R.id.crear_evento_et_provincias:
-                seleccionarProvincia();
-                break;
-            case R.id.crear_evento_et_municipio:
-                seleccionarMunicipio();
-                break;
-            case R.id.crear_evento_imagen_evento:
-                cargarImagenEvento();
-                break;
-        }
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_modificar_evento, menu);
+        return true;
     }
 
     // Comportamiento del botón crear evento
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.toolbar_crear_evento) {
+        if (id == R.id.toolbar_modificar_evento) {
             // Validar datos del formulario
             if (validarFormulario()) {
                 String fechaEvento = dosDigitos(day) + "/" + dosDigitos(month + 1) + "/" + year + " " + dosDigitos(hora) + ":" + dosDigitos(minutos);
                 EventoCrearPeticion datosEvento;
                 // creamos el evento con la ubicación seleccionada a través de una provincia y municipio
                 if (!esMunicipio) {
+                    System.out.println("Hay ubicación GPS Seleccionada");
                     datosEvento = new EventoCrearPeticion(etTitulo.getText().toString(), etDescripcion.getText().toString(), Integer.parseInt(etDuracion.getText().toString()),
                             Integer.parseInt(etParticipantes.getText().toString()), fechaEvento, privacidadForo.isChecked(), null, deportes.get(deporteSeleccionado).getId(), new Ubicacion(latitud, longitud, direccion, municipioDireccion), Global.DEFAULT_FORO_NAME);
                 }
                 // Creamos el evento con la ubicación seleccionada en el mapa
                 else {
-                    datosEvento = new EventoCrearPeticion(etTitulo.getText().toString(), etDescripcion.getText().toString(), Integer.parseInt(etDuracion.getText().toString()),
-                            Integer.parseInt(etParticipantes.getText().toString()), fechaEvento, privacidadForo.isChecked(), municipios.get(municipioActual).getId(), deportes.get(deporteSeleccionado).getId(), null, Global.DEFAULT_FORO_NAME);
+                    if (nuevoMunicipio) {
+                        System.out.println("Hay municipio seleccionado nuevo con id: " + municipios.get(municipioActual).getId());
+                        datosEvento = new EventoCrearPeticion(etTitulo.getText().toString(), etDescripcion.getText().toString(), Integer.parseInt(etDuracion.getText().toString()),
+                                Integer.parseInt(etParticipantes.getText().toString()), fechaEvento, privacidadForo.isChecked(), municipios.get(municipioActual).getId(), deportes.get(deporteSeleccionado).getId(), null, Global.DEFAULT_FORO_NAME);
+                    }
+                    else{
+                        System.out.println("Hay municipio seleccionado pero el mismo que antes");
+                        datosEvento = new EventoCrearPeticion(etTitulo.getText().toString(), etDescripcion.getText().toString(), Integer.parseInt(etDuracion.getText().toString()),
+                                Integer.parseInt(etParticipantes.getText().toString()), fechaEvento, privacidadForo.isChecked(), -1L, deportes.get(deporteSeleccionado).getId(), null, Global.DEFAULT_FORO_NAME);
+                    }
+
                 }
 
-                Call<GenericId> peticionRest = apiRest.crearEvento(datosEvento);
+                Call<GenericId> peticionRest = apiRest.modificarEvento(datosEvento, UsuarioActual.getInstance().getId(), evento.getId());
                 peticionRest.enqueue(new Callback<GenericId>() {
                     @Override
                     public void onResponse(Call<GenericId> call, Response<GenericId> response) {
                         if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
                             GenericId idEvento = response.body();
-                            // Creamos el foro en la base de datos de FireBase
-                            if (idEvento != null) {
-                                DatabaseReference root = FirebaseDatabase.getInstance().getReference().getRoot();
-                                Map<String, Object> map = new HashMap<>();
-                                map.put(Global.PREFIJO_SALA_FORO_EVENTO + idEvento.getId().toString(), "");
-                                root.updateChildren(map);
-                            }
                             // Si se ha cargado una imagen para el evento
                             if (esNuevaImagen) {
                                 try {
-                                    File imageFile = ImageUtil.decodeImage(getRealPathFromURIPath(pathImagenPerfil, CrearEvento.this), getApplicationContext());
+                                    File imageFile = ImageUtil.decodeImage(getRealPathFromURIPath(pathImagenPerfil, ModificarEvento.this), getApplicationContext());
                                     RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), Objects.requireNonNull(imageFile));
                                     MultipartBody.Part body = MultipartBody.Part.createFormData("file", imageFile.getName(), reqFile);
                                     Call<Imagen> peticionRest = apiRest.subirImagenEvento(body, Objects.requireNonNull(idEvento).getId());
@@ -350,11 +384,6 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
                                         @Override
                                         public void onResponse(Call<Imagen> call, Response<Imagen> response) {
                                             if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
-                                                /*Intent principal = new Intent(getApplicationContext(), Principal.class);
-                                                // Eliminamos de la pila todas las actividades
-                                                principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                                startActivity(principal);
-                                                finish();*/
                                                 finish();
                                                 onSupportNavigateUp();
                                             } else {
@@ -376,8 +405,6 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
                                     Log.e(getString(R.string.log_error), e.getMessage());
                                 }
                             } else {
-                                //Intent principal = new Intent(getApplicationContext(), Principal.class);
-                                //startActivity(principal);
                                 finish();
                                 onSupportNavigateUp();
                             }
@@ -400,6 +427,17 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private String getRealPathFromURIPath(Uri contentURI, Activity activity) {
+        @SuppressLint("Recycle") Cursor cursor = activity.getContentResolver().query(contentURI, null, null, null, null);
+        if (cursor == null) {
+            return contentURI.getPath();
+        } else {
+            cursor.moveToFirst();
+            int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+            return cursor.getString(idx);
+        }
     }
 
     private boolean validarFormulario() {
@@ -467,45 +505,76 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
 
     }
 
-    private String getRealPathFromURIPath(Uri contentURI, Activity activity) {
-        @SuppressLint("Recycle") Cursor cursor = activity.getContentResolver().query(contentURI, null, null, null, null);
-        if (cursor == null) {
-            return contentURI.getPath();
-        } else {
-            cursor.moveToFirst();
-            int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-            return cursor.getString(idx);
-        }
-    }
-
+    // Gestión de los eventos 'click' en diferentes partes del formulario
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_crear_evento, menu);
-        return true;
-    }
-
-
-    private void cargarImagenEvento() {
-        AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
-        pictureDialog.setTitle(getString(R.string.titulo_seleccionar_foto));
-        String[] pictureDialogItems = {
-                getString(R.string.titulo_seleccionar_foto_galeria),
-                getString(R.string.titulo_seleccionar_foto_camara)};
-        pictureDialog.setItems(pictureDialogItems,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case 0:
-                                choosePhotoFromGallary();
-                                break;
-                            case 1:
-                                takePhotoFromCamera();
-                                break;
-                        }
-                    }
-                });
-        pictureDialog.show();
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.crear_evento_et_provincias:
+                seleccionarProvincia();
+                break;
+            case R.id.crear_evento_et_municipio:
+                seleccionarMunicipio();
+                break;
+            case R.id.crear_evento_et_deporte:
+                seleccionarDeporte();
+                break;
+            case R.id.crear_evento_imagen_evento:
+                cargarImagenEvento();
+                break;
+            case R.id.crear_evento_et_dia:
+                showDatePickerDialog();
+                break;
+            case R.id.crear_evento_et_hora:
+                showTimePickerDialog();
+                break;
+            case R.id.crear_evento_tooltip_participantes:
+                Tooltip.Builder tooltipParticipantes = new Tooltip.Builder(v, R.style.Tooltip2)
+                        .setCancelable(true)
+                        .setDismissOnClick(true)
+                        .setCornerRadius(20f)
+                        .setGravity(Gravity.TOP)
+                        .setText(getString(R.string.crear_evento_tooltip_participantes));
+                tooltipParticipantes.show();
+                break;
+            case R.id.crear_evento_tooltip_privacidad_foro:
+                Tooltip.Builder tooltipForo = new Tooltip.Builder(v, R.style.Tooltip2)
+                        .setCancelable(true)
+                        .setDismissOnClick(true)
+                        .setCornerRadius(20f)
+                        .setGravity(Gravity.TOP)
+                        .setText(getString(R.string.crear_evento_tooltip_privacidad_foro));
+                tooltipForo.show();
+                break;
+            case R.id.crear_evento__boton_municipio:
+                activarBoton(v.getId());
+                desactivarBoton(R.id.crear_evento_boton_ubicacion);
+                findViewById(R.id.crear_evento_seleccionar_ubicacion).setVisibility(View.VISIBLE);
+                seleccionarUbicacion.setVisibility(View.GONE);
+                tilProvincia.setVisibility(View.VISIBLE);
+                tilMunicipio.setVisibility(View.VISIBLE);
+                esUbicacionGPS = false;
+                esMunicipio = true;
+                if (emptyUbicacion()) {
+                    paisActual = Global.DEFAULT_COUNTRY;
+                    provinciaActual = Global.DEFAULT_PROVINCE;
+                    municipioActual = Global.DEFAULT_LOCALITY;
+                    obtenerUbicacion();
+                }
+                ubicacion.setText("");
+                break;
+            case R.id.crear_evento_boton_ubicacion:
+                activarBoton(v.getId());
+                desactivarBoton(R.id.crear_evento__boton_municipio);
+                findViewById(R.id.crear_evento_seleccionar_ubicacion).setVisibility(View.VISIBLE);
+                seleccionarUbicacion.setVisibility(View.VISIBLE);
+                tilProvincia.setVisibility(View.GONE);
+                tilMunicipio.setVisibility(View.GONE);
+                if (!emptyUbicacion()) resetUbicacion();
+                esUbicacionGPS = true;
+                esMunicipio = false;
+                showPlacePicker();
+                break;
+        }
     }
 
     @SuppressWarnings("deprecation")
@@ -597,68 +666,17 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
         }
     }
 
-    // Pedir permisos al usuario para utilizar la cámara del dispositivo o acceder a las imagenes de la galería
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == Global.REQUEST_CODE_CAMERA) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(intent, Global.REQUEST_CODE_CAMERA);
-            }
-        } else if (requestCode == Global.REQUEST_CODE_GALLERY) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Intent galleryIntent = new Intent(Intent.ACTION_PICK,
-                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(galleryIntent, Global.REQUEST_CODE_GALLERY);
-            }
-        }
-    }
-
-    private void takePhotoFromCamera() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,}, Global.REQUEST_CODE_CAMERA);
-        }
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA,}, Global.REQUEST_CODE_CAMERA);
-        } else {
-            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            startActivityForResult(intent, Global.REQUEST_CODE_CAMERA);
-        }
-
-    }
-
-    private void choosePhotoFromGallary() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,}, Global.REQUEST_CODE_GALLERY);
-        } else {
-            Intent galleryIntent = new Intent(Intent.ACTION_PICK,
-                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-
-            startActivityForResult(galleryIntent, Global.REQUEST_CODE_GALLERY);
-        }
-
-    }
-
-    private void showPlacePicker() {
-        PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
-        try {
-            startActivityForResult(builder.build(this), Global.REQUEST_CODE_PLACE_PICKER);
-        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
-            Log.e(getString(R.string.log_error), e.getMessage());
-        }
-    }
-
     private void seleccionarMunicipio() {
         SeleccionarMunicipioDialog seleccionarMunicipio = new SeleccionarMunicipioDialog(municipios, municipioActual);
-        seleccionarMunicipio.show(CrearEvento.this.getFragmentManager(), Global.TAG_MUNICIPIOS_DIALOG);
+        seleccionarMunicipio.show(ModificarEvento.this.getFragmentManager(), Global.TAG_MUNICIPIOS_DIALOG);
     }
 
     private void seleccionarProvincia() {
         SeleccionarProvinciasDialog seleccionarProvincias = new SeleccionarProvinciasDialog(provincias, provinciaActual);
-        seleccionarProvincias.show(CrearEvento.this.getFragmentManager(), Global.TAG_PROVINCIAS_DIALOG);
+        seleccionarProvincias.show(ModificarEvento.this.getFragmentManager(), Global.TAG_PROVINCIAS_DIALOG);
     }
 
-    @SuppressLint("SetTextI18n")
+
     @Override
     public void provinciaSeleccionada(int provinciaSeleccionada) {
         // Comparar provincia actual con la seleccionada
@@ -666,19 +684,17 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
             provinciaActual = provinciaSeleccionada;
             etProvincia.setText(provincias.get(provinciaActual).getProvincia());
             municipioActual = 0;
+            nuevoMunicipio = true;
             obtenerMunicipios();
         }
     }
 
-    @SuppressLint("SetTextI18n")
     @Override
     public void municipioSeleccionado(int municipioSeleccionado) {
-        // Comparar provincia actual con la seleccionada
-        if (municipioActual != municipioSeleccionado) {
-            municipioActual = municipioSeleccionado;
-            etMunicipio.setText(municipios.get(municipioActual).getMunicipio());
-            obtenerMunicipios();
-        }
+        municipioActual = municipioSeleccionado;
+        nuevoMunicipio = true;
+        etMunicipio.setText(municipios.get(municipioActual).getMunicipio());
+        obtenerMunicipios();
     }
 
     private void obtenerUbicacion() {
@@ -739,17 +755,20 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
     }
 
     public void obtenerMunicipios() {
-
         Call<List<Municipio>> peticionRestMunicipios = apiRest.municipios(provincias.get(provinciaActual).getId());
-
         peticionRestMunicipios.enqueue(new Callback<List<Municipio>>() {
-            @SuppressLint("SetTextI18n")
             @Override
             public void onResponse(Call<List<Municipio>> call, Response<List<Municipio>> response) {
                 if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
                     municipios = response.body();
-                    if (municipios != null && !municipios.isEmpty())
-                        etMunicipio.setText(municipios.get(municipioActual).getMunicipio());
+                    if (municipios != null && !municipios.isEmpty()) {
+                        if (nuevoMunicipio || evento.getUbicacion() != null){
+                            etMunicipio.setText(municipios.get(municipioActual).getMunicipio());
+                            nuevoMunicipio = true;
+                        }
+                        else
+                            etMunicipio.setText(evento.getMunicipio().getMunicipio());
+                    }
                 } else {
                     try {
                         JSONObject jObjError = new JSONObject(Objects.requireNonNull(response.errorBody()).string());
@@ -767,6 +786,14 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
         });
     }
 
+    private void showPlacePicker() {
+        PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+        try {
+            startActivityForResult(builder.build(this), Global.REQUEST_CODE_PLACE_PICKER);
+        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
+            Log.e(getString(R.string.log_error), e.getMessage());
+        }
+    }
 
     private Boolean emptyUbicacion() {
         return paisActual == -1 && provinciaActual == -1 && municipioActual == -1;
@@ -801,6 +828,35 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
         }
     }
 
+    private void seleccionarDeporte() {
+        SeleccionarDeporteEventoDialog seleccionarDeporte = new SeleccionarDeporteEventoDialog(deportes, deporteSeleccionado);
+        seleccionarDeporte.show(ModificarEvento.this.getFragmentManager(), Global.TAG_DEPORTES_DIALOG);
+    }
+
+
+    @Override
+    public void deporteSeleccionado(int deporteSeleccionado) {
+        this.deporteSeleccionado = deporteSeleccionado;
+        if (this.deporteSeleccionado >= 0) {
+            etDeporte.setText(deportes.get(this.deporteSeleccionado).getDeporte());
+        } else etDeporte.getText().clear();
+    }
+
+    private void showDatePickerDialog() {
+        DatePickerFragment newFragment = DatePickerFragment.newInstance(new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int y, int m, int d) {
+                // +1 porque enero es 0
+                year = y;
+                month = m;
+                day = d;
+                final String selectedDate = dosDigitos(day) + " / " + dosDigitos(month + 1) + " / " + year;
+                etFecha.setText(selectedDate);
+            }
+        });
+        newFragment.show(getFragmentManager(), Global.TAG_DATE_PICKER);
+    }
+
     private void showTimePickerDialog() {
         // Get Current Time
         final Calendar c = Calendar.getInstance();
@@ -820,39 +876,74 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
         timePickerDialog.show();
     }
 
-    private void showDatePickerDialog() {
-        DatePickerFragment newFragment = DatePickerFragment.newInstance(new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int y, int m, int d) {
-                // +1 porque enero es 0
-                year = y;
-                month = m;
-                day = d;
-                final String selectedDate = dosDigitos(day) + " / " + dosDigitos(month + 1) + " / " + year;
-                etFecha.setText(selectedDate);
-            }
-        });
-        newFragment.show(getFragmentManager(), Global.TAG_DATE_PICKER);
-    }
-
     private String dosDigitos(int n) {
         return (n <= 9) ? ("0" + n) : String.valueOf(n);
     }
 
-    private void seleccionarDeporte() {
-        SeleccionarDeporteEventoDialog seleccionarDeporte = new SeleccionarDeporteEventoDialog(deportes, deporteSeleccionado);
-        seleccionarDeporte.show(CrearEvento.this.getFragmentManager(), Global.TAG_DEPORTES_DIALOG);
+    private void cargarImagenEvento() {
+        AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
+        pictureDialog.setTitle(getString(R.string.titulo_seleccionar_foto));
+        String[] pictureDialogItems = {
+                getString(R.string.titulo_seleccionar_foto_galeria),
+                getString(R.string.titulo_seleccionar_foto_camara)};
+        pictureDialog.setItems(pictureDialogItems,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                choosePhotoFromGallary();
+                                break;
+                            case 1:
+                                takePhotoFromCamera();
+                                break;
+                        }
+                    }
+                });
+        pictureDialog.show();
     }
 
+    private void takePhotoFromCamera() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,}, Global.REQUEST_CODE_CAMERA);
+        }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA,}, Global.REQUEST_CODE_CAMERA);
+        } else {
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            startActivityForResult(intent, Global.REQUEST_CODE_CAMERA);
+        }
 
+    }
+
+    private void choosePhotoFromGallary() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,}, Global.REQUEST_CODE_GALLERY);
+        } else {
+            Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+            startActivityForResult(galleryIntent, Global.REQUEST_CODE_GALLERY);
+        }
+
+    }
+
+    // Pedir permisos al usuario para utilizar la cámara del dispositivo o acceder a las imagenes de la galería
     @Override
-    public void deporteSeleccionado(int deporteSeleccionado) {
-        this.deporteSeleccionado = deporteSeleccionado;
-        if (this.deporteSeleccionado >= 0) {
-            etDeporte.setText(deportes.get(this.deporteSeleccionado).getDeporte());
-        } else etDeporte.getText().clear();
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == Global.REQUEST_CODE_CAMERA) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(intent, Global.REQUEST_CODE_CAMERA);
+            }
+        } else if (requestCode == Global.REQUEST_CODE_GALLERY) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(galleryIntent, Global.REQUEST_CODE_GALLERY);
+            }
+        }
     }
-
 
     private void obtenerDeportes() {
         Call<List<Deporte>> peticionRestDeportes = apiRest.getDeportes();
@@ -885,6 +976,4 @@ public class CrearEvento extends AppCompatActivity implements View.OnClickListen
         onBackPressed();
         return false;
     }
-
-
 }

@@ -52,7 +52,6 @@
                 app:civ_circle_background_color="@color/cast_expanded_controller_text_color"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/appbar"
                 tools:civ_circle_background_color="@color/cast_expanded_controller_text_color" />
 
             <android.support.constraint.ConstraintLayout

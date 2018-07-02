@@ -175,7 +175,8 @@ public class EventoDetalle extends AppCompatActivity {
             }
         });
     }
-    public void showSnackBar(String mensaje, Boolean esError){
+
+    public void showSnackBar(String mensaje, Boolean esError) {
         SnackbarUtil.showSnackBar(apuntarParticipanteEvento, mensaje, Snackbar.LENGTH_LONG, esError);
     }
 
@@ -210,23 +211,43 @@ public class EventoDetalle extends AppCompatActivity {
         });
     }
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_evento_detalle, menu);
-        return true;
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
+        if (id == R.id.toolbar_modificar_evento) {
+
+            Call<Evento> peticionEventos = apiRest.obtenerInformacionEvento(eventoActual.getId());
+            peticionEventos.enqueue(new Callback<Evento>() {
+                @Override
+                public void onResponse(Call<Evento> call, Response<Evento> response) {
+                    if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
+                        Evento evento = response.body();
+                        Intent modificarEvento = new Intent(getApplicationContext(), ModificarEvento.class);
+                        modificarEvento.putExtra(Global.KEY_ACTUAL_EVENT, evento);
+                        startActivity(modificarEvento);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Evento> call, Throwable t) {
+                    Log.e(getString(R.string.log_error), t.getMessage());
+                }
+            });
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Si el usuario actual es el administrador del evento
+        if (esAdministradorEvento)
+            getMenuInflater().inflate(R.menu.editar_evento, menu);
+        return true;
+    }
+
 
     @Override
     public void onBackPressed() {
