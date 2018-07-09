@@ -2,6 +2,8 @@ package org.udg.pds.todoandroid.fragment;
 
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -51,6 +53,8 @@ public class TabEventoParticipantes extends Fragment {
     private Long administrador;
     // Refrescar recyclerview scroll hacia arriba
     private SwipeRefreshLayout swipeRefreshLayout;
+    // Identificador usuario ha desapuntar
+    private Long usuarioDesapuntar;
 
     @SuppressLint("ValidFragment")
     public TabEventoParticipantes(Long id, Long administrador) {
@@ -90,8 +94,23 @@ public class TabEventoParticipantes extends Fragment {
         participanteEventoAdapter = new ParticipanteEventoAdapter(getActivity().getApplicationContext(), administrador, participanteEventos, ((EventoDetalle) getActivity()).getEsAdministradorEvento(), new ParticipanteEventoAdapter.OnItemClickListener() {
 
             @Override
-            public void desapuntarDelEvento(ParticipanteEvento p, int position) {
-                desapuntarUsuarioEvento(idEventoActual, p.getId(), position);
+            public void desapuntarDelEvento(final ParticipanteEvento p, final int position) {
+                usuarioDesapuntar = p.getId();
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(getString(R.string.registro_dialog_eliminar_usuario_titulo));
+                builder.setMessage(getString(R.string.registro_dialog_eliminar_usuario_contenido))
+                        .setPositiveButton(getString(R.string.dialogo_aceptar), new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                desapuntarUsuarioEvento(idEventoActual, usuarioDesapuntar, position);
+                            }
+                        })
+                        .setNegativeButton(getString(R.string.dialogo_cancelar), new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        });
+                builder.show();
+
             }
 
             @Override

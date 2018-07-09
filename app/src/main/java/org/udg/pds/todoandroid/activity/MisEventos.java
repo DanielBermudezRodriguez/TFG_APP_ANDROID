@@ -15,10 +15,11 @@ import android.view.View;
 import android.widget.TextView;
 
 import org.udg.pds.todoandroid.R;
+import org.udg.pds.todoandroid.fragment.DialogConfirmActionFragment;
 import org.udg.pds.todoandroid.fragment.TabEventosCreados;
 import org.udg.pds.todoandroid.fragment.TabEventosRegistrado;
 
-public class MisEventos extends AppCompatActivity {
+public class MisEventos extends AppCompatActivity  {
 
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
@@ -45,6 +46,7 @@ public class MisEventos extends AppCompatActivity {
 
 
     }
+
 
 
     @Override

@@ -26,6 +26,7 @@ import org.udg.pds.todoandroid.entity.Evento;
 import org.udg.pds.todoandroid.entity.GenericId;
 import org.udg.pds.todoandroid.entity.Usuario;
 import org.udg.pds.todoandroid.entity.UsuarioActual;
+import org.udg.pds.todoandroid.fragment.DialogConfirmActionFragment;
 import org.udg.pds.todoandroid.service.ApiRest;
 import org.udg.pds.todoandroid.util.Global;
 import org.udg.pds.todoandroid.util.InitRetrofit;
@@ -39,12 +40,14 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class PerfilUsuario extends AppCompatActivity implements View.OnClickListener {
+public class PerfilUsuario extends AppCompatActivity implements View.OnClickListener, DialogConfirmActionFragment.DialogConfirmActionFragmentListener {
 
     // Interficie de llamadas a la APIRest gestionada por Retrofit
     private ApiRest apiRest;
     // identificador usuario perfil
     private Long idUsuarioPerfil;
+    // identificador del evento a cancelar
+    private Long eventoCancelar;
     // imagen perfil
     private ImageView imagenPerfilUsuario;
     // datos perfil
@@ -109,7 +112,9 @@ public class PerfilUsuario extends AppCompatActivity implements View.OnClickList
 
             @Override
             public void cancelarEvento(Evento e, int position) {
-                suspenderEvento(e.getId());
+                DialogConfirmActionFragment accion = new DialogConfirmActionFragment(getString(R.string.registro_dialog_cancelar_evento_titulo), getString(R.string.registro_dialog_cancelar_evento_contenido));
+                accion.show(PerfilUsuario.this.getFragmentManager(), "");
+                eventoCancelar = e.getId();
             }
 
         });
@@ -121,6 +126,11 @@ public class PerfilUsuario extends AppCompatActivity implements View.OnClickList
         // Obtener eventos creados
         obtenerEventosCreados();
 
+    }
+
+    @Override
+    public void accionSeleccionada(boolean accion) {
+        if (accion) suspenderEvento(eventoCancelar);
     }
 
     @Override

@@ -48,6 +48,16 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Miramos si el usuario actual está logeadoo
+        if (UsuarioActual.getInstance().getId() != -1L) {
+            Intent principal = new Intent(getApplicationContext(), Principal.class);
+            // Eliminamos de la pila todas las actividades
+            principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(principal);
+            finish();
+        }
+
         // Inicializamos el servicio de APIRest de retrofit
         apiRest = InitRetrofit.getInstance().getApiRest();
         // Cargamos layout del formulario de inicio de sesión.
@@ -55,8 +65,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         // Ponemos el toolbar
         Toolbar toolbar = findViewById(R.id.appbar);
         setSupportActionBar(toolbar);
-        // Logo de la aplicación
-        toolbar.setLogo(R.mipmap.ic_logo_prueba2);
+
 
         tilCorreo = findViewById(R.id.login_til_correo);
         tilPassword = findViewById(R.id.login_til_password);

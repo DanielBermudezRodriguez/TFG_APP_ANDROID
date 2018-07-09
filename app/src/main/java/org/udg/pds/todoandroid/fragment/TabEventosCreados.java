@@ -2,10 +2,15 @@ package org.udg.pds.todoandroid.fragment;
 
 
 import android.annotation.SuppressLint;
+
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
+
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -14,7 +19,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
@@ -27,6 +31,7 @@ import org.udg.pds.todoandroid.entity.UsuarioActual;
 import org.udg.pds.todoandroid.service.ApiRest;
 import org.udg.pds.todoandroid.util.Global;
 import org.udg.pds.todoandroid.util.InitRetrofit;
+import org.udg.pds.todoandroid.util.SnackbarUtil;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -44,7 +49,8 @@ public class TabEventosCreados extends Fragment {
     private StaggeredGridLayoutManager staggeredGridLayoutManager;
     private List<Evento> eventosCreados = new ArrayList<Evento>();
     private EventosCreadosAdapter eventosCreadosAdapter;
-
+    // identificador del evento a cancelar
+    private Long eventoCancelar;
     private TabLayout.Tab tabActual;
     private MisEventos.SectionsPagerAdapter pagerAdapter;
 
@@ -79,7 +85,7 @@ public class TabEventosCreados extends Fragment {
     // codigoTipoEventos = 0 recupera los eventos creados por el usuario actual
     // codigoTipoEventos = 1 recupera los eventos en que el usuario actual está apuntado
     private void obtenerEventosCreados(final boolean recargarVista) {
-        final Call<List<Evento>> eventos = apiRest.eventosUsuario(UsuarioActual.getInstance().getId(),Global.CODE_EVENTOS_CREADOS);
+        final Call<List<Evento>> eventos = apiRest.eventosUsuario(UsuarioActual.getInstance().getId(), Global.CODE_EVENTOS_CREADOS);
         eventos.enqueue(new Callback<List<Evento>>() {
             @Override
             public void onResponse(Call<List<Evento>> call, Response<List<Evento>> response) {
@@ -103,7 +109,21 @@ public class TabEventosCreados extends Fragment {
 
                             @Override
                             public void cancelarEvento(Evento e, int position) {
-                                suspenderEvento(e.getId());
+                                eventoCancelar = e.getId();
+                                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                                builder.setTitle(getString(R.string.registro_dialog_cancelar_evento_titulo));
+                                builder.setMessage(getString(R.string.registro_dialog_cancelar_evento_contenido))
+                                        .setPositiveButton(getString(R.string.dialogo_aceptar), new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
+                                                suspenderEvento(eventoCancelar);
+                                            }
+                                        })
+                                        .setNegativeButton(getString(R.string.dialogo_cancelar), new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
+
+                                            }
+                                        });
+                                builder.show();
                             }
 
                         });
@@ -113,7 +133,6 @@ public class TabEventosCreados extends Fragment {
                 } else
                     try {
                         JSONObject jObjError = new JSONObject(response.errorBody().string());
-                        Toast.makeText(getActivity().getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
                     } catch (Exception e) {
                         Log.i("ERROR:", e.getMessage());
                     }
@@ -122,10 +141,10 @@ public class TabEventosCreados extends Fragment {
             @Override
             public void onFailure(Call<List<Evento>> call, Throwable t) {
                 Log.e("ERROR", t.getMessage(), t);
-                Toast.makeText(getActivity().getApplicationContext(), "Error al obtener los eventos creados", Toast.LENGTH_SHORT).show();
             }
         });
     }
+
 
     private void updateTabTitle(int totalEventosCreados) {
         if (tabActual == null || tabActual.getCustomView() == null) {
@@ -144,13 +163,13 @@ public class TabEventosCreados extends Fragment {
             public void onResponse(Call<GenericId> call, Response<GenericId> response) {
                 if (response.raw().code() != 500 && response.isSuccessful()) {
                     GenericId idEvento = response.body();
-                    Toast.makeText(getActivity().getApplicationContext(), "El evento ha sido suspendido", Toast.LENGTH_SHORT).show();
+                    SnackbarUtil.showSnackBar(getActivity().findViewById(android.R.id.content), "El evento ha sido suspendido", Snackbar.LENGTH_LONG, false);
                     obtenerEventosCreados(true);
 
                 } else
                     try {
                         JSONObject jObjError = new JSONObject(response.errorBody().string());
-                        Toast.makeText(getActivity().getApplicationContext(), jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                        SnackbarUtil.showSnackBar(getActivity().findViewById(android.R.id.content), jObjError.getString(getString(R.string.error_server_message)), Snackbar.LENGTH_LONG, true);
                     } catch (Exception e) {
                         Log.i("ERROR:", e.getMessage());
                     }
@@ -159,7 +178,7 @@ public class TabEventosCreados extends Fragment {
             @Override
             public void onFailure(Call<GenericId> call, Throwable t) {
                 Log.e("ERROR", t.getMessage(), t);
-                Toast.makeText(getActivity().getApplicationContext(), "Error al cancelar el evento", Toast.LENGTH_SHORT).show();
+                SnackbarUtil.showSnackBar(getActivity().findViewById(android.R.id.content), "Error al cancelar el evento", Snackbar.LENGTH_LONG, true);
             }
         });
     }

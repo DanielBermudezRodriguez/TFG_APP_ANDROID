@@ -23,9 +23,6 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
-
 import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.adapter.EventoAdapter;
@@ -80,7 +77,6 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
     private SwipeRefreshLayout swipeRefreshLayout;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,6 +87,7 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
             // Si no está logeado eliminamos de la pila la actividad Principal
             main.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(main);
+            finish();
         }
         setContentView(R.layout.principal_layout);
 
@@ -100,8 +97,6 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
         // Ponemos el toolbar
         Toolbar toolbar = findViewById(R.id.appbar);
         setSupportActionBar(toolbar);
-        // Logo de la aplicación
-        toolbar.setLogo(R.mipmap.ic_logo_prueba2);
 
         // Preparar el menú lateral
         MenuLateralFragment mNavigationDrawerFragment = (MenuLateralFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -135,7 +130,7 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL){
+                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
                     isScrolling = true;
                 }
             }
@@ -147,7 +142,7 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
                 totalItems = lManager.getItemCount();
                 scrollOutItems = lManager.findFirstVisibleItemPosition();
 
-                if (isScrolling && dy > 0 && !requestServer &&(currentItems + scrollOutItems == totalItems) ){
+                if (isScrolling && dy > 0 && !requestServer && (currentItems + scrollOutItems == totalItems)) {
                     isScrolling = false;
                     requestServer = true;
                     // Obtener siguiente eventos
@@ -304,7 +299,7 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
             public void onResponse(Call<Usuario> call, Response<Usuario> response) {
                 if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
                     Usuario usuario = response.body();
-                    StringBuilder auxURL = new StringBuilder(Global.BASE_URL + "evento?limite="+String.valueOf(Global.LIMITE_EVENTOS_REQUEST));
+                    StringBuilder auxURL = new StringBuilder(Global.BASE_URL + "evento?limite=" + String.valueOf(Global.LIMITE_EVENTOS_REQUEST));
                     for (Deporte d : Objects.requireNonNull(usuario).getDeportesFavoritos()) {
                         auxURL.append("&deportes=").append(d.getId());
                     }
@@ -320,9 +315,9 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
         });
     }
 
-    private void obtenerEventos(){
-        if (offset == -1)return;
-        String urlOffset = url + "&offset="+String.valueOf(offset);
+    private void obtenerEventos() {
+        if (offset == -1) return;
+        String urlOffset = url + "&offset=" + String.valueOf(offset);
         Call<List<Evento>> peticionEventos = apiRest.buscadorEventos(urlOffset);
         peticionEventos.enqueue(new Callback<List<Evento>>() {
             @Override
@@ -332,15 +327,15 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
                     // Búsqueda inicial de eventos vacia
                     if ((eventosRespuesta == null || eventosRespuesta.isEmpty()) && (offset == 0)) {
                         adapter.notifyDataSetChanged();
-                        if (esBusquedaPorDefecto){
+                        if (esBusquedaPorDefecto) {
                             noResultadosPorDefecto.setText(R.string.no_resultados_busqueda_inicial);
-                        }
-                        else noResultadosPorDefecto.setText(getString(R.string.no_resultados_busqueda));
+                        } else
+                            noResultadosPorDefecto.setText(getString(R.string.no_resultados_busqueda));
                         noResultadosPorDefecto.setVisibility(View.VISIBLE);
                         swipeRefreshLayout.setRefreshing(false);
                     }
                     // No hay mas eventos a devolver del servidor
-                    else if ((eventosRespuesta == null || eventosRespuesta.isEmpty()) && (offset > 0)){
+                    else if ((eventosRespuesta == null || eventosRespuesta.isEmpty()) && (offset > 0)) {
                         offset = -1;
                         swipeRefreshLayout.setRefreshing(false);
                     }
@@ -356,7 +351,7 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
                         //inicializarAdaptador(eventos);
                     }
                     requestServer = false;
-                } else{
+                } else {
                     swipeRefreshLayout.setRefreshing(false);
                     // Obtenemos mensaje de error del servidor
                     requestServer = false;
@@ -394,6 +389,7 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
                         startActivity(imagenIntent);
                     }
                 }
+
                 @Override
                 public void onFailure(Call<String> call, Throwable t) {
                     Log.e(getString(R.string.log_error), t.getMessage());
@@ -420,6 +416,7 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
                         startActivity(modificarPerfil);
                     }
                 }
+
                 @Override
                 public void onFailure(Call<Usuario> call, Throwable t) {
                     Log.e(getString(R.string.log_error), t.getMessage());
@@ -436,7 +433,7 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
             startActivity(i);
         }
         // Notificaciones usuario
-        if (position == 5){
+        if (position == 5) {
             Intent i = new Intent(getApplicationContext(), Notificacion.class);
             startActivity(i);
         }
@@ -450,6 +447,7 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
             @Override
             public void onResponse(Call<GenericId> call, Response<GenericId> response) {
                 if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
+                    UsuarioActual.getInstance().setId(-1L);
                     Intent principal = new Intent(getApplicationContext(), Login.class);
                     // Eliminamos de la pila todas las actividades
                     principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

@@ -10,6 +10,10 @@
     <string name="log_error">ERROR: </string>
     <string name="log_info">INFO: </string>
 
+    // Cuadro diálogo confirmar acción
+    <string name="dialogo_aceptar">Aceptar</string>
+    <string name="dialogo_cancelar">Cancelar</string>
+
     // Fragments dialogs
     <string name="titulo_seleccionar_foto">Selecciona una foto</string>
     <string name="titulo_seleccionar_foto_camara">Cámara</string>
@@ -50,6 +54,8 @@
     <string name="registro_username">Username</string>
     <string name="registro_password">Contraseña</string>
     <string name="registro_password_repetir">Repetir contraseña</string>
+    <string name="registro_dialog_registrar_usuario_titulo">Registrar usuario</string>
+    <string name="registro_dialog_registrar_usuario_contenido">¿Desea crear el usuario con los datos introducidos?</string>
 
     //Principal
     <string name="no_resultados_busqueda_inicial">No se han encontrado resultados que se ajusten a sus preferencias por defecto. Puede modificar dichas preferencias accediendo a su perfil.</string>
@@ -80,6 +86,9 @@
     <string name="crear_evento_privacidad_foro">Privacidad foro</string>
     <string name="crear_evento_ubicacion">Ubicación</string>
     <string name="crear_evento_municipio">Municipio</string>
+    <string name="registro_dialog_crear_evento_titulo">Crear evento</string>
+    <string name="registro_dialog_crear_evento_contenido">¿Desea crear el evento deportivo con los datos introducidos?</string>
+
 
     // Información evento
     <string name="informacion_evento_duracion_ilimitada">ilimitada</string>
@@ -106,6 +115,8 @@
 
     // Modificar perfil usuario
     <string name="menu_modificar_perfil">Guardar</string>
+    <string name="registro_dialog_modificar_perfil_titulo">Modificar perfil</string>
+    <string name="registro_dialog_modificar_perfil_contenido">¿Desea guardar los cambios introducidos?</string>
 
     // Notificaciones
     <string name="notificacion_titulo_eventos_creados">Eventos creados</string>
@@ -121,9 +132,18 @@
     <string name="notificacion_titulo_evento_desapuntado">Eliminado evento</string>
     <string name="notificacion_descripcion_evento_desapuntado">Recibir una notificación al ser desapuntado de un evento registrado</string>
 
-    // Modificar perfil usuario
+    // Modificar evento
     <string name="menu_modificar_evento">Guardar</string>
+    <string name="registro_dialog_modificar_evento_titulo">Modificar evento</string>
+    <string name="registro_dialog_modificar_evento_contenido">¿Desea guardar los cambios introducidos?</string>
 
+    // Suspender evento
+    <string name="registro_dialog_cancelar_evento_titulo">Suspender evento</string>
+    <string name="registro_dialog_cancelar_evento_contenido">¿Desea suspender el evento?</string>
+
+    // Eliminar usuario
+    <string name="registro_dialog_eliminar_usuario_titulo">Eliminar participante</string>
+    <string name="registro_dialog_eliminar_usuario_contenido">¿Desea eliminar al participante del evento?</string>
 
 
 

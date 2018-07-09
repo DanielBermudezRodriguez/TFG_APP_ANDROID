@@ -15,6 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
+        android:elevation="2dp"
         android:foregroundGravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,12 +24,11 @@
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/registro_imagen_perfil"
-        android:layout_width="100dp"
-        android:layout_height="150dp"
+        android:layout_width="150dp"
+        android:layout_height="200dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:src="@mipmap/no_image_header_menu"
+        android:layout_marginTop="40dp"
         app:civ_border_color="@color/cast_expanded_controller_background_color"
         app:civ_border_overlay="false"
         app:civ_border_width="2dp"
@@ -36,7 +36,7 @@
         app:layout_constraintBottom_toTopOf="@+id/registro_scroll_view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/login_snackbar"
+        app:layout_constraintTop_toTopOf="@+id/appbar"
         tools:civ_circle_background_color="@color/cast_expanded_controller_text_color" />
 
 
@@ -279,7 +279,7 @@
             <android.support.constraint.ConstraintLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="240dp"
+                android:layout_marginBottom="260dp"
                 android:layout_marginEnd="32dp"
                 android:layout_marginStart="16dp"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -322,7 +322,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="96dp"
+        android:layout_marginTop="135dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appbar" />

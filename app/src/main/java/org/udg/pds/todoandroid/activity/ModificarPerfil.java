@@ -41,6 +41,7 @@ import org.udg.pds.todoandroid.entity.Provincia;
 import org.udg.pds.todoandroid.entity.Usuario;
 import org.udg.pds.todoandroid.entity.UsuarioActual;
 import org.udg.pds.todoandroid.entity.UsuarioModificarPerfil;
+import org.udg.pds.todoandroid.fragment.DialogConfirmActionFragment;
 import org.udg.pds.todoandroid.fragment.SeleccionarDeporteDialog;
 import org.udg.pds.todoandroid.fragment.SeleccionarMunicipioDialog;
 import org.udg.pds.todoandroid.fragment.SeleccionarProvinciasDialog;
@@ -63,7 +64,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ModificarPerfil extends AppCompatActivity implements View.OnClickListener, SeleccionarProvinciasDialog.SeleccionarProvinciasDialogListener, SeleccionarMunicipioDialog.SeleccionarMunicipioDialogListener, SeleccionarDeporteDialog.SeleccionarDeporteDialogListener {
+public class ModificarPerfil extends AppCompatActivity implements View.OnClickListener, SeleccionarProvinciasDialog.SeleccionarProvinciasDialogListener,DialogConfirmActionFragment.DialogConfirmActionFragmentListener, SeleccionarMunicipioDialog.SeleccionarMunicipioDialogListener, SeleccionarDeporteDialog.SeleccionarDeporteDialogListener {
 
     // Interficie de llamadas a la APIRest gestionada por Retrofit
     private ApiRest apiRest;
@@ -215,75 +216,85 @@ public class ModificarPerfil extends AppCompatActivity implements View.OnClickLi
         return true;
     }
 
+    @Override
+    public void accionSeleccionada(boolean accion) {
+        if (accion) modificarPerfil();
+    }
+
+    private void modificarPerfil(){
+        List<Long> idDeportesFavoritos = obtenerIdDeportesSeleccionados();
+        UsuarioModificarPerfil datosModificarPerfil;
+        if (nuevoMunicipio)
+            datosModificarPerfil = new UsuarioModificarPerfil(etUsername.getText().toString(), etNombre.getText().toString(), etApellidos.getText().toString(), municipios.get(municipioActual).getId(), idDeportesFavoritos);
+        else
+            datosModificarPerfil = new UsuarioModificarPerfil(etUsername.getText().toString(), etNombre.getText().toString(), etApellidos.getText().toString(), -1L, idDeportesFavoritos);
+
+        Call<GenericId> peticionRest = apiRest.modificarPerfil(datosModificarPerfil, UsuarioActual.getInstance().getId());
+        peticionRest.enqueue(new Callback<GenericId>() {
+            @Override
+            public void onResponse(Call<GenericId> call, Response<GenericId> response) {
+                if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
+                    GenericId id = response.body();
+                    // Guardamos el nuevo nombre de usuario
+                    UsuarioActual.getInstance().setUsername(etUsername.getText().toString());
+                    // Si al realizar el registro se ha seleccionado una imagen de la cámara o galería
+                    if (esNuevaImagen) {
+                        try {
+                            // Obtenemos la imagen del dispositivo
+                            File imageFile = ImageUtil.decodeImage(getRealPathFromURIPath(pathImagenPerfil, ModificarPerfil.this), getApplicationContext());
+                            RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), Objects.requireNonNull(imageFile));
+                            MultipartBody.Part body = MultipartBody.Part.createFormData("file", imageFile.getName(), reqFile);
+                            Call<org.udg.pds.todoandroid.entity.Imagen> peticionRest = apiRest.subirImagenUsuario(body);
+                            peticionRest.enqueue(new Callback<org.udg.pds.todoandroid.entity.Imagen>() {
+                                @Override
+                                public void onResponse(Call<org.udg.pds.todoandroid.entity.Imagen> call, Response<org.udg.pds.todoandroid.entity.Imagen> response) {
+                                    if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
+                                        finish();
+                                    } else {
+                                        try {
+                                            JSONObject jObjError = new JSONObject(Objects.requireNonNull(response.errorBody()).string());
+                                            SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), jObjError.getString(getString(R.string.error_server_message)), Snackbar.LENGTH_LONG, true);
+                                        } catch (Exception e) {
+                                            Log.e(getString(R.string.log_error), e.getMessage());
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<Imagen> call, Throwable t) {
+                                    Log.e(getString(R.string.log_error), t.getMessage());
+                                    progressBar.setVisibility(View.GONE);
+                                }
+                            });
+                        } catch (Exception e) {
+                            Log.e(getString(R.string.log_error), e.getMessage());
+                        }
+                    } else {
+                        finish();
+                    }
+                } else {
+                    try {
+                        JSONObject jObjError = new JSONObject(Objects.requireNonNull(response.errorBody()).string());
+                        SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), jObjError.getString(getString(R.string.error_server_message)), Snackbar.LENGTH_LONG, true);
+                    } catch (Exception e) {
+                        Log.e(getString(R.string.log_error), e.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<GenericId> call, Throwable t) {
+                Log.e(getString(R.string.log_error), t.getMessage());
+            }
+        });
+    }
+
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.toolbar_modificar_perfil) {
             if (validarFormularioRegistro()) {
-                List<Long> idDeportesFavoritos = obtenerIdDeportesSeleccionados();
-                UsuarioModificarPerfil datosModificarPerfil;
-                if (nuevoMunicipio)
-                    datosModificarPerfil = new UsuarioModificarPerfil(etUsername.getText().toString(), etNombre.getText().toString(), etApellidos.getText().toString(), municipios.get(municipioActual).getId(), idDeportesFavoritos);
-                else
-                    datosModificarPerfil = new UsuarioModificarPerfil(etUsername.getText().toString(), etNombre.getText().toString(), etApellidos.getText().toString(), -1L, idDeportesFavoritos);
-
-                Call<GenericId> peticionRest = apiRest.modificarPerfil(datosModificarPerfil, UsuarioActual.getInstance().getId());
-                peticionRest.enqueue(new Callback<GenericId>() {
-                    @Override
-                    public void onResponse(Call<GenericId> call, Response<GenericId> response) {
-                        if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
-                            GenericId id = response.body();
-                            // Guardamos el nuevo nombre de usuario
-                            UsuarioActual.getInstance().setUsername(etUsername.getText().toString());
-                            // Si al realizar el registro se ha seleccionado una imagen de la cámara o galería
-                            if (esNuevaImagen) {
-                                try {
-                                    // Obtenemos la imagen del dispositivo
-                                    File imageFile = ImageUtil.decodeImage(getRealPathFromURIPath(pathImagenPerfil, ModificarPerfil.this), getApplicationContext());
-                                    RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), Objects.requireNonNull(imageFile));
-                                    MultipartBody.Part body = MultipartBody.Part.createFormData("file", imageFile.getName(), reqFile);
-                                    Call<org.udg.pds.todoandroid.entity.Imagen> peticionRest = apiRest.subirImagenUsuario(body);
-                                    peticionRest.enqueue(new Callback<org.udg.pds.todoandroid.entity.Imagen>() {
-                                        @Override
-                                        public void onResponse(Call<org.udg.pds.todoandroid.entity.Imagen> call, Response<org.udg.pds.todoandroid.entity.Imagen> response) {
-                                            if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
-                                                finish();
-                                            } else {
-                                                try {
-                                                    JSONObject jObjError = new JSONObject(Objects.requireNonNull(response.errorBody()).string());
-                                                    SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), jObjError.getString(getString(R.string.error_server_message)), Snackbar.LENGTH_LONG, true);
-                                                } catch (Exception e) {
-                                                    Log.e(getString(R.string.log_error), e.getMessage());
-                                                }
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onFailure(Call<Imagen> call, Throwable t) {
-                                            Log.e(getString(R.string.log_error), t.getMessage());
-                                            progressBar.setVisibility(View.GONE);
-                                        }
-                                    });
-                                } catch (Exception e) {
-                                    Log.e(getString(R.string.log_error), e.getMessage());
-                                }
-                            } else {
-                                finish();
-                            }
-                        } else {
-                            try {
-                                JSONObject jObjError = new JSONObject(Objects.requireNonNull(response.errorBody()).string());
-                                SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), jObjError.getString(getString(R.string.error_server_message)), Snackbar.LENGTH_LONG, true);
-                            } catch (Exception e) {
-                                Log.e(getString(R.string.log_error), e.getMessage());
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<GenericId> call, Throwable t) {
-                        Log.e(getString(R.string.log_error), t.getMessage());
-                    }
-                });
+                DialogConfirmActionFragment accion = new DialogConfirmActionFragment(getString(R.string.registro_dialog_modificar_perfil_titulo), getString(R.string.registro_dialog_modificar_perfil_contenido));
+                accion.show(ModificarPerfil.this.getFragmentManager(), "");
             }
         }
         return super.onOptionsItemSelected(item);

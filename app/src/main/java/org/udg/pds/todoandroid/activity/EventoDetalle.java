@@ -61,6 +61,15 @@ public class EventoDetalle extends AppCompatActivity {
         // Inicializamos el servicio de APIRest de retrofit
         apiRest = InitRetrofit.getInstance().getApiRest();
 
+        // Miramos si el usuario actual está logeadoo
+        if (UsuarioActual.getInstance().getId() == -1L) {
+            Intent main = new Intent(this, Login.class);
+            // Si no está logeado eliminamos de la pila la actividad Principal
+            main.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(main);
+            finish();
+        }
+
         // Obtenemos parametros pasados a la activity evento detalle
         if (getIntent().getExtras() != null) {
             eventoActual = (Evento) getIntent().getExtras().getSerializable(Global.KEY_SELECTED_EVENT);
@@ -251,13 +260,27 @@ public class EventoDetalle extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        obtenerInformacionEvento();
+        if (isTaskRoot()){
+            Intent principal = new Intent(getApplicationContext(), Principal.class);
+            // Eliminamos de la pila todas las actividades
+            principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(principal);
+            finish();
+        }
+        else obtenerInformacionEvento();
     }
 
     // Función que define comportamiento del botón "Atras"
     @Override
     public boolean onSupportNavigateUp() {
-        obtenerInformacionEvento();
+        if (isTaskRoot()){
+            Intent principal = new Intent(getApplicationContext(), Principal.class);
+            // Eliminamos de la pila todas las actividades
+            principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(principal);
+            finish();
+        }
+        else obtenerInformacionEvento();
         return false;
     }
 

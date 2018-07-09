@@ -61,6 +61,7 @@ import org.udg.pds.todoandroid.entity.Provincia;
 import org.udg.pds.todoandroid.entity.Ubicacion;
 import org.udg.pds.todoandroid.entity.UsuarioActual;
 import org.udg.pds.todoandroid.fragment.DatePickerFragment;
+import org.udg.pds.todoandroid.fragment.DialogConfirmActionFragment;
 import org.udg.pds.todoandroid.fragment.SeleccionarDeporteEventoDialog;
 import org.udg.pds.todoandroid.fragment.SeleccionarMunicipioDialog;
 import org.udg.pds.todoandroid.fragment.SeleccionarProvinciasDialog;
@@ -87,7 +88,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ModificarEvento extends AppCompatActivity implements View.OnClickListener, SeleccionarDeporteEventoDialog.SeleccionarDeporteEventoDialogListener, SeleccionarProvinciasDialog.SeleccionarProvinciasDialogListener, SeleccionarMunicipioDialog.SeleccionarMunicipioDialogListener {
+public class ModificarEvento extends AppCompatActivity implements View.OnClickListener,DialogConfirmActionFragment.DialogConfirmActionFragmentListener, SeleccionarDeporteEventoDialog.SeleccionarDeporteEventoDialogListener, SeleccionarProvinciasDialog.SeleccionarProvinciasDialogListener, SeleccionarMunicipioDialog.SeleccionarMunicipioDialogListener {
 
     // Interficie de llamadas a la APIRest gestionada por Retrofit
     private ApiRest apiRest;
@@ -117,7 +118,7 @@ public class ModificarEvento extends AppCompatActivity implements View.OnClickLi
     private List<Provincia> provincias = new ArrayList<>();
     private int provinciaActual = -1;
     private List<Municipio> municipios = new ArrayList<>();
-    private int municipioActual = -1;
+    private int municipioActual = 0;
     private boolean esMunicipio = false;
     // Determina si se ha seleccionado una nueva ubicación para el usuario
     private boolean nuevoMunicipio = false;
@@ -337,6 +338,93 @@ public class ModificarEvento extends AppCompatActivity implements View.OnClickLi
         return true;
     }
 
+    @Override
+    public void accionSeleccionada(boolean accion) {
+        if (accion) modificarEvento();
+    }
+
+    private void modificarEvento(){
+        String fechaEvento = dosDigitos(day) + "/" + dosDigitos(month + 1) + "/" + year + " " + dosDigitos(hora) + ":" + dosDigitos(minutos);
+        EventoCrearPeticion datosEvento;
+        // creamos el evento con la ubicación seleccionada a través de una provincia y municipio
+        if (!esMunicipio) {
+            System.out.println("Hay ubicación GPS Seleccionada");
+            datosEvento = new EventoCrearPeticion(etTitulo.getText().toString(), etDescripcion.getText().toString(), Integer.parseInt(etDuracion.getText().toString()),
+                    Integer.parseInt(etParticipantes.getText().toString()), fechaEvento, privacidadForo.isChecked(), null, deportes.get(deporteSeleccionado).getId(), new Ubicacion(latitud, longitud, direccion, municipioDireccion), Global.DEFAULT_FORO_NAME);
+        }
+        // Creamos el evento con la ubicación seleccionada en el mapa
+        else {
+            if (nuevoMunicipio) {
+                System.out.println("Hay municipio seleccionado nuevo con id: " + municipios.get(municipioActual).getId());
+                datosEvento = new EventoCrearPeticion(etTitulo.getText().toString(), etDescripcion.getText().toString(), Integer.parseInt(etDuracion.getText().toString()),
+                        Integer.parseInt(etParticipantes.getText().toString()), fechaEvento, privacidadForo.isChecked(), municipios.get(municipioActual).getId(), deportes.get(deporteSeleccionado).getId(), null, Global.DEFAULT_FORO_NAME);
+            }
+            else{
+                System.out.println("Hay municipio seleccionado pero el mismo que antes");
+                datosEvento = new EventoCrearPeticion(etTitulo.getText().toString(), etDescripcion.getText().toString(), Integer.parseInt(etDuracion.getText().toString()),
+                        Integer.parseInt(etParticipantes.getText().toString()), fechaEvento, privacidadForo.isChecked(), -1L, deportes.get(deporteSeleccionado).getId(), null, Global.DEFAULT_FORO_NAME);
+            }
+
+        }
+
+        Call<GenericId> peticionRest = apiRest.modificarEvento(datosEvento, UsuarioActual.getInstance().getId(), evento.getId());
+        peticionRest.enqueue(new Callback<GenericId>() {
+            @Override
+            public void onResponse(Call<GenericId> call, Response<GenericId> response) {
+                if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
+                    GenericId idEvento = response.body();
+                    // Si se ha cargado una imagen para el evento
+                    if (esNuevaImagen) {
+                        try {
+                            File imageFile = ImageUtil.decodeImage(getRealPathFromURIPath(pathImagenPerfil, ModificarEvento.this), getApplicationContext());
+                            RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), Objects.requireNonNull(imageFile));
+                            MultipartBody.Part body = MultipartBody.Part.createFormData("file", imageFile.getName(), reqFile);
+                            Call<Imagen> peticionRest = apiRest.subirImagenEvento(body, Objects.requireNonNull(idEvento).getId());
+                            peticionRest.enqueue(new Callback<Imagen>() {
+                                @Override
+                                public void onResponse(Call<Imagen> call, Response<Imagen> response) {
+                                    if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
+                                        finish();
+                                        onSupportNavigateUp();
+                                    } else {
+                                        try {
+                                            JSONObject jObjError = new JSONObject(Objects.requireNonNull(response.errorBody()).string());
+                                            SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), jObjError.getString(getString(R.string.error_server_message)), Snackbar.LENGTH_LONG, true);
+                                        } catch (Exception e) {
+                                            Log.e(getString(R.string.log_error), e.getMessage());
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<Imagen> call, Throwable t) {
+                                    Log.e(getString(R.string.log_error), t.getMessage());
+                                }
+                            });
+                        } catch (Exception e) {
+                            Log.e(getString(R.string.log_error), e.getMessage());
+                        }
+                    } else {
+                        finish();
+                        onSupportNavigateUp();
+                    }
+                } else {
+                    try {
+                        JSONObject jObjError = new JSONObject(Objects.requireNonNull(response.errorBody()).string());
+                        SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), jObjError.getString(getString(R.string.error_server_message)), Snackbar.LENGTH_LONG, true);
+                    } catch (Exception e) {
+                        Log.e(getString(R.string.log_error), e.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<GenericId> call, Throwable t) {
+                Log.e(getString(R.string.log_error), t.getMessage());
+            }
+        });
+    }
+
     // Comportamiento del botón crear evento
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -344,85 +432,8 @@ public class ModificarEvento extends AppCompatActivity implements View.OnClickLi
         if (id == R.id.toolbar_modificar_evento) {
             // Validar datos del formulario
             if (validarFormulario()) {
-                String fechaEvento = dosDigitos(day) + "/" + dosDigitos(month + 1) + "/" + year + " " + dosDigitos(hora) + ":" + dosDigitos(minutos);
-                EventoCrearPeticion datosEvento;
-                // creamos el evento con la ubicación seleccionada a través de una provincia y municipio
-                if (!esMunicipio) {
-                    System.out.println("Hay ubicación GPS Seleccionada");
-                    datosEvento = new EventoCrearPeticion(etTitulo.getText().toString(), etDescripcion.getText().toString(), Integer.parseInt(etDuracion.getText().toString()),
-                            Integer.parseInt(etParticipantes.getText().toString()), fechaEvento, privacidadForo.isChecked(), null, deportes.get(deporteSeleccionado).getId(), new Ubicacion(latitud, longitud, direccion, municipioDireccion), Global.DEFAULT_FORO_NAME);
-                }
-                // Creamos el evento con la ubicación seleccionada en el mapa
-                else {
-                    if (nuevoMunicipio) {
-                        System.out.println("Hay municipio seleccionado nuevo con id: " + municipios.get(municipioActual).getId());
-                        datosEvento = new EventoCrearPeticion(etTitulo.getText().toString(), etDescripcion.getText().toString(), Integer.parseInt(etDuracion.getText().toString()),
-                                Integer.parseInt(etParticipantes.getText().toString()), fechaEvento, privacidadForo.isChecked(), municipios.get(municipioActual).getId(), deportes.get(deporteSeleccionado).getId(), null, Global.DEFAULT_FORO_NAME);
-                    }
-                    else{
-                        System.out.println("Hay municipio seleccionado pero el mismo que antes");
-                        datosEvento = new EventoCrearPeticion(etTitulo.getText().toString(), etDescripcion.getText().toString(), Integer.parseInt(etDuracion.getText().toString()),
-                                Integer.parseInt(etParticipantes.getText().toString()), fechaEvento, privacidadForo.isChecked(), -1L, deportes.get(deporteSeleccionado).getId(), null, Global.DEFAULT_FORO_NAME);
-                    }
-
-                }
-
-                Call<GenericId> peticionRest = apiRest.modificarEvento(datosEvento, UsuarioActual.getInstance().getId(), evento.getId());
-                peticionRest.enqueue(new Callback<GenericId>() {
-                    @Override
-                    public void onResponse(Call<GenericId> call, Response<GenericId> response) {
-                        if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
-                            GenericId idEvento = response.body();
-                            // Si se ha cargado una imagen para el evento
-                            if (esNuevaImagen) {
-                                try {
-                                    File imageFile = ImageUtil.decodeImage(getRealPathFromURIPath(pathImagenPerfil, ModificarEvento.this), getApplicationContext());
-                                    RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), Objects.requireNonNull(imageFile));
-                                    MultipartBody.Part body = MultipartBody.Part.createFormData("file", imageFile.getName(), reqFile);
-                                    Call<Imagen> peticionRest = apiRest.subirImagenEvento(body, Objects.requireNonNull(idEvento).getId());
-                                    peticionRest.enqueue(new Callback<Imagen>() {
-                                        @Override
-                                        public void onResponse(Call<Imagen> call, Response<Imagen> response) {
-                                            if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
-                                                finish();
-                                                onSupportNavigateUp();
-                                            } else {
-                                                try {
-                                                    JSONObject jObjError = new JSONObject(Objects.requireNonNull(response.errorBody()).string());
-                                                    SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), jObjError.getString(getString(R.string.error_server_message)), Snackbar.LENGTH_LONG, true);
-                                                } catch (Exception e) {
-                                                    Log.e(getString(R.string.log_error), e.getMessage());
-                                                }
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onFailure(Call<Imagen> call, Throwable t) {
-                                            Log.e(getString(R.string.log_error), t.getMessage());
-                                        }
-                                    });
-                                } catch (Exception e) {
-                                    Log.e(getString(R.string.log_error), e.getMessage());
-                                }
-                            } else {
-                                finish();
-                                onSupportNavigateUp();
-                            }
-                        } else {
-                            try {
-                                JSONObject jObjError = new JSONObject(Objects.requireNonNull(response.errorBody()).string());
-                                SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), jObjError.getString(getString(R.string.error_server_message)), Snackbar.LENGTH_LONG, true);
-                            } catch (Exception e) {
-                                Log.e(getString(R.string.log_error), e.getMessage());
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<GenericId> call, Throwable t) {
-                        Log.e(getString(R.string.log_error), t.getMessage());
-                    }
-                });
+                DialogConfirmActionFragment accion = new DialogConfirmActionFragment(getString(R.string.registro_dialog_modificar_evento_titulo), getString(R.string.registro_dialog_modificar_evento_contenido));
+                accion.show(ModificarEvento.this.getFragmentManager(), "");
             }
         }
 

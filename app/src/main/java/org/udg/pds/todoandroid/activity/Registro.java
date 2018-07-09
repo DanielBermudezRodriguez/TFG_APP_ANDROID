@@ -39,6 +39,7 @@ import org.udg.pds.todoandroid.entity.Provincia;
 import org.udg.pds.todoandroid.entity.UsuarioActual;
 import org.udg.pds.todoandroid.entity.UsuarioRegistroPeticion;
 import org.udg.pds.todoandroid.entity.UsuarioRegistroRespuesta;
+import org.udg.pds.todoandroid.fragment.DialogConfirmActionFragment;
 import org.udg.pds.todoandroid.fragment.SeleccionarDeporteDialog;
 import org.udg.pds.todoandroid.fragment.SeleccionarMunicipioDialog;
 import org.udg.pds.todoandroid.fragment.SeleccionarProvinciasDialog;
@@ -61,7 +62,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class Registro extends AppCompatActivity implements View.OnClickListener, SeleccionarProvinciasDialog.SeleccionarProvinciasDialogListener, SeleccionarMunicipioDialog.SeleccionarMunicipioDialogListener, SeleccionarDeporteDialog.SeleccionarDeporteDialogListener {
+public class Registro extends AppCompatActivity implements View.OnClickListener, DialogConfirmActionFragment.DialogConfirmActionFragmentListener, SeleccionarProvinciasDialog.SeleccionarProvinciasDialogListener, SeleccionarMunicipioDialog.SeleccionarMunicipioDialogListener, SeleccionarDeporteDialog.SeleccionarDeporteDialogListener {
 
     // Interficie de llamadas a la APIRest gestionada por Retrofit
     private ApiRest apiRest;
@@ -347,6 +348,11 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
         }
     }
 
+    @Override
+    public void accionSeleccionada(boolean accion) {
+        if (accion) crearCuenta();
+    }
+
     private void obtenerDeportes() {
         Call<List<Deporte>> peticionRestDeportes = apiRest.getDeportes();
         peticionRestDeportes.enqueue(new Callback<List<Deporte>>() {
@@ -456,89 +462,94 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
         int id = item.getItemId();
         if (id == R.id.toolbar_crear_cuenta) {
             if (validarFormularioRegistro()) {
-                // Obtenemos token proporcionado por Firebase que identifica el dispositivo a la hora de recibir notificaciones
-                String tokenFireBase = FirebaseInstanceId.getInstance().getToken();
-                List<Long> idDeportesFavoritos = obtenerIdDeportesSeleccionados();
-                progressBar.setVisibility(View.VISIBLE);
-                UsuarioRegistroPeticion datosRegistro = new UsuarioRegistroPeticion(etNombre.getText().toString(), etApellidos.getText().toString(), etUsername.getText().toString(), etCorreo.getText().toString(), etPassword1.getText().toString(), tokenFireBase, municipios.get(municipioActual).getId(), idDeportesFavoritos);
-                Call<UsuarioRegistroRespuesta> peticionRest = apiRest.registrar(datosRegistro);
-                peticionRest.enqueue(new Callback<UsuarioRegistroRespuesta>() {
-                    @Override
-                    public void onResponse(Call<UsuarioRegistroRespuesta> call, Response<UsuarioRegistroRespuesta> response) {
-                        if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
-                            UsuarioRegistroRespuesta dadesResposta = response.body();
-                            // Guardamos datos de la respuesta, que identifican al usuario actual logeado
-                            UsuarioActual.getInstance().setId(Objects.requireNonNull(dadesResposta).getId());
-                            UsuarioActual.getInstance().setMail(dadesResposta.getEmail());
-                            UsuarioActual.getInstance().setUsername(dadesResposta.getUsername());
-                            // Si al realizar el registro se ha seleccionado una imagen de la cámara o galería
-                            if (esNuevaImagen) {
-                                try {
-                                    // Obtenemos la imagen del dispositivo
-                                    File imageFile = ImageUtil.decodeImage(getRealPathFromURIPath(pathImagenPerfil, Registro.this), getApplicationContext());
-                                    RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), Objects.requireNonNull(imageFile));
-                                    MultipartBody.Part body = MultipartBody.Part.createFormData("file", imageFile.getName(), reqFile);
-                                    Call<Imagen> peticionRest = apiRest.subirImagenUsuario(body);
-                                    peticionRest.enqueue(new Callback<Imagen>() {
-                                        @Override
-                                        public void onResponse(Call<Imagen> call, Response<Imagen> response) {
-                                            if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
-                                                Intent principal = new Intent(getApplicationContext(), Principal.class);
-                                                // Eliminamos de la pila todas las actividades
-                                                principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                                progressBar.setVisibility(View.GONE);
-                                                startActivity(principal);
-                                                finish();
-                                            } else {
-                                                try {
-                                                    JSONObject jObjError = new JSONObject(Objects.requireNonNull(response.errorBody()).string());
-                                                    SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), jObjError.getString(getString(R.string.error_server_message)), Snackbar.LENGTH_LONG, true);
-                                                    progressBar.setVisibility(View.GONE);
-                                                } catch (Exception e) {
-                                                    progressBar.setVisibility(View.GONE);
-                                                    Log.e(getString(R.string.log_error), e.getMessage());
-                                                }
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onFailure(Call<Imagen> call, Throwable t) {
-                                            Log.e(getString(R.string.log_error), t.getMessage());
-                                            progressBar.setVisibility(View.GONE);
-                                        }
-                                    });
-                                } catch (Exception e) {
-                                    Log.e(getString(R.string.log_error), e.getMessage());
-                                    progressBar.setVisibility(View.INVISIBLE);
-                                }
-                            } else {
-                                Intent principal = new Intent(getApplicationContext(), Principal.class);
-                                // Eliminamos de la pila todas las actividades
-                                principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                progressBar.setVisibility(View.GONE);
-                                startActivity(principal);
-                            }
-                        } else {
-                            try {
-                                JSONObject jObjError = new JSONObject(Objects.requireNonNull(response.errorBody()).string());
-                                SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), jObjError.getString(getString(R.string.error_server_message)), Snackbar.LENGTH_LONG, true);
-                                progressBar.setVisibility(View.GONE);
-                            } catch (Exception e) {
-                                progressBar.setVisibility(View.GONE);
-                                Log.e(getString(R.string.log_error), e.getMessage());
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<UsuarioRegistroRespuesta> call, Throwable t) {
-                        Log.e(getString(R.string.log_error), t.getMessage());
-                        progressBar.setVisibility(View.INVISIBLE);
-                    }
-                });
+                DialogConfirmActionFragment accion = new DialogConfirmActionFragment(getString(R.string.registro_dialog_registrar_usuario_titulo), getString(R.string.registro_dialog_registrar_usuario_contenido));
+                accion.show(Registro.this.getFragmentManager(), "");
             }
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void crearCuenta() {
+        // Obtenemos token proporcionado por Firebase que identifica el dispositivo a la hora de recibir notificaciones
+        String tokenFireBase = FirebaseInstanceId.getInstance().getToken();
+        List<Long> idDeportesFavoritos = obtenerIdDeportesSeleccionados();
+        progressBar.setVisibility(View.VISIBLE);
+        UsuarioRegistroPeticion datosRegistro = new UsuarioRegistroPeticion(etNombre.getText().toString(), etApellidos.getText().toString(), etUsername.getText().toString(), etCorreo.getText().toString(), etPassword1.getText().toString(), tokenFireBase, municipios.get(municipioActual).getId(), idDeportesFavoritos);
+        Call<UsuarioRegistroRespuesta> peticionRest = apiRest.registrar(datosRegistro);
+        peticionRest.enqueue(new Callback<UsuarioRegistroRespuesta>() {
+            @Override
+            public void onResponse(Call<UsuarioRegistroRespuesta> call, Response<UsuarioRegistroRespuesta> response) {
+                if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
+                    UsuarioRegistroRespuesta dadesResposta = response.body();
+                    // Guardamos datos de la respuesta, que identifican al usuario actual logeado
+                    UsuarioActual.getInstance().setId(Objects.requireNonNull(dadesResposta).getId());
+                    UsuarioActual.getInstance().setMail(dadesResposta.getEmail());
+                    UsuarioActual.getInstance().setUsername(dadesResposta.getUsername());
+                    // Si al realizar el registro se ha seleccionado una imagen de la cámara o galería
+                    if (esNuevaImagen) {
+                        try {
+                            // Obtenemos la imagen del dispositivo
+                            File imageFile = ImageUtil.decodeImage(getRealPathFromURIPath(pathImagenPerfil, Registro.this), getApplicationContext());
+                            RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), Objects.requireNonNull(imageFile));
+                            MultipartBody.Part body = MultipartBody.Part.createFormData("file", imageFile.getName(), reqFile);
+                            Call<Imagen> peticionRest = apiRest.subirImagenUsuario(body);
+                            peticionRest.enqueue(new Callback<Imagen>() {
+                                @Override
+                                public void onResponse(Call<Imagen> call, Response<Imagen> response) {
+                                    if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
+                                        Intent principal = new Intent(getApplicationContext(), Principal.class);
+                                        // Eliminamos de la pila todas las actividades
+                                        principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                        progressBar.setVisibility(View.GONE);
+                                        startActivity(principal);
+                                        finish();
+                                    } else {
+                                        try {
+                                            JSONObject jObjError = new JSONObject(Objects.requireNonNull(response.errorBody()).string());
+                                            SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), jObjError.getString(getString(R.string.error_server_message)), Snackbar.LENGTH_LONG, true);
+                                            progressBar.setVisibility(View.GONE);
+                                        } catch (Exception e) {
+                                            progressBar.setVisibility(View.GONE);
+                                            Log.e(getString(R.string.log_error), e.getMessage());
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<Imagen> call, Throwable t) {
+                                    Log.e(getString(R.string.log_error), t.getMessage());
+                                    progressBar.setVisibility(View.GONE);
+                                }
+                            });
+                        } catch (Exception e) {
+                            Log.e(getString(R.string.log_error), e.getMessage());
+                            progressBar.setVisibility(View.INVISIBLE);
+                        }
+                    } else {
+                        Intent principal = new Intent(getApplicationContext(), Principal.class);
+                        // Eliminamos de la pila todas las actividades
+                        principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        progressBar.setVisibility(View.GONE);
+                        startActivity(principal);
+                    }
+                } else {
+                    try {
+                        JSONObject jObjError = new JSONObject(Objects.requireNonNull(response.errorBody()).string());
+                        SnackbarUtil.showSnackBar(findViewById(R.id.login_snackbar), jObjError.getString(getString(R.string.error_server_message)), Snackbar.LENGTH_LONG, true);
+                        progressBar.setVisibility(View.GONE);
+                    } catch (Exception e) {
+                        progressBar.setVisibility(View.GONE);
+                        Log.e(getString(R.string.log_error), e.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UsuarioRegistroRespuesta> call, Throwable t) {
+                Log.e(getString(R.string.log_error), t.getMessage());
+                progressBar.setVisibility(View.INVISIBLE);
+            }
+        });
     }
 
     // Se obtienen los identificadores de los deportes seleccionados
@@ -630,5 +641,6 @@ public class Registro extends AppCompatActivity implements View.OnClickListener,
         etPassword2.addTextChangedListener(new CustomTextWatcher(tilPassword2));
         etDeportes.addTextChangedListener(new CustomTextWatcher(tilDeportes));
     }
+
 
 }
