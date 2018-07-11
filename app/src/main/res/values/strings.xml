@@ -58,7 +58,7 @@
     <string name="registro_dialog_registrar_usuario_contenido">¿Desea crear el usuario con los datos introducidos?</string>
 
     //Principal
-    <string name="no_resultados_busqueda_inicial">No se han encontrado resultados que se ajusten a sus preferencias por defecto. Puede modificar dichas preferencias accediendo a su perfil.</string>
+    <string name="no_resultados_busqueda_inicial">No se han encontrado coincidencias de sus categorías deportivas favoritas en su municipio. Para realizar una búsqueda nueva utilice los filtros del buscador de eventos. </string>
     <string name="no_resultados_busqueda">No se han encontrado resultados.</string>
 
     // Crear evento
@@ -145,20 +145,22 @@
     <string name="registro_dialog_eliminar_usuario_titulo">Eliminar participante</string>
     <string name="registro_dialog_eliminar_usuario_contenido">¿Desea eliminar al participante del evento?</string>
 
+    // Desapuntar evento
+    <string name="registro_dialog_desapuntar_evento_titulo">Desapuntar evento</string>
+    <string name="registro_dialog_desapuntar_evento_contenido">¿Desea realmente desapuntarse del evento?</string>
 
+    // Apuntarse al evento
+    <string name="registro_dialog_registrarse_evento_titulo">Registro evento</string>
+    <string name="registro_dialog_registrarse_evento_contenido">¿Desea realmente registrarse en el evento?</string>
 
+    // Mis eventos
+    <string name="mis_eventos_error_eventos_registrados">Error al obtener los eventos registrados</string>
+    <string name="mis_eventos_desapuntar_evento">Has sido desapuntado del evento</string>
+    <string name="mis_eventos_suspender_evento">El evento ha sido suspendido</string>
+    <string name="mis_eventos_error_suspender_evento">Error al suspender el evento</string>
 
-
-
-
-
-
-
-
-
-
-
-
+    // Foro
+    <string name="foro_escriba_su_mensaje">Escriba su mensaje …</string>
 
 
     // String menú principal
@@ -183,8 +185,6 @@
     <string name="toolbar_editar_perfil">Editar</string>
 
 
-
-
     // Toolbar crear cuenta
     <string name="toolbar_crear_cuenta">Registrar</string>
 
@@ -204,7 +204,6 @@
     <string name="tab_evento_ubicacion">Ubicación</string>
 
 
-
     // Tab títulos eventos usuario
     <string name="eventos_creados">Eventos creados</string>
     <string name="eventos_registrado">Eventos registrado</string>
@@ -213,7 +212,6 @@
     <string name="crear_evento_principal">Crear Evento</string>
     <string name="crear_vento_menu">Crear</string>
     <string name="title_activity_mis_eventos">MisEventos</string>
-
 
 
 </resources>

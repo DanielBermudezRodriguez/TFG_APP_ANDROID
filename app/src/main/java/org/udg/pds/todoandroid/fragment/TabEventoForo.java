@@ -2,6 +2,7 @@ package org.udg.pds.todoandroid.fragment;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -28,9 +29,11 @@ import org.udg.pds.todoandroid.entity.MensajeForo;
 import org.udg.pds.todoandroid.entity.UsuarioActual;
 import org.udg.pds.todoandroid.util.Global;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 
 
 @SuppressLint("ValidFragment")
@@ -69,13 +72,13 @@ public class TabEventoForo extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.tab_foro_evento, container, false);
 
         layoutForo = rootView.findViewById(R.id.layout_foro);
         foroPrivado = rootView.findViewById(R.id.tab_foro_evento_privado);
 
-        if (!evento.getForo().getEsPublico() && !((EventoDetalle) getActivity()).esParticipante()) {
+        if (!evento.getForo().getEsPublico() && getActivity() != null && !((EventoDetalle) getActivity()).esParticipante()) {
             layoutForo.setVisibility(View.GONE);
             foroPrivado.setVisibility(View.VISIBLE);
         } else {
@@ -86,7 +89,7 @@ public class TabEventoForo extends Fragment {
         ((EventoDetalle) getActivity()).actualizarVisibilidadBotonRegistroParticipantes();
 
         mensajeAdapter = new MensajeForoAdapter(getActivity().getApplicationContext());
-        listaMensajes = (ListView) rootView.findViewById(R.id.messages_view);
+        listaMensajes = rootView.findViewById(R.id.messages_view);
         listaMensajes.setAdapter(mensajeAdapter);
 
         // Obtener nombre de usuario
@@ -95,13 +98,13 @@ public class TabEventoForo extends Fragment {
         nombreSala = Global.PREFIJO_SALA_FORO_EVENTO + evento.getId().toString();
 
         tilMensaje = rootView.findViewById(R.id.tab_foro_evento_til_mensaje);
-        editText = (EditText) rootView.findViewById(R.id.editText);
+        editText = rootView.findViewById(R.id.editText);
         botonEnviar = rootView.findViewById(R.id.boton_enviar_mensaje_foro);
         botonEnviar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String message = editText.getText().toString();
-                tilMensaje.getEditText().setText("");
+                Objects.requireNonNull(tilMensaje.getEditText()).setText("");
                 sendMessage(v, message);
             }
         });
@@ -119,12 +122,13 @@ public class TabEventoForo extends Fragment {
                 Iterator i = dataSnapshot.getChildren().iterator();
 
                 while (i.hasNext()) {
+                    String fecha = ((DataSnapshot) i.next()).getValue().toString();
                     Long idUsuario = Long.parseLong(((DataSnapshot) i.next()).getValue().toString());
                     String mensajeUsuario = ((DataSnapshot) i.next()).getValue().toString();
                     String nombreUsuario = ((DataSnapshot) i.next()).getValue().toString();
 
 
-                    DatosUsuarioForo datosUsuarioForo = new DatosUsuarioForo(nombreUsuario, idUsuario);
+                    DatosUsuarioForo datosUsuarioForo = new DatosUsuarioForo(nombreUsuario, idUsuario,fecha);
                     boolean esUsuarioActual = nombreUsuario.equals(username);
                     final MensajeForo mensajeForo = new MensajeForo(mensajeUsuario, datosUsuarioForo, esUsuarioActual);
                     getActivity().runOnUiThread(new Runnable() {
@@ -144,12 +148,13 @@ public class TabEventoForo extends Fragment {
                 Iterator i = dataSnapshot.getChildren().iterator();
 
                 while (i.hasNext()) {
+                    String fecha = ((DataSnapshot) i.next()).getValue().toString();
                     Long idUsuario = Long.parseLong(((DataSnapshot) i.next()).getValue().toString());
                     String mensajeUsuario = ((DataSnapshot) i.next()).getValue().toString();
                     String nombreUsuario = ((DataSnapshot) i.next()).getValue().toString();
 
 
-                    DatosUsuarioForo datosUsuarioForo = new DatosUsuarioForo(nombreUsuario, idUsuario);
+                    DatosUsuarioForo datosUsuarioForo = new DatosUsuarioForo(nombreUsuario, idUsuario,fecha);
                     boolean esUsuarioActual = nombreUsuario.equals(username);
                     final MensajeForo mensajeForo = new MensajeForo(mensajeUsuario, datosUsuarioForo, esUsuarioActual);
                     getActivity().runOnUiThread(new Runnable() {
@@ -191,20 +196,22 @@ public class TabEventoForo extends Fragment {
     public void sendMessage(View view, String message) {
         if (message.length() > 0) {
             // Al hacer click botón enviar mensaje
-            Map<String, Object> mapa = new HashMap<String, Object>();
+            Map<String, Object> mapa = new HashMap<>();
             String tempKey = salaForo.push().getKey();
             salaForo.updateChildren(mapa);
 
             DatabaseReference mensajeSala = salaForo.child(tempKey);
-            Map<String, Object> mapa2 = new HashMap<String, Object>();
+            Calendar fecha = Calendar.getInstance();
+            Map<String, Object> mapa2 = new HashMap<>();
             mapa2.put("name", username);
             mapa2.put("msg", message);
             mapa2.put("id", UsuarioActual.getInstance().getId().toString());
+            mapa2.put("date",fecha.get(Calendar.HOUR_OF_DAY) + ":" + fecha.get(Calendar.MINUTE));
             mensajeSala.updateChildren(mapa2);
 
-            tilMensaje.getEditText().setText("");
+            Objects.requireNonNull(tilMensaje.getEditText()).setText("");
         }
-        tilMensaje.getEditText().setText("");
+        Objects.requireNonNull(tilMensaje.getEditText()).setText("");
     }
 
 

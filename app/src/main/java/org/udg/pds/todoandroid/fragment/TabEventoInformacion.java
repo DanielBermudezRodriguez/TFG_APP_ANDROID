@@ -65,7 +65,7 @@ public class TabEventoInformacion extends Fragment implements View.OnClickListen
                 public void run() {
                     obtenerDatosEvento();
                 }
-            }, 500);
+            }, 100);
 
         }
     }
@@ -142,6 +142,25 @@ public class TabEventoInformacion extends Fragment implements View.OnClickListen
                     evento = response.body();
 
                     if (evento != null) {
+
+
+                        tituloEvento.setText(evento.getTitulo());
+                        descripcionEvento.setText(evento.getDescripcion());
+                        deporteEvento.setText(evento.getDeporte().getDeporte());
+                        municipioEvento.setText(evento.getMunicipio().getMunicipio());
+
+                        // Número de participantes ilimitados
+                        if (evento.getNumeroParticipantes() == 0) {
+                            participantesEvento.setText(String.valueOf(evento.getParticipantesRegistrados()) + " " + evento.getEstado().getEstado());
+                        } else
+                            participantesEvento.setText(String.valueOf(evento.getParticipantesRegistrados()) + "/" + evento.getNumeroParticipantes() + " " + evento.getEstado().getEstado());
+                        // Duración evento ilimitada
+                        if (evento.getDuracion() == 0) {
+                            duracionEvento.setText(getString(R.string.informacion_evento_duracion_ilimitada));
+                        } else
+                            duracionEvento.setText(String.valueOf(evento.getDuracion()) + " " + getString(R.string.informacion_evento_duracion_minutos));
+                        fechaEvento.setText(DateUtil.parseData(evento.getFechaEvento()));
+
                         if (getActivity() != null) {
                             // Obtener nombre imagen evento actual para completar la URL
                             final Call<String> nombreImagen = apiRest.nombreImagenEvento(evento.getId());
@@ -161,23 +180,6 @@ public class TabEventoInformacion extends Fragment implements View.OnClickListen
                                 }
                             });
                         }
-
-                        tituloEvento.setText(evento.getTitulo());
-                        descripcionEvento.setText(evento.getDescripcion());
-                        deporteEvento.setText(evento.getDeporte().getDeporte());
-                        municipioEvento.setText(evento.getMunicipio().getMunicipio());
-
-                        // Número de participantes ilimitados
-                        if (evento.getNumeroParticipantes() == 0) {
-                            participantesEvento.setText(String.valueOf(evento.getParticipantesRegistrados()) + " " + evento.getEstado().getEstado());
-                        } else
-                            participantesEvento.setText(String.valueOf(evento.getParticipantesRegistrados()) + "/" + evento.getNumeroParticipantes() + " " + evento.getEstado().getEstado());
-                        // Duración evento ilimitada
-                        if (evento.getDuracion() == 0) {
-                            duracionEvento.setText(getString(R.string.informacion_evento_duracion_ilimitada));
-                        } else
-                            duracionEvento.setText(String.valueOf(evento.getDuracion()) + " " + getString(R.string.informacion_evento_duracion_minutos));
-                        fechaEvento.setText(DateUtil.parseData(evento.getFechaEvento()));
                     }
 
                 } else {

@@ -21,6 +21,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.json.JSONObject;
@@ -94,6 +95,7 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
         // Inicializamos el servicio de APIRest de retrofit
         apiRest = InitRetrofit.getInstance().getApiRest();
 
+
         // Ponemos el toolbar
         Toolbar toolbar = findViewById(R.id.appbar);
         setSupportActionBar(toolbar);
@@ -122,6 +124,8 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
                 i.putExtra(Global.KEY_SELECTED_EVENT_IS_ADMIN, e.getAdministrador().getId().equals(UsuarioActual.getInstance().getId()));
                 i.putExtra(Global.KEY_SELECTED_EVENT_POSITION, position);
                 startActivityForResult(i, Global.REQUEST_CODE_EVENTO_DETALLE);
+
+
             }
         });
         recycler.setAdapter(adapter);
@@ -299,12 +303,15 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
             public void onResponse(Call<Usuario> call, Response<Usuario> response) {
                 if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
                     Usuario usuario = response.body();
-                    StringBuilder auxURL = new StringBuilder(Global.BASE_URL + "evento?limite=" + String.valueOf(Global.LIMITE_EVENTOS_REQUEST));
-                    for (Deporte d : Objects.requireNonNull(usuario).getDeportesFavoritos()) {
-                        auxURL.append("&deportes=").append(d.getId());
+                    if (usuario != null) {
+                        StringBuilder auxURL = new StringBuilder(Global.BASE_URL + "evento?limite=" + String.valueOf(Global.LIMITE_EVENTOS_REQUEST) + "&municipio=" + usuario.getMunicipio().getId());
+                        for (Deporte d : usuario.getDeportesFavoritos()) {
+                            auxURL.append("&deportes=").append(d.getId());
+                        }
+                        url = auxURL.toString();
+                        obtenerEventos();
                     }
-                    url = auxURL.toString();
-                    obtenerEventos();
+
                 }
             }
 
@@ -423,19 +430,30 @@ public class Principal extends AppCompatActivity implements MenuLateralFragment.
                 }
             });
         }
-        // Cerrar Sesión
+        // Notificaciones usuario
         if (position == 3) {
-            cerrarSesion();
+            Intent i = new Intent(getApplicationContext(), Notificacion.class);
+            startActivity(i);
         }
         // Eventos creados y apuntados del usuario actual
         if (position == 4) {
             Intent i = new Intent(getApplicationContext(), MisEventos.class);
             startActivity(i);
         }
-        // Notificaciones usuario
+        // buscador evento
         if (position == 5) {
-            Intent i = new Intent(getApplicationContext(), Notificacion.class);
-            startActivity(i);
+            onSearchItemSelected();
+
+        }
+        // crear nuevo evento
+        if (position == 6) {
+            crearEvento();
+
+        }
+        // Cerrar Sesión
+        if (position == 7) {
+            cerrarSesion();
+
         }
 
     }

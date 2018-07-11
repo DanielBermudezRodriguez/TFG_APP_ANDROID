@@ -5,12 +5,12 @@ package org.udg.pds.todoandroid.entity;
 public class DatosUsuarioForo {
     private Long id;
     private String name;
-    //private String color;
+    private String date;
 
-    public DatosUsuarioForo(String name, Long id) {
+    public DatosUsuarioForo(String name, Long id, String date) {
         this.name = name;
-        // this.color = color;
         this.id = id;
+        this.date = date;
     }
 
     public DatosUsuarioForo() {
@@ -26,5 +26,17 @@ public class DatosUsuarioForo {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 }

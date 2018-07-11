@@ -260,27 +260,25 @@ public class EventoDetalle extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (isTaskRoot()){
+        if (isTaskRoot()) {
             Intent principal = new Intent(getApplicationContext(), Principal.class);
             // Eliminamos de la pila todas las actividades
             principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(principal);
             finish();
-        }
-        else obtenerInformacionEvento();
+        } else obtenerInformacionEvento();
     }
 
     // Función que define comportamiento del botón "Atras"
     @Override
     public boolean onSupportNavigateUp() {
-        if (isTaskRoot()){
+        if (isTaskRoot()) {
             Intent principal = new Intent(getApplicationContext(), Principal.class);
             // Eliminamos de la pila todas las actividades
             principal.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(principal);
             finish();
-        }
-        else obtenerInformacionEvento();
+        } else obtenerInformacionEvento();
         return false;
     }
 

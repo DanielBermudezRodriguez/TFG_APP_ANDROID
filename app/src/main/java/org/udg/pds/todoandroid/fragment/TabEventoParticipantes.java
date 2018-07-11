@@ -71,7 +71,7 @@ public class TabEventoParticipantes extends Fragment {
                 public void run() {
                     obtenerParticipantesEvento();
                 }
-            }, 500);
+            }, 100);
 
         }
     }

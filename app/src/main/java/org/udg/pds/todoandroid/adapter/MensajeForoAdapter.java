@@ -1,5 +1,6 @@
 package org.udg.pds.todoandroid.adapter;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
@@ -30,8 +31,8 @@ import retrofit2.Response;
 public class MensajeForoAdapter extends BaseAdapter {
 
 
-    List<MensajeForo> messages = new ArrayList<MensajeForo>();
-    Context context;
+    private List<MensajeForo> messages = new ArrayList<MensajeForo>();
+    private Context context;
     private ApiRest apiRest;
 
     public MensajeForoAdapter(Context context) {
@@ -61,25 +62,29 @@ public class MensajeForoAdapter extends BaseAdapter {
     }
 
 
+    @SuppressLint("InflateParams")
     @Override
     public View getView(int i, View convertView, ViewGroup viewGroup) {
         final MessageViewHolder holder = new MessageViewHolder();
         LayoutInflater messageInflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         final MensajeForo message = messages.get(i);
 
-        if (message.isBelongsToCurrentUser()) {
+        if (message.isBelongsToCurrentUser() && messageInflater != null) {
             convertView = messageInflater.inflate(R.layout.tab_foro_evento_mensaje_propio, null);
             holder.messageBody = convertView.findViewById(R.id.message_body);
             convertView.setTag(holder);
             holder.messageBody.setText(message.getText());
-        } else {
+            holder.fecha = convertView.findViewById(R.id.message_body_hour);
+            holder.fecha.setText(message.getData().getDate());
+        } else if (messageInflater != null) {
 
             convertView = messageInflater.inflate(R.layout.tab_foro_evento_mensaje_alieno, null);
             holder.avatarForo = convertView.findViewById(R.id.avatar_foro);
             holder.name = convertView.findViewById(R.id.name);
             holder.messageBody = convertView.findViewById(R.id.message_body);
             convertView.setTag(holder);
-
+            holder.fecha = convertView.findViewById(R.id.message_body_hour);
+            holder.fecha.setText(message.getData().getDate());
             holder.name.setText(message.getData().getName());
             holder.messageBody.setText(message.getText());
             // Obtener nombre imagen usuario actual para completar la URL
@@ -107,7 +112,8 @@ public class MensajeForoAdapter extends BaseAdapter {
     class MessageViewHolder {
         public ImageView avatarForo;
         public TextView name;
-        public TextView messageBody;
+        TextView messageBody;
+        TextView fecha;
     }
 
 }

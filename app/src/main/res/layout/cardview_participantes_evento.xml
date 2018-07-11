@@ -27,8 +27,7 @@
             android:layout_marginTop="4dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            card_view:srcCompat="@mipmap/ic_duracion_evento" />
+            app:layout_constraintTop_toTopOf="parent" />
 
 
         <TextView

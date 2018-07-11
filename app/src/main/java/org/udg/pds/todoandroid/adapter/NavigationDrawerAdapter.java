@@ -1,7 +1,6 @@
 package org.udg.pds.todoandroid.adapter;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -10,11 +9,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
-
 import org.udg.pds.todoandroid.R;
-import org.udg.pds.todoandroid.entity.UsuarioActual;
-import org.udg.pds.todoandroid.util.Global;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,7 +22,7 @@ public class NavigationDrawerAdapter extends BaseAdapter {
 
     public NavigationDrawerAdapter(Context context) {
         this.mContext = context;
-        String[] secciones = {"Perfil", "Modificar perfil", "Cerrar sesión", "Mis eventos", "Notificaciones"};
+        String[] secciones = {"Perfil", "Modificar perfil", "Notificaciones", "Mis eventos", "Buscar eventos", "Crear Evento", "Cerrar sesión"};
         seccionesMenuLateral = Arrays.asList(secciones);
     }
 
@@ -54,18 +49,23 @@ public class NavigationDrawerAdapter extends BaseAdapter {
             case 1:
                 return R.mipmap.ic_editar_perfil;
             case 2:
-                return R.mipmap.ic_cerrar_sesion;
+                return R.mipmap.ic_notificaciones;
             case 3:
                 return R.mipmap.ic_eventos_creados;
             case 4:
-                return R.mipmap.ic_notificaciones;
+                return R.mipmap.ic_buscar_eventos_menu_lateral;
+            case 5:
+                return R.mipmap.ic_crear_evento_menu_lateral;
+            case 6:
+                return R.mipmap.ic_cerrar_sesion;
+
         }
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         DrawerHolder drawerHolder;
-        if(convertView == null) {
+        if (convertView == null) {
             drawerHolder = new DrawerHolder();
             convertView = new DrawerView(mContext);
             drawerHolder.titleTextView = convertView.findViewById(R.id.title_text_view);
@@ -119,16 +119,6 @@ public class NavigationDrawerAdapter extends BaseAdapter {
             }
         }
 
-        private void highlighCell(boolean checked) {
-            Resources resources = getResources();
-            if (resources != null) {
-                if (checked) {
-                    layout.setBackgroundColor(resources.getColor(R.color.color_fondo));
-                } else {
-                    layout.setBackgroundColor(resources.getColor(android.R.color.white));
-                }
-            }
-        }
 
         @Override
         public void setTag(Object tag) {
@@ -143,14 +133,13 @@ public class NavigationDrawerAdapter extends BaseAdapter {
         @Override
         public void setChecked(boolean checked) {
             isChecked = checked;
-            highlighCell(checked);
+
 
         }
 
         @Override
         public void toggle() {
             this.isChecked = !this.isChecked;
-            highlighCell(isChecked);
         }
     }
 }

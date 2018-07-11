@@ -1,23 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingVertical="10dp"
-    android:paddingRight="15dp"
-    android:paddingLeft="60dp"
-    android:clipToPadding="false">
+    android:clipToPadding="false"
+    android:padding="10dp"
+    android:paddingEnd="15dp"
+    android:paddingStart="60dp">
 
     <TextView
+        android:id="@+id/message_body"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/message_body"
+        android:layout_toStartOf="@id/message_body_hour"
         android:background="@drawable/mensaje_propio_foro_evento"
-        android:textColor="#fff"
-        android:padding="10dp"
         android:elevation="2dp"
-        android:textSize="18dp"
-        android:layout_alignParentRight="true"
-        android:text="Placeholder message"
-        />
+        android:padding="10dp"
+        android:textColor="#fff"
+        android:textSize="18sp"
+        tools:text="Placeholder message" />
+
+    <TextView
+        android:id="@+id/message_body_hour"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="10dp"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="14sp"
+        tools:text="15:00" />
+
 
 </RelativeLayout>

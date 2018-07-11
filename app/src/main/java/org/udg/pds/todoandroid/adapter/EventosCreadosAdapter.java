@@ -38,14 +38,6 @@ public class EventosCreadosAdapter extends RecyclerView.Adapter<EventosCreadosAd
     private EventosCreadosAdapter.OnItemClickListener mOnItemClickListener;
     private ApiRest apiRest;
 
-    public void actualizarEventos(List<Evento> eventosCreados) {
-        if (eventos == null || eventos.size() == 0)
-            return;
-        if (eventos != null && eventos.size() > 0)
-            eventos.clear();
-        eventos.addAll(eventosCreados);
-        notifyDataSetChanged();
-    }
 
     public interface OnItemClickListener {
         public void visualizardetalleEvento(Evento e);
