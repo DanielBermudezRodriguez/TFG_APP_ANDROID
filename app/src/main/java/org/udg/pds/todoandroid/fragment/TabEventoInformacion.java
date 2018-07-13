@@ -93,9 +93,15 @@ public class TabEventoInformacion extends Fragment implements View.OnClickListen
         participantesEvento = rootView.findViewById(R.id.tab_evento_informacion_participantes);
         duracionEvento = rootView.findViewById(R.id.tab_evento_informacion_duracion);
 
-        obtenerDatosEvento();
+        //obtenerDatosEvento();
 
         return rootView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        obtenerDatosEvento();
     }
 
     @Override

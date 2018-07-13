@@ -1,9 +1,7 @@
 package org.udg.pds.todoandroid;
 
-import android.app.Activity;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -12,20 +10,16 @@ import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.bumptech.glide.Glide;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import org.udg.pds.todoandroid.activity.EventoDetalle;
-import org.udg.pds.todoandroid.activity.Login;
-import org.udg.pds.todoandroid.activity.Principal;
 import org.udg.pds.todoandroid.entity.Evento;
-import org.udg.pds.todoandroid.entity.UsuarioActual;
 import org.udg.pds.todoandroid.service.ApiRest;
 import org.udg.pds.todoandroid.util.Global;
 import org.udg.pds.todoandroid.util.InitRetrofit;
 
-import java.io.Serializable;
+import java.util.Date;
 import java.util.Map;
 
 import retrofit2.Call;
@@ -88,16 +82,16 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                     Intent intent = new Intent(getApplicationContext(), EventoDetalle.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    intent.putExtra(Global.KEY_SELECTED_EVENT, (Serializable) evento);
+                    intent.putExtra(Global.KEY_SELECTED_EVENT, evento);
                     intent.putExtra(Global.KEY_SELECTED_EVENT_IS_ADMIN, esAdministradorEvento);
 
                     PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent,
                             PendingIntent.FLAG_UPDATE_CURRENT);
 
-                    Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                    Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                     NotificationCompat.Builder notificationBuilder =
                             new NotificationCompat.Builder(getApplicationContext(), NOTIFICATION_CHANNEL_ID + notificationType)
-                                    .setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(),R.mipmap.ic_laurel))
+                                    .setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(), R.mipmap.ic_laurel))
                                     .setSmallIcon(R.mipmap.ic_laurel)
                                     .setContentTitle(data.get("title"))
                                     .setContentText(data.get("message"))
@@ -107,7 +101,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                     NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                     if (notificationManager != null)
-                        notificationManager.notify(0, notificationBuilder.build());
+                        notificationManager.notify( Integer.parseInt(notificationType), notificationBuilder.build());
 
                 }
             }

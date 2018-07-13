@@ -45,10 +45,10 @@ public interface ApiRest {
     Call<GenericId> modificarPerfil(@Body UsuarioModificarPerfil datosModificarPerfil, @Path("idUsuario") Long idUsuario);
 
     @POST("evento")
-    Call<GenericId> crearEvento (@Body EventoCrearPeticion datosEvento);
+    Call<GenericId> crearEvento(@Body EventoCrearPeticion datosEvento);
 
     @PUT("evento/{idUsuario}/{idEvento}")
-    Call<GenericId> modificarEvento (@Body EventoCrearPeticion datosEvento,@Path("idUsuario") Long idUsuario,@Path("idEvento") Long idEvento);
+    Call<GenericId> modificarEvento(@Body EventoCrearPeticion datosEvento, @Path("idUsuario") Long idUsuario, @Path("idEvento") Long idEvento);
 
     @GET("pais")
     Call<List<Pais>> paises();
@@ -82,8 +82,8 @@ public interface ApiRest {
     @GET("ubicacion/{idEvento}")
     Call<Ubicacion> ubicacionEvento(@Path("idEvento") Long idEvento);
 
-    @GET("participante/{idEvento}")
-    Call<List<ParticipanteEvento>> obtenerParticipantesEvento(@Path("idEvento") Long idEvento);
+    @GET("participante/{idEvento}/{tipoParticipantes}")
+    Call<List<ParticipanteEvento>> obtenerParticipantesEvento(@Path("idEvento") Long idEvento, @Path("tipoParticipantes") int tipoParticipantes);
 
     @POST("participante/{idEvento}")
     Call<GenericId> addParticipanteEvento(@Path("idEvento") Long idEvento);
@@ -98,7 +98,7 @@ public interface ApiRest {
     Call<GenericId> logout(@Path("id") Long id);
 
     @GET("usuario/evento/{idUsuario}/{tipoEventos}")
-    Call<List<Evento>> eventosUsuario(@Path("idUsuario") Long idUsuario,@Path("tipoEventos") int tipoEventos);
+    Call<List<Evento>> eventosUsuario(@Path("idUsuario") Long idUsuario, @Path("tipoEventos") int tipoEventos);
 
     @DELETE("evento/{idEvento}")
     Call<GenericId> suspenderEvento(@Path("idEvento") Long idEvento);

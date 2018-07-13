@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.fragment.TabEventosCreados;
+import org.udg.pds.todoandroid.fragment.TabEventosEnCola;
 import org.udg.pds.todoandroid.fragment.TabEventosRegistrado;
 
 public class MisEventos extends AppCompatActivity {
@@ -42,6 +43,7 @@ public class MisEventos extends AppCompatActivity {
         tabLayout = findViewById(R.id.tabs);
 
         mViewPager = findViewById(R.id.container);
+        mViewPager.setOffscreenPageLimit(3);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
@@ -64,6 +66,8 @@ public class MisEventos extends AppCompatActivity {
                     return new TabEventosCreados(tabLayout.getTabAt(position), mSectionsPagerAdapter);
                 case 1:
                     return new TabEventosRegistrado(tabLayout.getTabAt(position), mSectionsPagerAdapter);
+                case 2:
+                    return new TabEventosEnCola(tabLayout.getTabAt(position), mSectionsPagerAdapter);
                 default:
                     return null;
             }
@@ -71,7 +75,7 @@ public class MisEventos extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return 2;
+            return 3;
         }
 
         public View getTabView(int total, String titulo) {

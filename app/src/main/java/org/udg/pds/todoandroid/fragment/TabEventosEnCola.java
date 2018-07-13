@@ -1,6 +1,5 @@
 package org.udg.pds.todoandroid.fragment;
 
-
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -24,7 +23,7 @@ import org.json.JSONObject;
 import org.udg.pds.todoandroid.R;
 import org.udg.pds.todoandroid.activity.EventoDetalle;
 import org.udg.pds.todoandroid.activity.MisEventos;
-import org.udg.pds.todoandroid.adapter.EventosCreadosAdapter;
+import org.udg.pds.todoandroid.adapter.EventosRegistradoAdapter;
 import org.udg.pds.todoandroid.entity.Evento;
 import org.udg.pds.todoandroid.entity.GenericId;
 import org.udg.pds.todoandroid.entity.UsuarioActual;
@@ -42,44 +41,40 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
-public class TabEventosCreados extends Fragment {
+public class TabEventosEnCola extends Fragment {
 
     private ApiRest apiRest;
     private RecyclerView recyclerView;
     private StaggeredGridLayoutManager staggeredGridLayoutManager;
-    private List<Evento> eventosCreados = new ArrayList<>();
-    private EventosCreadosAdapter eventosCreadosAdapter;
-    // identificador del evento a cancelar
-    private Long eventoCancelar;
+    private List<Evento> eventosEnCola = new ArrayList<>();
+    private EventosRegistradoAdapter eventosRegistradoAdapter;
     private TabLayout.Tab tabActual;
     private MisEventos.SectionsPagerAdapter pagerAdapter;
     // Refrescar recyclerview scroll hacia arriba
     private SwipeRefreshLayout swipeRefreshLayout;
 
-    public TabEventosCreados() {
+    public TabEventosEnCola() {
     }
 
     @SuppressLint("ValidFragment")
-    public TabEventosCreados(TabLayout.Tab tabAt, MisEventos.SectionsPagerAdapter mSectionsPagerAdapter) {
+    public TabEventosEnCola(TabLayout.Tab tabAt, MisEventos.SectionsPagerAdapter mSectionsPagerAdapter) {
         tabActual = tabAt;
         pagerAdapter = mSectionsPagerAdapter;
     }
 
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.tab_eventos_creados, container, false);
+        View rootView = inflater.inflate(R.layout.tab_eventos_registrado, container, false);
 
         // Inicializamos el servicio de APIRest de retrofit
         apiRest = InitRetrofit.getInstance().getApiRest();
-        recyclerView = rootView.findViewById(R.id.recyclerview_eventos_creados);
+        recyclerView = rootView.findViewById(R.id.recyclerview_eventos_registrado);
         recyclerView.setHasFixedSize(true);
-
         staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, 1);
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
         if (getActivity() != null)
-            eventosCreadosAdapter = new EventosCreadosAdapter(getActivity().getApplicationContext(), eventosCreados, new EventosCreadosAdapter.OnItemClickListener() {
+            eventosRegistradoAdapter = new EventosRegistradoAdapter(getActivity().getApplicationContext(), eventosEnCola, new EventosRegistradoAdapter.OnItemClickListener() {
 
                 @Override
                 public void visualizardetalleEvento(Evento e) {
@@ -90,14 +85,14 @@ public class TabEventosCreados extends Fragment {
                 }
 
                 @Override
-                public void cancelarEvento(Evento e, int position) {
-                    eventoCancelar = e.getId();
+                public void desapuntarDelEvento(final Evento e, final int position) {
+
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setTitle(getString(R.string.registro_dialog_cancelar_evento_titulo));
-                    builder.setMessage(getString(R.string.registro_dialog_cancelar_evento_contenido))
+                    builder.setTitle(getString(R.string.registro_dialog_desapuntar_evento_titulo));
+                    builder.setMessage(getString(R.string.registro_dialog_desapuntar_evento_contenido))
                             .setPositiveButton(getString(R.string.dialogo_aceptar), new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-                                    suspenderEvento(eventoCancelar);
+                                    desapuntarUsuarioEvento(e.getId(), position);
                                 }
                             })
                             .setNegativeButton(getString(R.string.dialogo_cancelar), new DialogInterface.OnClickListener() {
@@ -106,47 +101,38 @@ public class TabEventosCreados extends Fragment {
                                 }
                             });
                     builder.show();
+
                 }
 
             });
-        recyclerView.setAdapter(eventosCreadosAdapter);
+        recyclerView.setAdapter(eventosRegistradoAdapter);
 
         swipeRefreshLayout = rootView.findViewById(R.id.swipeLayout);
         swipeRefreshLayout.setOnRefreshListener(
                 new SwipeRefreshLayout.OnRefreshListener() {
                     @Override
                     public void onRefresh() {
-                        if (eventosCreados != null)
-                            eventosCreados.clear();
-                        obtenerEventosCreados(false);
+                        if (eventosEnCola != null)
+                            eventosEnCola.clear();
+                        obtenerEventosEnCola();
                     }
                 });
-
-        //obtenerEventosCreados(false);
 
         return rootView;
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        obtenerEventosCreados(false);
-    }
-
-    // codigoTipoEventos = 0 recupera los eventos creados por el usuario actual
-    // codigoTipoEventos = 1 recupera los eventos en que el usuario actual está apuntado
-    private void obtenerEventosCreados(final boolean recargarVista) {
-        final Call<List<Evento>> eventos = apiRest.eventosUsuario(UsuarioActual.getInstance().getId(), Global.CODE_EVENTOS_CREADOS);
+    private void obtenerEventosEnCola() {
+        final Call<List<Evento>> eventos = apiRest.eventosUsuario(UsuarioActual.getInstance().getId(), Global.CODE_EVENTOS_REGISTRADO_EN_COLA);
         eventos.enqueue(new Callback<List<Evento>>() {
             @Override
             public void onResponse(Call<List<Evento>> call, Response<List<Evento>> response) {
                 if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
                     List<Evento> eventos = response.body();
-                    eventosCreados.clear();
+                    eventosEnCola.clear();
                     if (eventos != null)
-                        eventosCreados.addAll(eventos);
-                    updateTabTitle(eventosCreados.size());
-                    eventosCreadosAdapter.notifyDataSetChanged();
+                        eventosEnCola.addAll(eventos);
+                    updateTabTitle(eventosEnCola.size());
+                    eventosRegistradoAdapter.notifyDataSetChanged();
                     swipeRefreshLayout.setRefreshing(false);
 
                 }
@@ -157,31 +143,25 @@ public class TabEventosCreados extends Fragment {
             public void onFailure(Call<List<Evento>> call, Throwable t) {
                 swipeRefreshLayout.setRefreshing(false);
                 Log.e(getString(R.string.log_error), t.getMessage(), t);
+                if (getActivity() != null)
+                    SnackbarUtil.showSnackBar(getActivity().findViewById(android.R.id.content), getString(R.string.mis_eventos_error_eventos_registrados), Snackbar.LENGTH_LONG, true);
             }
         });
     }
 
-
-    private void updateTabTitle(int totalEventosCreados) {
-        if (tabActual == null || tabActual.getCustomView() == null) {
-            if (getActivity() != null)
-                tabActual.setCustomView(pagerAdapter.getTabView(totalEventosCreados, getActivity().getString(R.string.eventos_creados)));
-        } else {
-            TextView totalEventos = tabActual.getCustomView().findViewById(R.id.tab_eventos_creados_total);
-            totalEventos.setText(String.valueOf(totalEventosCreados));
-        }
-
-    }
-
-    private void suspenderEvento(Long idEvento) {
-        final Call<GenericId> suspenderEvento = apiRest.suspenderEvento(idEvento);
+    private void desapuntarUsuarioEvento(Long idEvento, final int position) {
+        final Call<GenericId> suspenderEvento = apiRest.eliminarParticipanteEvento(idEvento, UsuarioActual.getInstance().getId());
         suspenderEvento.enqueue(new Callback<GenericId>() {
             @Override
             public void onResponse(Call<GenericId> call, Response<GenericId> response) {
                 if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
                     if (getActivity() != null)
-                        SnackbarUtil.showSnackBar(getActivity().findViewById(android.R.id.content), getString(R.string.mis_eventos_suspender_evento), Snackbar.LENGTH_LONG, false);
-                    obtenerEventosCreados(true);
+                        SnackbarUtil.showSnackBar(getActivity().findViewById(android.R.id.content), getString(R.string.mis_eventos_desapuntar_evento), Snackbar.LENGTH_LONG, false);
+                    eventosEnCola.remove(position);
+                    recyclerView.removeViewAt(position);
+                    eventosRegistradoAdapter.notifyItemRemoved(position);
+                    eventosRegistradoAdapter.notifyItemRangeChanged(position, eventosEnCola.size());
+                    updateTabTitle(eventosEnCola.size());
 
                 } else
                     try {
@@ -196,11 +176,24 @@ public class TabEventosCreados extends Fragment {
             @Override
             public void onFailure(Call<GenericId> call, Throwable t) {
                 Log.e(getString(R.string.log_error), t.getMessage(), t);
-                if (getActivity() != null)
-                    SnackbarUtil.showSnackBar(getActivity().findViewById(android.R.id.content), getString(R.string.mis_eventos_error_suspender_evento), Snackbar.LENGTH_LONG, true);
             }
         });
     }
 
+    private void updateTabTitle(int totalEventosEnCola) {
+        if (tabActual == null || tabActual.getCustomView() == null) {
+            if (getActivity() != null)
+                tabActual.setCustomView(pagerAdapter.getTabView(totalEventosEnCola, getActivity().getString(R.string.eventos_registrado_en_cola)));
+        } else {
+            TextView totalEventos = tabActual.getCustomView().findViewById(R.id.tab_eventos_creados_total);
+            totalEventos.setText(String.valueOf(totalEventosEnCola));
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        obtenerEventosEnCola();
+    }
 
 }

@@ -200,6 +200,7 @@
     <string name="title_activity_evento_detalle">EventoDetalle</string>
     <string name="tab_evento_informacion">Información</string>
     <string name="tab_evento_participantes">Participantes</string>
+    <string name="tab_evento_participantes_en_cola">En cola</string>
     <string name="tab_evento_foro">Foro</string>
     <string name="tab_evento_ubicacion">Ubicación</string>
 
@@ -207,6 +208,7 @@
     // Tab títulos eventos usuario
     <string name="eventos_creados">Eventos creados</string>
     <string name="eventos_registrado">Eventos registrado</string>
+    <string name="eventos_registrado_en_cola">Eventos en cola</string>
 
 
     <string name="crear_evento_principal">Crear Evento</string>

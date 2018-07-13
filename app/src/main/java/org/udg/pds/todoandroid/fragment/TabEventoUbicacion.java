@@ -58,10 +58,20 @@ public class TabEventoUbicacion extends Fragment {
         mMapView = rootView.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
 
+
+
+
+        return rootView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
         mMapView.onResume(); // mostrat mapa inmediatamente
 
         try {
-            MapsInitializer.initialize(getActivity().getApplicationContext());
+            if (getActivity() != null)
+                MapsInitializer.initialize(getActivity().getApplicationContext());
         } catch (Exception e) {
             Log.e(getString(R.string.log_error), e.getMessage());
         }
@@ -75,9 +85,6 @@ public class TabEventoUbicacion extends Fragment {
 
             }
         });
-
-
-        return rootView;
     }
 
 

@@ -43,6 +43,7 @@ public class Global {
 
     public static final int CODE_EVENTOS_CREADOS = 0;
     public static final int CODE_EVENTOS_REGISTRADO = 1;
+    public static final int CODE_EVENTOS_REGISTRADO_EN_COLA = 2;
 
     public static final Long EVENTO_ABIERTO = 1L;
     public static final Long EVENTO_COMPLETO = 2L;

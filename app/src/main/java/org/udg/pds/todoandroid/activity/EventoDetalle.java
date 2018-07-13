@@ -26,6 +26,7 @@ import org.udg.pds.todoandroid.entity.UsuarioActual;
 import org.udg.pds.todoandroid.fragment.TabEventoForo;
 import org.udg.pds.todoandroid.fragment.TabEventoInformacion;
 import org.udg.pds.todoandroid.fragment.TabEventoParticipantes;
+import org.udg.pds.todoandroid.fragment.TabEventoParticipantesEnCola;
 import org.udg.pds.todoandroid.fragment.TabEventoUbicacion;
 import org.udg.pds.todoandroid.service.ApiRest;
 import org.udg.pds.todoandroid.util.Global;
@@ -119,8 +120,9 @@ public class EventoDetalle extends AppCompatActivity {
 
     }
 
+    // determinamos el valor del botón apuntar desapuntar en función de si es usuario está registrado en el evento como participante o en la lista de espera
     public void obtenerParticipantesEvento() {
-        Call<List<ParticipanteEvento>> peticionRest = apiRest.obtenerParticipantesEvento(eventoActual.getId());
+        Call<List<ParticipanteEvento>> peticionRest = apiRest.obtenerParticipantesEvento(eventoActual.getId(),2);
         peticionRest.enqueue(new Callback<List<ParticipanteEvento>>() {
             @Override
             public void onResponse(Call<List<ParticipanteEvento>> call, Response<List<ParticipanteEvento>> response) {
@@ -187,6 +189,10 @@ public class EventoDetalle extends AppCompatActivity {
 
     public void showSnackBar(String mensaje, Boolean esError) {
         SnackbarUtil.showSnackBar(apuntarParticipanteEvento, mensaje, Snackbar.LENGTH_LONG, esError);
+    }
+
+    public void updateTabs(){
+        mSectionsPagerAdapter.notifyDataSetChanged();
     }
 
     private void eliminarParticipanteEvento() {
@@ -322,8 +328,10 @@ public class EventoDetalle extends AppCompatActivity {
                 case 1:
                     return new TabEventoParticipantes(eventoActual.getId(), eventoActual.getAdministrador().getId());
                 case 2:
-                    return new TabEventoForo(eventoActual);
+                    return new TabEventoParticipantesEnCola(eventoActual.getId(), eventoActual.getAdministrador().getId());
                 case 3:
+                    return new TabEventoForo(eventoActual);
+                case 4:
                     return new TabEventoUbicacion(eventoActual.getId());
                 default:
                     return null;
@@ -332,13 +340,16 @@ public class EventoDetalle extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return 4;
+            return 5;
         }
 
         @Override
         public int getItemPosition(@NonNull Object object) {
             if (object instanceof TabEventoParticipantes) {
                 ((TabEventoParticipantes) object).update(1);
+            }
+            if (object instanceof TabEventoParticipantesEnCola) {
+                ((TabEventoParticipantesEnCola) object).update(2);
             }
             if (object instanceof TabEventoInformacion) {
                 ((TabEventoInformacion) object).update(0);
@@ -359,11 +370,11 @@ public class EventoDetalle extends AppCompatActivity {
     public void actualizarVisibilidadBotonRegistroParticipantes() {
         int tabSelected = tabLayout.getSelectedTabPosition();
 
-        if (tabSelected > 1) {
+        if (tabSelected > 2) {
             apuntarParticipanteEvento.setVisibility(View.GONE);
             desapuntarParticipanteEvento.setVisibility(View.GONE);
         } else if (!esAdministradorEvento) {
-            if ((tabSelected == 0 || tabSelected == 1)) {
+            if ((tabSelected == 0 || tabSelected == 1 || tabSelected == 2)) {
                 if (esParticipante != null && !esParticipante) {
                     apuntarParticipanteEvento.setVisibility(View.VISIBLE);
                     desapuntarParticipanteEvento.setVisibility(View.GONE);

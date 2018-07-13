@@ -42,7 +42,7 @@ import retrofit2.Response;
 
 
 @SuppressLint("ValidFragment")
-public class TabEventoParticipantes extends Fragment {
+public class TabEventoParticipantesEnCola extends Fragment {
 
 
     private RecyclerView recyclerView;
@@ -57,7 +57,7 @@ public class TabEventoParticipantes extends Fragment {
     private Long usuarioDesapuntar;
 
     @SuppressLint("ValidFragment")
-    public TabEventoParticipantes(Long id, Long administrador) {
+    public TabEventoParticipantesEnCola(Long id, Long administrador) {
         this.idEventoActual = id;
         this.administrador = administrador;
     }
@@ -65,7 +65,7 @@ public class TabEventoParticipantes extends Fragment {
 
     // Actualizar información al apuntar o desapuntar un participante del evento
     public void update(int posicion) {
-        if (posicion == 1) {
+        if (posicion == 2) {
             new Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {
@@ -134,7 +134,6 @@ public class TabEventoParticipantes extends Fragment {
                     }
                 });
 
-
         return rootView;
     }
 
@@ -146,7 +145,7 @@ public class TabEventoParticipantes extends Fragment {
 
     public void obtenerParticipantesEvento() {
 
-        Call<List<ParticipanteEvento>> peticionRest = apiRest.obtenerParticipantesEvento(idEventoActual,0);
+        Call<List<ParticipanteEvento>> peticionRest = apiRest.obtenerParticipantesEvento(idEventoActual,1);
         peticionRest.enqueue(new Callback<List<ParticipanteEvento>>() {
             @Override
             public void onResponse(Call<List<ParticipanteEvento>> call, Response<List<ParticipanteEvento>> response) {
