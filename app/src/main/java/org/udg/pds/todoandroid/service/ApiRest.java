@@ -38,11 +38,23 @@ public interface ApiRest {
     @POST("usuario/login")
     Call<UsuarioLoginRespuesta> iniciarSesion(@Body UsuarioLoginPeticion datosPeticion);
 
-    @POST("usuario")
-    Call<UsuarioRegistroRespuesta> registrar(@Body UsuarioRegistroPeticion datosRegistro);
+    @GET("pais")
+    Call<List<Pais>> paises();
+
+    @Multipart
+    @POST("imagen/usuario")
+    Call<Imagen> subirImagenUsuario(@Part MultipartBody.Part file);
+
+    @DELETE("usuario/logout/{id}")
+    Call<GenericId> logout(@Path("id") Long id);
 
     @PUT("usuario/{idUsuario}")
     Call<GenericId> modificarPerfil(@Body UsuarioModificarPerfil datosModificarPerfil, @Path("idUsuario") Long idUsuario);
+
+    @POST("usuario")
+    Call<UsuarioRegistroRespuesta> registrar(@Body UsuarioRegistroPeticion datosRegistro);
+
+
 
     @POST("evento")
     Call<GenericId> crearEvento(@Body EventoCrearPeticion datosEvento);
@@ -50,8 +62,6 @@ public interface ApiRest {
     @PUT("evento/{idUsuario}/{idEvento}")
     Call<GenericId> modificarEvento(@Body EventoCrearPeticion datosEvento, @Path("idUsuario") Long idUsuario, @Path("idEvento") Long idEvento);
 
-    @GET("pais")
-    Call<List<Pais>> paises();
 
     @GET("provincia/{idPais}")
     Call<List<Provincia>> provincias(@Path("idPais") Long idPais);
@@ -65,9 +75,6 @@ public interface ApiRest {
     @POST("ubicacion/usuario")
     Call<GenericId> guardarUbicacionActualUsuario(@Body Ubicacion ubicacion);
 
-    @Multipart
-    @POST("imagen/usuario")
-    Call<Imagen> subirImagenUsuario(@Part MultipartBody.Part file);
 
     @Multipart
     @POST("imagen/evento/{idEvento}")
@@ -94,8 +101,7 @@ public interface ApiRest {
     @GET("evento/{idEvento}")
     Call<Evento> obtenerInformacionEvento(@Path("idEvento") Long idEvento);
 
-    @DELETE("usuario/logout/{id}")
-    Call<GenericId> logout(@Path("id") Long id);
+
 
     @GET("usuario/evento/{idUsuario}/{tipoEventos}")
     Call<List<Evento>> eventosUsuario(@Path("idUsuario") Long idUsuario, @Path("tipoEventos") int tipoEventos);

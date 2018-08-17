@@ -6,8 +6,10 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -150,6 +152,7 @@ public class MenuLateralFragment extends Fragment {
                 // Obtener nombre imagen usuario actual para completar la URL
                 final Call<String> nombreImagen = apiRest.nombreImagenUsuario(UsuarioActual.getInstance().getId());
                 nombreImagen.enqueue(new Callback<String>() {
+                    @RequiresApi(api = Build.VERSION_CODES.M)
                     @Override
                     public void onResponse(Call<String> call, Response<String> response) {
                         if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
@@ -227,6 +230,7 @@ public class MenuLateralFragment extends Fragment {
             imagenPerfil = myHeader.findViewById(R.id.circleView);
             final Call<String> nombreImagen = apiRest.nombreImagenUsuario(UsuarioActual.getInstance().getId());
             nombreImagen.enqueue(new Callback<String>() {
+                @RequiresApi(api = Build.VERSION_CODES.M)
                 @Override
                 public void onResponse(Call<String> call, Response<String> response) {
                     if (response.raw().code() != Global.CODE_ERROR_RESPONSE_SERVER && response.isSuccessful()) {
